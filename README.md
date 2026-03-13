@@ -2,30 +2,44 @@
 
 A modern skill-sharing platform where users can exchange knowledge and learn from each other through a gamified experience.
 
+## Database Models 🗄️
+
+The application uses the following data models:
+
+- **User**: Stores user account info, bio, profile picture, XP, badges, rating, and level
+- **Skill**: User-offered and user-wanted skills  
+- **SwapRequest**: Tracks skill exchange requests with status (pending/accepted/rejected/completed)
+- **Review**: User ratings and comments for completed swaps
+- **UserBadge**: Achievement badges earned through gamification
+
 ## Features ✨
 
-- **User Authentication**: Secure registration and login system
-- **Skill Marketplace**: Browse and discover complementary skills
-- **Smart Matching Algorithm**: AI-powered user matching based on skills and reputation
-- **Swap Requests**: Send and manage skill exchange requests
-- **Real-time Chat**: Direct messaging for swap coordination (WebSocket)
-- **Review System**: Rate and review completed swaps
+- **User Authentication**: Secure registration and login with password hashing
+- **Skill Marketplace**: Browse and discover users offering/wanting specific skills
+- **Smart Matching**: Connect users based on complementary skills
+- **Swap Requests**: Send and manage skill exchange requests with status tracking
+- **Real-time Chat**: Direct messaging with WebSocket support for instant communication
+- **Review System**: Rate and review users after completed swaps
 - **Gamification**: 
-  - XP points system
+  - XP points system for completing swaps
   - Achievement badges
-  - User levels (Beginner → Skilled → Expert → Master)
-  - Rating/reputation tracking
-- **Notifications**: Real-time alerts for new requests and messages
-- **User Profiles**: Customizable profiles with bio and profile picture
+  - User levels: Beginner → Skilled → Expert → Master
+  - Rating and reputation tracking
+- **Notifications**: Stay updated on swap requests and messages
+- **User Profiles**: Customizable profiles with bio and profile picture uploads
+- **Security Features**: CSRF protection, rate limiting, secure session handling
 
 ## Tech Stack 🛠️
 
-- **Backend**: Flask, Flask-Login, Flask-SQLAlchemy, Flask-SocketIO
+- **Backend Framework**: Flask 3.1.2, Flask-Login, Flask-SQLAlchemy
+- **Real-time Communication**: Flask-SocketIO, python-socketio, python-engineio
 - **Database**: SQLite (development), PostgreSQL (production-ready)
-- **Frontend**: HTML, CSS, JavaScript (Jinja2 templates)
-- **Authentication**: Werkzeug Password Hashing
-- **Form Validation**: Flask-WTF with WTForms
-- **Real-time Communication**: Socket.IO (WebSocket)
+- **Frontend**: HTML, CSS, JavaScript with Jinja2 templates
+- **Authentication**: Flask-Login with Werkzeug password hashing
+- **Form Validation**: Flask-WTF, WTForms, email-validator
+- **Security**: CSRF Protection enabled, Rate limiting, Secure session handling
+- **Event Handler**: eventlet
+- **Environment Management**: python-dotenv
 
 ## Setup & Installation 🚀
 
@@ -83,21 +97,28 @@ A modern skill-sharing platform where users can exchange knowledge and learn fro
 
 ```
 Skills-Swap/
-├── app.py                 # Main Flask application
-├── config.py              # Configuration management
-├── extensions.py          # Flask extensions (DB, Login Manager, CSRF)
-├── models.py              # Database models
-├── routes.py              # Application routes
-├── forms.py               # Form validation
-├── utils.py               # Utility functions (matching, XP, badges)
+├── app.py                 # Main Flask application with SocketIO
+├── config.py              # Configuration management (Dev/Prod/Test)
+├── extensions.py          # Flask extensions (DB, Login Manager, CSRF, Limiter)
+├── models.py              # Database models (User, Skill, SwapRequest, Review)
+├── forms.py               # Form validation with Flask-WTF
+├── utils.py               # Utility functions
 ├── test_app.py            # Unit tests
 ├── requirements.txt       # Python dependencies
+├── DEPLOYMENT.md          # Deployment guide
 ├── .env                   # Environment variables (local)
 ├── .env.example          # Environment variables template
-├── .gitignore            # Git ignore file
+│
+├── routes/                # Application blueprints
+│   ├── main.py            # Landing page
+│   ├── auth.py            # Authentication (register, login, logout)
+│   ├── user.py            # User profile management
+│   ├── swap.py            # Skill swap requests and matching
+│   ├── chat.py            # Real-time messaging
+│   └── __init__.py
 │
 ├── static/               # Static files
-│   ├── css/              # Stylesheets
+│   ├── css/              # Stylesheets (style.css, animations.css)
 │   │   ├── style.css
 │   │   └── animations.css
 │   ├── js/               # JavaScript files
@@ -228,10 +249,10 @@ gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:8000 app:app
 
 ## Known Limitations ⚠️
 
-- File upload validation needs hardening for production
-- Real-time chat uses eventlet (not ideal for large scale)
-- No rate limiting implemented
-- No email verification system
+- Real-time chat uses eventlet (not ideal for large scale deployments)
+- No email verification system implemented
+- Profile picture upload limited to 2MB files
+- WebSocket connections limited by single-threaded eventlet worker
 
 ## Future Enhancements 🔮
 
@@ -262,7 +283,7 @@ This project is licensed under the MIT License - see LICENSE file for details.
 
 For issues, suggestions, or questions:
 - Open an issue on GitHub
-- Contact: support@skillswap.com
+- Contact: luckyyyroyyy@gmail.com
 
 ## Changelog 📜
 
