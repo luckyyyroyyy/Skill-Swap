@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto animate-fade-up">
+
+    <!-- Chat Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('user.dashboard') }}"
+               class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-white/10 transition-colors text-lg">
+                ←
+            </a>
+            <div>
+                <h2 class="text-xl font-700">
+                    Chat with <span class="text-gradient">{{ other_user.username }}</span>
+                </h2>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] text-slate-500 font-700 uppercase tracking-widest">Active Swap Session</span>
+                </div>
+            </div>
+        </div>
+        <div class="badge badge-amber hidden sm:flex">
+            ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
+        </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="glass-card rounded-3xl flex flex-col overflow-hidden"
+         style="height: 72vh; box-shadow: var(--shadow-lg);">
+
+        <!-- Messages -->
+        <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
+            {% for message in messages %}
+                {% if message.sender_id == current_user.id %}
+                    <!-- Self -->
+                    <div class="flex justify-end">
+                        <div class="max-w-[72%] space-y-1">
+                            <div class="chat-bubble-self px-5 py-3 text-sm leading-relaxed text-white
+                                        hover:scale-[1.01] transition-transform">
+                                {{ message.message }}
+                            </div>
+                            <div class="text-[10px] text-right text-slate-500 px-2">You</div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Other -->
+                    <div class="flex justify-start gap-2.5">
+                        <div class="avatar shrink-0 mt-1">{{ other_user.username[0]|upper }}</div>
+                        <div class="max-w-[72%] space-y-1">
+                            <div class="chat-bubble-other px-5 py-3 text-sm leading-relaxed text-slate-200
+                                        hover:scale-[1.01] transition-transform">
+                                {{ message.message }}
+                            </div>
+                            <div class="text-[10px] text-slate-500 px-2">{{ other_user.username }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="flex items-center justify-center h-full text-slate-500 text-sm italic">
+                    Start your skill exchange conversation! 👋
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Input Bar -->
+        <div class="chat-input-bar p-4">
+            <form method="POST" class="flex gap-3" id="chat-form">
+                {{ form.csrf_token }}
+                <input type="text" name="content"
+                       placeholder="Share your expertise or ask a question…"
+                       class="form-input flex-1 py-3 rounded-2xl text-sm"
+                       autocomplete="off" required>
+                <button type="submit" class="btn-premium px-5 py-3 text-sm rounded-2xl shrink-0">
+                    Send 📤
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+    document.getElementById('chat-form').addEventListener('submit', () => {
+        setTimeout(() => chatBox.scrollTop = chatBox.scrollHeight, 80);
+    });
+</script>
+
+{% endblock %}

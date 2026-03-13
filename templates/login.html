@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="flex justify-center items-center min-h-[70vh]">
+    <div class="w-full max-w-md animate-scale-in">
+
+        <!-- Card -->
+        <div class="glass-card p-10 rounded-3xl space-y-7 card-shine"
+             style="box-shadow: var(--shadow-lg), var(--shadow-indigo);">
+
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <div class="text-4xl mb-2">👋</div>
+                <h1 class="text-3xl font-800">Welcome Back</h1>
+                <p class="text-slate-400 text-sm">Sign in to continue your learning journey</p>
+            </div>
+
+            <form method="POST" class="space-y-4">
+                {{ form.csrf_token }}
+
+                <div class="space-y-1">
+                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Email</label>
+                    <input type="email" name="email" required
+                           placeholder="you@example.com"
+                           class="form-input">
+                    {% if form.email.errors %}
+                        {% for err in form.email.errors %}
+                            <p class="text-xs text-red-400 mt-1">⚠ {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Password</label>
+                    <input type="password" name="password" required
+                           placeholder="••••••••"
+                           class="form-input">
+                    {% if form.password.errors %}
+                        {% for err in form.password.errors %}
+                            <p class="text-xs text-red-400 mt-1">⚠ {{ err }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-premium w-full py-3.5 text-base mt-2">
+                    Sign In 🚀
+                </button>
+            </form>
+
+            <div class="divider"></div>
+
+            <p class="text-center text-sm text-slate-400">
+                Don't have an account?
+                <a href="{{ url_for('auth.register') }}" class="text-indigo-400 hover:text-indigo-300 font-600 transition-colors ml-1">
+                    Create one free →
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

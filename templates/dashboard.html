@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="space-y-10 animate-fade-up">
+
+    <!-- ====== WELCOME HEADER ====== -->
+    <section class="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div class="space-y-1">
+            <div class="section-label">Dashboard</div>
+            <h1 class="text-4xl md:text-5xl font-800 leading-tight mt-2">
+                Hey, <span class="text-gradient">{{ current_user.username }}</span> 👋
+            </h1>
+            <p class="text-slate-400 text-base mt-1">Ready for your next skill exchange?</p>
+        </div>
+
+        <div class="glass-panel px-6 py-4 flex items-center gap-6 shrink-0">
+            <div class="text-center">
+                <div class="text-xl font-800 text-amber-400">⭐ {{ "%.1f"|format(current_user.rating) }}</div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">{{
+                    current_user.total_reviews }} Reviews</div>
+            </div>
+            <div class="w-px h-8 bg-white/10"></div>
+            <div class="text-center">
+                <div class="text-xl font-800 text-indigo-400">{{ current_user.xp }} XP</div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">Total Points</div>
+            </div>
+            <div class="w-px h-8 bg-white/10"></div>
+            <div class="text-center">
+                <div class="text-xl font-800"
+                    style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ current_user.get_level().split()[0] }}
+                </div>
+                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">Status</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== XP CARD + BADGES ====== -->
+    <section class="grid md:grid-cols-3 gap-6">
+        <!-- XP Progress -->
+        <div class="md:col-span-2 glass-card p-8 rounded-3xl space-y-5 card-shine">
+            <div class="flex items-end justify-between">
+                <div>
+                    <h3 class="font-700 text-lg">XP Progress</h3>
+                    <p class="text-sm text-slate-500 mt-0.5">Current Level: <span class="text-indigo-300 font-600">{{
+                            current_user.get_level() }}</span></p>
+                </div>
+                <div class="text-right">
+                    <span class="text-3xl font-900 text-gradient">{{ current_user.xp }}</span>
+                    <span class="text-xs text-slate-500 font-700 ml-1 uppercase tracking-wide">XP</span>
+                </div>
+            </div>
+
+            <div class="progress-track">
+                <div class="progress-fill" style="width: {{ [current_user.xp % 100, 3]|max }}%;"></div>
+            </div>
+            <div class="flex justify-between text-[10px] font-800 text-slate-600 uppercase tracking-widest">
+                <span>Current</span>
+                <span>Next Rank</span>
+            </div>
+
+            <!-- Mini stats -->
+            <div class="grid grid-cols-3 gap-4 pt-2 border-t border-white/5">
+                {% for icon, val, label in [('🏅', current_user.badges|length, 'Badges'), ('⚡', current_user.xp // 100,
+                'Levels'), ('⭐', current_user.total_reviews, 'Reviews')] %}
+                <div class="text-center">
+                    <div class="text-base">{{ icon }}</div>
+                    <div class="text-lg font-800 mt-0.5">{{ val }}</div>
+                    <div class="text-[10px] text-slate-500 font-600 uppercase tracking-wide">{{ label }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Badges Panel -->
+        <div class="glass-card p-8 rounded-3xl flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-700 text-lg">Badges</h3>
+                <span class="badge badge-amber">{{ current_user.badges|length }} earned</span>
+            </div>
+            <div class="flex flex-wrap gap-3 flex-1">
+                {% for ub in current_user.badges[:6] %}
+                <div class="w-12 h-12 glass-panel flex items-center justify-center text-2xl
+                                hover:scale-115 transition-transform cursor-default hover:bg-white/10"
+                    title="{{ ub.badge.name }}: {{ ub.badge.description }}">
+                    {{ ub.badge.icon }}
+                </div>
+                {% else %}
+                <div class="text-sm text-slate-500 italic">Start swapping to unlock badges!</div>
+                {% endfor %}
+            </div>
+            {% if current_user.badges|length > 6 %}
+            <a href="#badges" class="text-xs text-indigo-400 hover:underline mt-4 block">
+                View all {{ current_user.badges|length }} badges →
+            </a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ====== SKILLS MANAGEMENT ====== -->
+    <section class="grid lg:grid-cols-2 gap-6">
+        <!-- Offers -->
+        <div class="glass-card p-8 rounded-3xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-700">🎯 Skills I Offer</h3>
+                <span class="badge badge-indigo">Mastery</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex gap-2 mb-6">
+                {{ form.csrf_token }}
+                <input type="hidden" name="type" value="offer">
+                <input type="text" name="name" placeholder="Add a skill you offer…" class="form-input flex-1" required>
+                <button type="submit" class="btn-premium px-4 py-2 text-sm rounded-2xl shrink-0">+</button>
+            </form>
+
+            <div class="flex flex-wrap gap-2">
+                {% for skill in offers %}
+                <span class="skill-chip skill-chip-offer">🎯 {{ skill.name }}</span>
+                {% else %}
+                <p class="text-sm text-slate-500 italic">No skills added yet. Share your first skill!</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Wants -->
+        <div class="glass-card p-8 rounded-3xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-700">📚 Skills I Want</h3>
+                <span class="badge badge-pink">Growth</span>
+            </div>
+
+            <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex gap-2 mb-6">
+                {{ form.csrf_token }}
+                <input type="hidden" name="type" value="want">
+                <input type="text" name="name" placeholder="What do you want to learn?" class="form-input flex-1"
+                    style="--tw-ring-color: var(--pink)" required>
+                <button type="submit"
+                    class="px-4 py-2 text-sm rounded-2xl shrink-0 font-700 text-white transition-all hover:brightness-110"
+                    style="background: var(--grad-warm);">+</button>
+            </form>
+
+            <div class="flex flex-wrap gap-2">
+                {% for skill in wants %}
+                <span class="skill-chip skill-chip-want">📚 {{ skill.name }}</span>
+                {% else %}
+                <p class="text-sm text-slate-500 italic">Add skills you want to learn to find matches!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== SUGGESTED MATCHES ====== -->
+    <section>
+        <div class="flex items-center gap-4 mb-7">
+            <h2 class="text-2xl font-800">Suggested <span class="text-gradient">Matches</span></h2>
+            <div class="h-px flex-1 bg-white/5 hidden md:block"></div>
+            <a href="{{ url_for('user.dashboard') }}"
+                class="text-sm font-600 text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+                Discover More →
+            </a>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 stagger">
+            {% for user, score in matches %}
+            <div class="glass-card card-shine p-7 rounded-3xl animate-fade-up hover-glow">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="avatar avatar-lg">{{ user.username[0]|upper }}</div>
+                        <div>
+                            <div class="font-700 text-base">{{ user.username }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ user.get_level() }}</div>
+                        </div>
+                    </div>
+                    <!-- Match Score Ring -->
+                    <div class="text-right">
+                        <div class="text-lg font-900 text-gradient">{{ score }}%</div>
+                        <div class="text-[10px] text-slate-500 uppercase tracking-wider">Match</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mb-5 text-sm text-amber-400">
+                    ⭐ {{ "%.1f"|format(user.rating) }}
+                    <span class="text-slate-600">•</span>
+                    <span class="text-slate-400">{{ user.total_reviews }} reviews</span>
+                </div>
+
+                <!-- Match bar -->
+                <div class="progress-track mb-5" style="height:4px">
+                    <div class="progress-fill" style="width:{{ score }}%"></div>
+                </div>
+
+                <a href="{{ url_for('swap.send_swap', user_id=user.id) }}"
+                    class="btn-premium w-full text-center py-3 text-sm">
+                    Send Swap Request ✉️
+                </a>
+            </div>
+            {% else %}
+            <div class="col-span-full glass-card p-12 rounded-3xl text-center space-y-4">
+                <div class="text-5xl">🔍</div>
+                <p class="text-slate-400">No matching users found for your current skills.</p>
+                <p class="text-sm text-slate-500">Add more skills above to unlock personalized matches!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ====== INBOX / OUTBOX ====== -->
+    <section class="grid lg:grid-cols-2 gap-8 pt-8 border-t border-white/5">
+        <!-- Inbox -->
+        <div>
+            <h2 class="text-xl font-800 mb-5 flex items-center gap-3">
+                <span class="w-1.5 h-7 rounded-full bg-gradient-premium"></span>
+                Inbox
+                {% if received_requests %}
+                <span class="badge badge-indigo">{{ received_requests|length }}</span>
+                {% endif %}
+            </h2>
+            <div class="space-y-3">
+                {% for req in received_requests %}
+                <div class="glass-card p-5 rounded-2xl flex items-center justify-between group transition-all
+                                hover:border-indigo-500/25">
+                    <div class="flex items-center gap-3">
+                        <div class="avatar">{{ req.sender.username[0]|upper }}</div>
+                        <div>
+                            <div class="font-600 text-sm">{{ req.sender.username }}</div>
+                            <div class="text-xs text-slate-500 mt-0.5">Sent a swap request</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 opacity-70 group-hover:opacity-100 transition-opacity">
+                        {% if req.status == "pending" %}
+                        <a href="{{ url_for('swap.accept_swap', swap_id=req.id) }}"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-700
+                                          bg-green-500/10 text-green-400 hover:bg-green-500/25 transition-colors border border-green-500/20">
+                            ✓ Accept
+                        </a>
+                        <a href="{{ url_for('swap.reject_swap', swap_id=req.id) }}"
+                            class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-700
+                                          bg-red-500/10 text-red-400 hover:bg-red-500/25 transition-colors border border-red-500/20">
+                            ✕
+                        </a>
+                        {% elif req.status == "accepted" %}
+                        <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}" class="px-3 py-1.5 rounded-xl text-xs font-700 bg-indigo-500/15 text-indigo-400
+                                          hover:bg-indigo-500/25 transition-colors border border-indigo-500/20">
+                            💬 Chat
+                        </a>
+                        <a href="{{ url_for('swap.complete_swap', swap_id=req.id) }}" class="px-3 py-1.5 rounded-xl text-xs font-700 bg-green-500/15 text-green-400
+                                          hover:bg-green-500/25 transition-colors border border-green-500/20">
+                            ✅ Done
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="glass-card p-6 rounded-2xl text-center text-slate-600 italic text-sm">
+                    No incoming swap requests.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Outbox -->
+        <div>
+            <h2 class="text-xl font-800 mb-5 flex items-center gap-3">
+                <span class="w-1.5 h-7 rounded-full" style="background: var(--grad-warm)"></span>
+                Outbox
+                {% if sent_requests %}
+                <span class="badge badge-pink">{{ sent_requests|length }}</span>
+                {% endif %}
+            </h2>
+            <div class="space-y-3">
+                {% for req in sent_requests %}
+                <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="avatar">{{ req.receiver.username[0]|upper }}</div>
+                        <div>
+                            <div class="font-600 text-sm">{{ req.receiver.username }}</div>
+                            <div class="text-xs text-slate-500 mt-0.5 capitalize">{{ req.status }}</div>
+                        </div>
+                    </div>
+                    <div class="status-dot
+                            {% if req.status == 'pending' %}status-pending
+                            {% elif req.status == 'accepted' %}status-accepted
+                            {% elif req.status == 'completed' %}status-completed
+                            {% else %}status-rejected{% endif %}">
+                    </div>
+                </div>
+                {% else %}
+                <div class="glass-card p-6 rounded-2xl text-center text-slate-600 italic text-sm">
+                    No outgoing swap requests.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== BADGES SECTION ====== -->
+    <section id="badges" class="pt-8 border-t border-white/5">
+        <div class="flex items-center gap-4 mb-7">
+            <h2 class="text-2xl font-800">Achievements & <span class="text-gradient">Badges</span></h2>
+            <div class="h-px flex-1 bg-white/5 hidden md:block"></div>
+        </div>
+
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4 stagger">
+            {% for ub in current_user.badges %}
+            <div class="glass-card p-5 rounded-2xl text-center group hover:border-indigo-500/25
+                            hover-lift animate-fade-up">
+                <div class="text-3xl mb-3 group-hover:scale-125 transition-transform">{{ ub.badge.icon }}</div>
+                <div class="text-[10px] uppercase font-700 tracking-widest text-slate-500
+                                group-hover:text-slate-300 transition-colors">{{ ub.badge.name }}</div>
+            </div>
+            {% else %}
+            <div class="col-span-full glass-panel p-8 text-center text-slate-500 text-sm italic border-dashed">
+                Complete your first swap to unlock exclusive badges! 🚀
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

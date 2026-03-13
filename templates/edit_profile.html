@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-xl mx-auto animate-fade-up">
+    <div class="glass-card p-10 rounded-3xl card-shine">
+
+        <!-- Header -->
+        <div class="space-y-1 mb-8">
+            <div class="section-label">Account</div>
+            <h1 class="text-3xl font-800 mt-2">Edit Profile</h1>
+            <p class="text-slate-400 text-sm">Update your bio and profile picture</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {{ form.csrf_token }}
+
+            <!-- Bio -->
+            <div class="space-y-1.5">
+                <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Bio</label>
+                <textarea name="bio" rows="5"
+                          class="form-input resize-none"
+                          placeholder="Tell others about your expertise and learning goals…">{{ current_user.bio or '' }}</textarea>
+            </div>
+
+            <!-- Profile Picture -->
+            <div class="space-y-2">
+                <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Profile Picture</label>
+                <label class="flex flex-col items-center justify-center gap-3 w-full p-8 text-center cursor-pointer
+                              border-2 border-dashed border-white/15 rounded-2xl
+                              hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all group">
+                    <span class="text-3xl group-hover:scale-110 transition-transform">📸</span>
+                    <div class="space-y-0.5">
+                        <div class="text-sm font-600 text-slate-300">Click to upload image</div>
+                        <div class="text-xs text-slate-500">JPEG or PNG, max 2MB</div>
+                    </div>
+                    <input type="file" name="profile_pic" class="hidden" accept=".jpg,.jpeg,.png">
+                </label>
+            </div>
+
+            <button type="submit" class="btn-premium w-full py-3.5">
+                Save Changes ✓
+            </button>
+        </form>
+
+        <!-- Danger Zone -->
+        <div class="mt-8 pt-6 border-t border-white/5 space-y-4">
+            <div>
+                <h3 class="text-base font-800 text-red-400">Danger Zone</h3>
+                <p class="text-xs text-slate-500 mt-1">This action is permanent and cannot be undone.</p>
+            </div>
+            <form method="POST" action="{{ url_for('user.delete_account') }}"
+                  onsubmit="return confirm('Permanently deactivate your account? This cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit"
+                        class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-700 text-red-400
+                               border border-red-500/25 bg-red-500/8 hover:bg-red-500/20 hover:border-red-500/50
+                               transition-all">
+                    🗑 Delete Account
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show selected filename
+document.querySelector('input[type=file]').addEventListener('change', function(e) {
+    const lbl = this.closest('label');
+    const name = this.files[0]?.name;
+    if (name) lbl.querySelector('.text-sm').textContent = '📁 ' + name;
+});
+</script>
+
+{% endblock %}

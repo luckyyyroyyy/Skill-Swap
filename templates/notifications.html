@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto animate-fade-up space-y-6">
+
+    <div class="flex items-center justify-between">
+        <div class="space-y-1">
+            <div class="section-label">Activity</div>
+            <h1 class="text-3xl font-800 mt-2">🔔 Notifications</h1>
+        </div>
+        {% if notes %}
+            <span class="badge badge-indigo">{{ notes|length }}</span>
+        {% endif %}
+    </div>
+
+    {% for note in notes %}
+        <div class="glass-card p-5 rounded-2xl flex items-start gap-4 hover:border-indigo-500/20 transition-all
+                    {% if not note.is_read %}border-indigo-500/15 bg-indigo-500/3{% endif %}">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0
+                        {% if not note.is_read %}bg-indigo-500/15{% else %}bg-white/5{% endif %}">
+                🔔
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-500 leading-relaxed text-slate-200">{{ note.message }}</p>
+                <p class="text-xs text-slate-500 mt-1">
+                    {{ note.created_at.strftime('%d %b %Y at %H:%M') }}
+                </p>
+            </div>
+            {% if not note.is_read %}
+                <span class="w-2 h-2 bg-indigo-400 rounded-full mt-2 shrink-0 animate-pulse"></span>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="glass-card p-12 rounded-2xl text-center space-y-3">
+            <div class="text-5xl">🔕</div>
+            <p class="text-slate-400 text-sm">No notifications yet.</p>
+            <p class="text-slate-500 text-xs">You'll see swap request updates and activity here.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

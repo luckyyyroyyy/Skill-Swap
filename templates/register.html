@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="flex justify-center items-center min-h-[70vh]">
+    <div class="w-full max-w-md animate-scale-in">
+        <div class="glass-card p-10 rounded-3xl space-y-6 card-shine"
+             style="box-shadow: var(--shadow-lg), var(--shadow-indigo);">
+
+            <!-- Header -->
+            <div class="text-center space-y-2">
+                <div class="text-4xl mb-2">✨</div>
+                <h1 class="text-3xl font-800">Join SkillSwap Pro</h1>
+                <p class="text-slate-400 text-sm">Create your account and start swapping skills today</p>
+            </div>
+
+            <form method="POST" class="space-y-4">
+                {{ form.csrf_token }}
+
+                {% for field_name, field_type, label, placeholder in [
+                    ('username', 'text', 'Username', 'Choose a unique username'),
+                    ('email', 'email', 'Email', 'you@example.com'),
+                    ('password', 'password', 'Password', '••••••••'),
+                    ('confirm_password', 'password', 'Confirm Password', '••••••••')
+                ] %}
+                <div class="space-y-1">
+                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">{{ label }}</label>
+                    <input type="{{ field_type }}" name="{{ field_name }}" required
+                           placeholder="{{ placeholder }}"
+                           class="form-input">
+                    {% set field = form[field_name] %}
+                    {% for err in field.errors %}
+                        <p class="text-xs text-red-400 mt-1">⚠ {{ err }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn-premium w-full py-3.5 text-base mt-2">
+                    Create Account 🎉
+                </button>
+            </form>
+
+            <div class="divider"></div>
+
+            <p class="text-center text-sm text-slate-400">
+                Already have an account?
+                <a href="{{ url_for('auth.login') }}" class="text-indigo-400 hover:text-indigo-300 font-600 transition-colors ml-1">
+                    Sign In →
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

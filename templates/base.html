@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <title>🐦‍🔥 SkillSwap Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="SkillSwap Pro — Trade your skills, grow your mastery. The premium peer knowledge exchange platform.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Scroll-based nav */
+        .nav-scrolled {
+            background: rgba(5, 6, 15, 0.95) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* Flash messages */
+        .flash-enter {
+            animation: fade-up 0.4s var(--ease-out) both;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen text-white overflow-x-hidden relative">
+
+    <!-- ====== AMBIENT BACKGROUND ====== -->
+    <div aria-hidden="true" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="glow-orb orb-primary w-[700px] h-[700px]"
+            style="background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%); top: -15%; left: -15%;">
+        </div>
+        <div class="glow-orb orb-secondary w-[600px] h-[600px]"
+            style="background: radial-gradient(circle, rgba(219,39,119,0.12), transparent 70%); bottom: -10%; right: -10%;">
+        </div>
+        <div class="glow-orb orb-tertiary w-[400px] h-[400px]"
+            style="background: radial-gradient(circle, rgba(8,145,178,0.08), transparent 70%); top: 40%; right: 20%;">
+        </div>
+
+        <!-- Grid overlay -->
+        <div style="
+            position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+        "></div>
+    </div>
+
+    <!-- ====== NAVBAR ====== -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+        <nav id="navbar"
+            class="nav-glass max-w-7xl mx-auto px-5 py-2.5 flex justify-between items-center transition-all duration-300">
+
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2.5 group shrink-0">
+                <div
+                    class="w-9 h-9 rounded-xl bg-gradient-premium flex items-center justify-center text-lg shadow-lg
+                            group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(124,58,237,0.5)] transition-all duration-300">
+                    🐦‍🔥
+                </div>
+                <span class="text-lg font-800 tracking-tight text-gradient hidden sm:block">SkillSwap<span
+                        class="text-white/60 font-400"> Pro</span></span>
+            </a>
+
+            <!-- Center links -->
+            <div class="hidden md:flex items-center gap-1">
+                <a href="/" class="nav-link">Explore</a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('user.dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('swap.my_swaps') }}" class="nav-link">My Swaps</a>
+                {% endif %}
+            </div>
+
+            <!-- Right actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                {% if current_user.is_authenticated %}
+                <!-- Notification Bell -->
+                <a href="{{ url_for('chat.notifications') }}"
+                    class="relative w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/8 transition-all group"
+                    title="Notifications">
+                    <span class="text-base group-hover:scale-110 transition-transform">🔔</span>
+                    {% if unread_count > 0 %}
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full
+                                         shadow-[0_0_8px_rgba(236,72,153,0.9)] animate-pulse"></span>
+                    {% endif %}
+                </a>
+
+                <div class="h-6 w-px bg-white/10 hidden sm:block"></div>
+
+                <!-- XP Badge -->
+                <a href="{{ url_for('user.profile', username=current_user.username) }}" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                              bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20
+                              transition-colors text-indigo-300 font-600 text-sm">
+                    ⚡ {{ current_user.xp }} XP
+                </a>
+
+                <!-- Avatar / Username -->
+                <a href="{{ url_for('user.profile', username=current_user.username) }}"
+                    class="flex items-center gap-2 group">
+                    <div class="avatar hover:ring-2 hover:ring-indigo-500/50 transition-all">
+                        {{ current_user.username[0]|upper }}
+                    </div>
+                </a>
+
+                <a href="{{ url_for('auth.logout') }}"
+                    class="text-xs font-600 text-slate-500 hover:text-red-400 transition-colors hidden sm:block">
+                    Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn-ghost text-sm">Login</a>
+                <a href="{{ url_for('auth.register') }}" class="btn-premium py-2 px-5 text-sm">Join Now</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <!-- ====== FLASH MESSAGES ====== -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-md px-4">
+        {% for category, message in messages %}
+        <div class="flash-enter flex items-center gap-3 px-5 py-3.5 rounded-2xl font-500 text-sm
+                        {% if category == 'danger' %}bg-red-500/10 border border-red-500/30 text-red-300
+                        {% elif category == 'success' %}bg-green-500/10 border border-green-500/30 text-green-300
+                        {% elif category == 'info' %}bg-indigo-500/10 border border-indigo-500/30 text-indigo-300
+                        {% else %}bg-amber-500/10 border border-amber-500/30 text-amber-300{% endif %}
+                        backdrop-blur-md shadow-lg">
+            <span>
+                {% if category == 'danger' %}⛔
+                {% elif category == 'success' %}✅
+                {% elif category == 'info' %}ℹ️
+                {% else %}⚠️{% endif %}
+            </span>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="relative z-10 pt-28 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- ====== FOOTER ====== -->
+    <footer class="relative z-10 mt-auto py-10 px-6 border-t border-white/5">
+        <div
+            class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🐦‍🔥</span>
+                <span class="font-600 text-slate-500">SkillSwap Pro</span>
+            </div>
+            <p>© 2026 SkillSwap Pro. Built for modern learners.</p>
+        </div>
+    </footer>
+
+    <!-- ====== TOAST NOTIFICATION CONTAINER ====== -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[999] flex flex-col gap-3" aria-live="polite"></div>
+
+    <!-- ====== SOCKET IO ====== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script>
+        // ---- Scroll-based navbar effect ----
+        const navbar = document.getElementById('navbar');
+        const onScroll = () => {
+            if (window.scrollY > 20) navbar.classList.add('nav-scrolled');
+            else navbar.classList.remove('nav-scrolled');
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // ---- Toast notification helper ----
+        function showToast(message, type = 'default') {
+            const container = document.getElementById('toast-container');
+            const icons = { default: '🔔', success: '✅', error: '⛔', info: 'ℹ️' };
+            const colors = {
+                default: 'border-indigo-500/30',
+                success: 'border-green-500/30',
+                error: 'border-red-500/30',
+                info: 'border-blue-500/30'
+            };
+            const toast = document.createElement('div');
+            toast.className = `toast ${colors[type] || colors.default}`;
+            toast.innerHTML = `
+                <span class="text-xl shrink-0">${icons[type] || icons.default}</span>
+                <p class="text-sm font-500 flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-white shrink-0 ml-1">✕</button>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.add('show')));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 6000);
+        }
+
+        // ---- Socket.IO ----
+        {% if current_user.is_authenticated %}
+        const socket = io();
+        socket.on('connect', () => {
+            socket.emit('join_personal_room', '{{ current_user.id }}');
+        });
+        socket.on('new_notification', (data) => {
+            showToast(data.message);
+        });
+        {% endif %}
+
+        // ---- Page fade-in ----
+        document.addEventListener('DOMContentLoaded', () => {
+            const main = document.querySelector('main');
+            if (main) {
+                main.style.opacity = '0';
+                main.style.transform = 'translateY(16px)';
+                main.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+                setTimeout(() => {
+                    main.style.opacity = '1';
+                    main.style.transform = 'translateY(0)';
+                }, 80);
+            }
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>
