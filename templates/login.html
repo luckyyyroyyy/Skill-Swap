@@ -5,7 +5,7 @@
     <div class="w-full max-w-md animate-scale-in">
 
         <!-- Card -->
-        <div class="glass-card p-10 rounded-3xl space-y-7 card-shine"
+        <div class="glass-card radial-glow p-10 rounded-3xl space-y-7 card-shine"
              style="box-shadow: var(--shadow-lg), var(--shadow-indigo);">
 
             <!-- Header -->
@@ -42,7 +42,7 @@
                     {% endif %}
                 </div>
 
-                <button type="submit" class="btn-premium w-full py-3.5 text-base mt-2">
+                <button type="submit" class="btn-premium magnetic w-full py-3.5 text-base mt-2">
                     Sign In 🚀
                 </button>
             </form>
@@ -51,7 +51,7 @@
 
             <p class="text-center text-sm text-slate-400">
                 Don't have an account?
-                <a href="{{ url_for('auth.register') }}" class="text-indigo-400 hover:text-indigo-300 font-600 transition-colors ml-1">
+                <a href="{{ url_for('auth.register') }}" class="text-cyan-400 hover:text-cyan-300 font-600 transition-colors ml-1">
                     Create one free →
                 </a>
             </p>

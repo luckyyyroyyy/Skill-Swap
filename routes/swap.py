@@ -6,10 +6,18 @@ from flask_login import login_required, current_user
 from extensions import db
 from models import User, SwapRequest, Review
 from forms import ReviewForm
-from utils import award_xp, update_rating, check_and_award_badges, create_notification, XP_COMPLETE_SWAP, XP_REVIEW
+from utils import (
+    award_xp,
+    update_rating,
+    check_and_award_badges,
+    create_notification,
+    XP_COMPLETE_SWAP,
+    XP_REVIEW,
+)
 
-swap_bp = Blueprint('swap', __name__)
+swap_bp = Blueprint("swap", __name__)
 logger = logging.getLogger(__name__)
+
 
 @swap_bp.route("/send_swap/<int:user_id>")
 @login_required
@@ -26,19 +34,27 @@ def send_swap(user_id):
         existing = SwapRequest.query.filter(
             SwapRequest.sender_id == current_user.id,
             SwapRequest.receiver_id == user_id,
-            SwapRequest.status == "pending"
+            SwapRequest.status == "pending",
         ).first()
 
         if existing:
-            flash("You already have a pending request with this user.", "warning")
+            flash(
+                "You already have a pending request with this user.", "warning"
+            )
             return redirect(url_for("user.dashboard"))
 
-        swap = SwapRequest(sender_id=current_user.id, receiver_id=user_id, status="pending")
+        swap = SwapRequest(
+            sender_id=current_user.id, receiver_id=user_id, status="pending"
+        )
         db.session.add(swap)
         db.session.commit()
 
-        create_notification(user_id, f"{current_user.username} sent you a swap request!")
-        logger.info(f"Swap request sent from {current_user.username} to {recipient.username}")
+        create_notification(
+            user_id, f"{current_user.username} sent you a swap request!"
+        )
+        logger.info(
+            f"Swap request sent from {current_user.username} to {recipient.username}"  # noqa: E501
+        )
         flash("Swap request sent!", "success")
     except Exception as e:
         db.session.rollback()
@@ -46,17 +62,31 @@ def send_swap(user_id):
         flash("An error occurred. Please try again.", "danger")
     return redirect(url_for("swap.my_swaps"))
 
+
 @swap_bp.route("/my_swaps")
 @login_required
 def my_swaps():
     try:
-        received_requests = SwapRequest.query.filter_by(receiver_id=current_user.id).order_by(SwapRequest.created_at.desc()).all()
-        sent_requests = SwapRequest.query.filter_by(sender_id=current_user.id).order_by(SwapRequest.created_at.desc()).all()
-        return render_template("my_swaps.html", received_requests=received_requests, sent_requests=sent_requests)
+        received_requests = (
+            SwapRequest.query.filter_by(receiver_id=current_user.id)
+            .order_by(SwapRequest.created_at.desc())
+            .all()
+        )
+        sent_requests = (
+            SwapRequest.query.filter_by(sender_id=current_user.id)
+            .order_by(SwapRequest.created_at.desc())
+            .all()
+        )
+        return render_template(
+            "my_swaps.html",
+            received_requests=received_requests,
+            sent_requests=sent_requests,
+        )
     except Exception as e:
         logger.error(f"Error loading my_swaps for user {current_user.id}: {e}")
         flash("An error occurred.", "danger")
         return redirect(url_for("user.dashboard"))
+
 
 @swap_bp.route("/accept/<int:swap_id>")
 @login_required
@@ -68,12 +98,16 @@ def accept_swap(swap_id):
         swap.status = "accepted"
         swap.accepted_at = datetime.utcnow()
         db.session.commit()
-        create_notification(swap.sender_id, f"{current_user.username} accepted your swap request!")
+        create_notification(
+            swap.sender_id,
+            f"{current_user.username} accepted your swap request!",
+        )
         flash("Swap accepted! You can now chat with the user.", "success")
-    except Exception as e:
+    except Exception as e:  # noqa: F841
         db.session.rollback()
         flash("An error occurred.", "danger")
     return redirect(url_for("swap.my_swaps"))
+
 
 @swap_bp.route("/reject/<int:swap_id>")
 @login_required
@@ -84,19 +118,26 @@ def reject_swap(swap_id):
             abort(404 if not swap else 403)
         swap.status = "rejected"
         db.session.commit()
-        create_notification(swap.sender_id, f"{current_user.username} rejected your swap request.")
+        create_notification(
+            swap.sender_id,
+            f"{current_user.username} rejected your swap request.",
+        )
         flash("Swap rejected.", "info")
-    except Exception as e:
+    except Exception as e:  # noqa: F841
         db.session.rollback()
         flash("An error occurred.", "danger")
     return redirect(url_for("swap.my_swaps"))
+
 
 @swap_bp.route("/complete/<int:swap_id>")
 @login_required
 def complete_swap(swap_id):
     try:
         swap = db.session.get(SwapRequest, swap_id)
-        if not swap or current_user.id not in [swap.sender_id, swap.receiver_id]:
+        if not swap or current_user.id not in [
+            swap.sender_id,
+            swap.receiver_id,
+        ]:
             abort(404 if not swap else 403)
         if swap.status != "accepted":
             flash("Only accepted swaps can be completed.", "warning")
@@ -108,11 +149,15 @@ def complete_swap(swap_id):
         check_and_award_badges(swap.sender)
         check_and_award_badges(swap.receiver)
         db.session.commit()
-        flash(f"Swap completed! Both users earned {XP_COMPLETE_SWAP} XP 🎉", "success")
-    except Exception as e:
+        flash(
+            f"Swap completed! Both users earned {XP_COMPLETE_SWAP} XP 🎉",
+            "success",
+        )
+    except Exception as e:  # noqa: F841
         db.session.rollback()
         flash("An error occurred.", "danger")
     return redirect(url_for("swap.my_swaps"))
+
 
 @swap_bp.route("/submit_review/<int:user_id>", methods=["POST"])
 @login_required
@@ -123,11 +168,20 @@ def submit_review(user_id):
             reviewed_user = db.session.get(User, user_id)
             if not reviewed_user:
                 abort(404)
-            existing_review = Review.query.filter_by(reviewer_id=current_user.id, reviewed_user_id=user_id).first()
+            existing_review = Review.query.filter_by(
+                reviewer_id=current_user.id, reviewed_user_id=user_id
+            ).first()
             if existing_review:
                 flash("You have already reviewed this user.", "warning")
-                return redirect(url_for("user.profile", username=reviewed_user.username))
-            review = Review(reviewer_id=current_user.id, reviewed_user_id=user_id, rating=form.rating.data, comment=form.comment.data)
+                return redirect(
+                    url_for("user.profile", username=reviewed_user.username)
+                )
+            review = Review(
+                reviewer_id=current_user.id,
+                reviewed_user_id=user_id,
+                rating=form.rating.data,
+                comment=form.comment.data,
+            )
             db.session.add(review)
             db.session.commit()
             update_rating(reviewed_user)
@@ -137,7 +191,7 @@ def submit_review(user_id):
         else:
             for error in form.errors.values():
                 flash(str(error), "danger")
-    except Exception as e:
+    except Exception as e:  # noqa: F841
         db.session.rollback()
         flash("An error occurred.", "danger")
     return redirect(url_for("user.dashboard"))

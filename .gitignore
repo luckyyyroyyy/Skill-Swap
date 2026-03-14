@@ -45,6 +45,7 @@ skillswap.db
 
 # Logs
 *.log
+flake8_output.txt
 
 # OS
 .DS_Store

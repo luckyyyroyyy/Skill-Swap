@@ -9,8 +9,8 @@
         <div class="flex-1 text-center lg:text-left space-y-7 z-10 animate-fade-up">
             <!-- Pill badge -->
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-600
-                        bg-indigo-500/10 border border-indigo-500/25 text-indigo-300">
-                <span class="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                        bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
+                <span class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
                 Smart Matching AI ✨ — Now Live
             </div>
 
@@ -29,10 +29,10 @@
 
             <!-- CTAs -->
             <div class="flex flex-col sm:flex-row items-center gap-4 pt-2 justify-center lg:justify-start">
-                <a href="{{ url_for('auth.register') }}" class="btn-premium w-full sm:w-auto px-8 py-4 text-base">
+                <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic w-full sm:w-auto px-8 py-4 text-base">
                     🚀 Start Your Journey
                 </a>
-                <a href="{{ url_for('user.dashboard') }}" class="btn-outline w-full sm:w-auto px-8 py-4 text-base">
+                <a href="{{ url_for('user.dashboard') }}" class="btn-outline magnetic w-full sm:w-auto px-8 py-4 text-base">
                     Explore Network →
                 </a>
             </div>
@@ -51,15 +51,15 @@
         <!-- Hero Floating Cards -->
         <div class="flex-1 relative w-full max-w-lg mx-auto">
             <!-- Main floating card -->
-            <div class="glass-card card-shine p-6 rounded-3xl relative z-20 animate-fade-up"
-                 style="animation-delay:0.2s; box-shadow: 0 40px 80px rgba(0,0,0,0.5), var(--shadow-indigo);">
+            <div class="glass-card card-shine radial-glow p-6 rounded-3xl relative z-20 animate-fade-up"
+                 style="animation-delay:0.2s; box-shadow: 0 40px 80px rgba(0,0,0,0.8), var(--shadow-indigo);">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="avatar avatar-lg bg-gradient-premium text-white text-xl font-800">A</div>
+                    <div class="avatar avatar-lg bg-gradient-premium text-white text-xl font-800 shadow-lg shadow-cyan-500/30">A</div>
                     <div>
                         <div class="font-700">Alex Chen</div>
                         <div class="text-sm text-slate-400">Python Expert • Master 👑</div>
                     </div>
-                    <div class="ml-auto badge badge-green">⚡ 850 XP</div>
+                    <div class="ml-auto badge badge-cyan shadow-lg shadow-cyan-500/20">⚡ 850 XP</div>
                 </div>
 
                 <div class="space-y-3">
@@ -86,7 +86,7 @@
 
             <!-- Floating badge pill (top-right) -->
             <div class="absolute -top-4 -right-4 glass-panel px-4 py-3 z-30 animate-fade-up"
-                 style="animation-delay:0.5s; box-shadow: var(--shadow-pink);">
+                 style="animation-delay:0.5s; box-shadow: var(--shadow-pink); border-color: rgba(184,41,234,0.3);">
                 <div class="flex items-center gap-2 text-sm font-600">
                     <span class="text-lg">🎯</span>
                     <span class="text-pink-300">94% Match</span>
@@ -126,9 +126,9 @@
             ('02', '🤝', 'Get Matched', 'Our algorithm surfaces your perfect learning partners based on skill synergy.'),
             ('03', '🚀', 'Swap & Grow', 'Chat, exchange knowledge, complete your swap and earn XP and badges.')
         ] %}
-        <div class="glass-card card-shine p-8 rounded-3xl space-y-5 animate-fade-up">
+        <div class="glass-card card-shine radial-glow p-8 rounded-3xl space-y-5 animate-fade-up hover-glow">
             <div class="flex items-center gap-3">
-                <div class="text-3xl">{{ icon }}</div>
+                <div class="text-3xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{{ icon }}</div>
                 <span class="text-xs font-800 text-slate-600 tracking-widest">STEP {{ step }}</span>
             </div>
             <h3 class="text-xl font-700">{{ title }}</h3>
@@ -147,15 +147,15 @@
 
     <div class="grid md:grid-cols-3 gap-6 stagger">
         {% for icon, color, title, desc, badge_class, badge_text in [
-            ('🎯', 'indigo', 'AI Matching', 'Our advanced algorithm connects you based on personality and skill synergy.', 'badge-indigo', 'Smart AI'),
+            ('🎯', 'cyan', 'AI Matching', 'Our advanced algorithm connects you based on personality and skill synergy.', 'badge-cyan', 'Smart AI'),
             ('🏆', 'pink', 'Gamified Growth', 'Earn XP, unlock exclusive badges, and climb the leaderboard as you share expertise.', 'badge-pink', 'Gamified'),
             ('💬', 'amber', 'Real-Time Chat', 'Integrated messaging and swap management ensures a seamless, safe learning experience.', 'badge-amber', 'Live'),
         ] %}
-        <div class="glass-card card-shine p-9 rounded-3xl space-y-5 animate-fade-up hover-glow">
+        <div class="glass-card card-shine radial-glow p-9 rounded-3xl space-y-5 animate-fade-up hover-glow">
             <div class="flex items-start justify-between">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_15px_currentColor] text-{{ color }}-400
                             bg-{{ color }}-500/10 border border-{{ color }}-500/20">{{ icon }}</div>
-                <span class="badge badge-{{ color }}">{{ badge_text }}</span>
+                <span class="badge {{ badge_class }} shadow-[0_0_10px_currentColor]">{{ badge_text }}</span>
             </div>
             <h3 class="text-xl font-700">{{ title }}</h3>
             <p class="text-slate-400 leading-relaxed text-sm">{{ desc }}</p>
@@ -167,8 +167,8 @@
 <!-- ====== CTA BANNER ====== -->
 <section class="py-12 reveal">
     <div class="glass-card rounded-3xl p-10 md:p-16 text-center relative overflow-hidden card-shine"
-         style="background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(219,39,119,0.08));">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-pink-500/5 pointer-events-none"></div>
+         style="background: linear-gradient(135deg, rgba(79,172,254,0.1), rgba(184,41,234,0.08));">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-pink-500/5 pointer-events-none"></div>
         <div class="relative z-10 space-y-6">
             <h2 class="text-4xl md:text-5xl font-800">
                 Ready to <span class="text-gradient">Start Swapping?</span>
@@ -176,7 +176,7 @@
             <p class="text-slate-400 max-w-md mx-auto">
                 Join thousands of learners already levelling up through collaborative skill exchange.
             </p>
-            <a href="{{ url_for('auth.register') }}" class="btn-premium px-10 py-4 text-base inline-flex">
+            <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic px-10 py-4 text-base inline-flex">
                 Create Free Account 🎉
             </a>
         </div>
@@ -188,6 +188,19 @@
 .reveal.active { opacity:1; transform:translateY(0); }
 </style>
 <script>
+// Magnetic Buttons
+document.querySelectorAll('.magnetic').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'translate(0px, 0px)';
+    });
+});
+
 function revealOnScroll() {
     document.querySelectorAll('.reveal').forEach(el => {
         if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');

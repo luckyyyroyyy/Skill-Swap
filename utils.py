@@ -1,5 +1,13 @@
 import logging
-from models import User, Skill, Review, SwapRequest, Badge, UserBadge, Notification
+from models import (  # noqa: F401
+    User,
+    Skill,
+    Review,
+    SwapRequest,
+    Badge,
+    UserBadge,
+    Notification,
+)
 from extensions import db
 from sqlalchemy import or_
 
@@ -13,9 +21,9 @@ XP_COMPLETE_SWAP = 50
 XP_REVIEW = 50
 
 # Match scoring multipliers
-MATCH_SKILL_MULTIPLIER = 25      # Points per mutual skill
-MATCH_RATING_MULTIPLIER = 10     # Points per rating point
-MATCH_XP_DIVISOR = 50            # XP points divided by this
+MATCH_SKILL_MULTIPLIER = 25  # Points per mutual skill
+MATCH_RATING_MULTIPLIER = 10  # Points per rating point
+MATCH_XP_DIVISOR = 50  # XP points divided by this
 
 
 # =========================
@@ -46,7 +54,9 @@ def update_rating(user):
             user.rating = round(total / len(reviews), 2)
             user.total_reviews = len(reviews)
             db.session.commit()
-            logger.info(f"Updated rating for user {user.username}: {user.rating}")
+            logger.info(
+                f"Updated rating for user {user.username}: {user.rating}"
+            )
         else:
             user.rating = 0.0
             user.total_reviews = 0
@@ -63,7 +73,7 @@ def update_rating(user):
 def calculate_match_score(user_a, user_b):
     """
     Calculate compatibility score between two users.
-    
+
     Factors:
     - Mutual skills: User A wants what B offers and vice versa
     - User B's rating/reputation
@@ -93,21 +103,30 @@ def calculate_match_score(user_a, user_b):
         return 0
 
 
-def find_matches(current_user, limit=None):
+def find_matches(current_user, limit=None, category=None):
     """
     Find compatible users for skill swaps.
-    
+
     Args:
         current_user: User object to find matches for
         limit: Maximum number of matches to return
-    
+        category: Optional category string to filter by offered skills
+
     Returns:
         List of (user, score) tuples sorted by score descending
     """
     try:
         # Get all other users (database level filtering)
         users = User.query.filter(User.id != current_user.id).all()
-        
+
+        if category:
+            filtered_users = []
+            for u in users:
+                offers = [s for s in u.skills if s.type == "offer"]
+                if any(s.category == category for s in offers):
+                    filtered_users.append(u)
+            users = filtered_users
+
         matches = []
         for user in users:
             score = calculate_match_score(current_user, user)
@@ -116,11 +135,13 @@ def find_matches(current_user, limit=None):
 
         # Sort by score descending
         matches.sort(key=lambda x: x[1], reverse=True)
-        
+
         if limit:
             matches = matches[:limit]
-        
-        logger.info(f"Found {len(matches)} matches for user {current_user.username}")
+
+        logger.info(
+            f"Found {len(matches)} matches for user {current_user.username}"
+        )
         return matches
     except Exception as e:
         logger.error(f"Error finding matches for user {current_user.id}: {e}")
@@ -133,7 +154,7 @@ def find_matches(current_user, limit=None):
 def check_and_award_badges(user):
     """
     Check if user qualifies for any new badges and award them.
-    
+
     Badges:
     - First Swap: Completed 1 swap
     - Rising Star: Earned 200 XP
@@ -146,8 +167,8 @@ def check_and_award_badges(user):
             SwapRequest.status == "completed",
             or_(
                 SwapRequest.sender_id == user.id,
-                SwapRequest.receiver_id == user.id
-            )
+                SwapRequest.receiver_id == user.id,
+            ),
         ).count()
 
         reviews_count = user.total_reviews or 0
@@ -181,8 +202,10 @@ def check_and_award_badges(user):
 
         if new_badges:
             db.session.commit()
-            logger.info(f"Awarded badges to user {user.username}: {', '.join(new_badges)}")
-        
+            logger.info(
+                f"Awarded badges to user {user.username}: {', '.join(new_badges)}"  # noqa: E501
+            )
+
     except Exception as e:
         logger.error(f"Error awarding badges to user {user.id}: {e}")
         db.session.rollback()
@@ -195,22 +218,23 @@ def check_and_award_badges(user):
 def create_notification(user_id, message):
     """
     Create a notification for a user.
-    
+
     Args:
         user_id: ID of user to notify
         message: Notification message
     """
     try:
         from extensions import socketio
+
         notification = Notification(user_id=user_id, message=message)
         db.session.add(notification)
         db.session.commit()
         logger.info(f"Created notification for user {user_id}")
-        
+
         # Emit real-time notification
-        socketio.emit('new_notification', {'message': message}, room=f"user_{user_id}")
+        socketio.emit(
+            "new_notification", {"message": message}, room=f"user_{user_id}"
+        )
     except Exception as e:
         logger.error(f"Failed to create notification for user {user_id}: {e}")
         db.session.rollback()
-
-

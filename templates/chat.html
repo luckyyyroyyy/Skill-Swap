@@ -15,18 +15,18 @@
                     Chat with <span class="text-gradient">{{ other_user.username }}</span>
                 </h2>
                 <div class="flex items-center gap-2 mt-0.5">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
                     <span class="text-[10px] text-slate-500 font-700 uppercase tracking-widest">Active Swap Session</span>
                 </div>
             </div>
         </div>
-        <div class="badge badge-amber hidden sm:flex">
+        <div class="badge badge-cyan hidden sm:flex shadow-[0_0_10px_currentColor]">
             ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
         </div>
     </div>
 
     <!-- Chat Window -->
-    <div class="glass-card rounded-3xl flex flex-col overflow-hidden"
+    <div class="glass-card radial-glow rounded-3xl flex flex-col overflow-hidden"
          style="height: 72vh; box-shadow: var(--shadow-lg);">
 
         <!-- Messages -->
@@ -71,7 +71,7 @@
                        placeholder="Share your expertise or ask a question…"
                        class="form-input flex-1 py-3 rounded-2xl text-sm"
                        autocomplete="off" required>
-                <button type="submit" class="btn-premium px-5 py-3 text-sm rounded-2xl shrink-0">
+                <button type="submit" class="btn-premium magnetic px-5 py-3 text-sm rounded-2xl shrink-0">
                     Send 📤
                 </button>
             </form>
