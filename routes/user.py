@@ -58,11 +58,35 @@ def profile(username):
     user = User.query.filter_by(username=username).first_or_404()
     offered_skills = [skill for skill in user.skills if skill.type == "offer"]
     wanted_skills = [skill for skill in user.skills if skill.type == "want"]
+    
+    from forms import ReviewForm
+    from models import Review
+    
+    review_form = ReviewForm()
+    has_reviewed = False
+    
+    if current_user.id != user.id:
+        existing_review = Review.query.filter_by(
+            reviewer_id=current_user.id, reviewed_user_id=user.id
+        ).first()
+        if existing_review:
+            has_reviewed = True
+
+    # Join Review with User to get the reviewer's details easily
+    reviews_data = db.session.query(Review, User).join(
+        User, Review.reviewer_id == User.id
+    ).filter(
+        Review.reviewed_user_id == user.id
+    ).order_by(Review.created_at.desc()).all()
+
     return render_template(
         "profile.html",
         user=user,
         offered_skills=offered_skills,
         wanted_skills=wanted_skills,
+        review_form=review_form,
+        has_reviewed=has_reviewed,
+        reviews_data=reviews_data,
     )
 
 
