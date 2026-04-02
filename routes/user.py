@@ -194,4 +194,4 @@ def add_skill():
     else:
         for error in form.errors.values():
             flash(str(error), "danger")
-    return redirect(url_for("user.profile", username=current_user.username))
+    return redirect(request.referrer or url_for("user.dashboard"))
