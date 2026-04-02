@@ -18,6 +18,7 @@ class User(db.Model, UserMixin):
     profile_pic = db.Column(db.String(200), default="default.png")
     rating = db.Column(db.Float, default=0.0)
     total_reviews = db.Column(db.Integer, default=0)
+    timezone = db.Column(db.String(50), default="UTC")
 
     is_active = db.Column(db.Boolean, default=True)
 
@@ -56,6 +57,23 @@ class User(db.Model, UserMixin):
         else:
             return "Master 👑"
 
+    def get_reset_token(self):
+        from flask import current_app
+        from itsdangerous import URLSafeTimedSerializer as Serializer
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def verify_reset_token(token, max_age=1800):
+        from flask import current_app
+        from itsdangerous import URLSafeTimedSerializer as Serializer
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token, max_age=max_age)
+        except Exception:
+            return None
+        return User.query.get(data['user_id'])
+
 
 # =========================
 # SKILL MODEL
@@ -66,6 +84,7 @@ class Skill(db.Model):
     name = db.Column(db.String(100), nullable=False)
     category = db.Column(db.String(50), nullable=False, default="Other")
     type = db.Column(db.String(20), nullable=False)  # offer / want
+    proficiency_level = db.Column(db.String(20), default="Intermediate")  # Beginner / Intermediate / Expert
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("user.id"), nullable=False, index=True

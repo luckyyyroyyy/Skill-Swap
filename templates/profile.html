@@ -39,6 +39,7 @@
                             <div class="flex flex-wrap items-center gap-2 mt-2">
                                 <span class="badge badge-cyan">{{ user.get_level() }}</span>
                                 <span class="badge badge-pink">Verified Mentor</span>
+                                <span class="badge badge-amber opacity-90">🕒 {{ user.timezone }}</span>
                             </div>
                         </div>
 
@@ -88,7 +89,7 @@
                 {% for skill in offered_skills %}
                     <span class="skill-chip skill-chip-offer">
                         {{ skill.name }}
-                        <span class="text-[9px] opacity-70 ml-1.5 uppercase font-800 tracking-wider mix-blend-overlay">{{ skill.category }}</span>
+                        <span class="text-[9px] opacity-70 ml-1.5 uppercase font-800 tracking-wider mix-blend-overlay">{{ skill.category }} • {{ skill.proficiency_level }}</span>
                     </span>
                 {% else %}
                     <p class="text-slate-500 italic text-sm">No skills listed yet.</p>

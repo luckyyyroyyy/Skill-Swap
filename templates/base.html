@@ -125,14 +125,15 @@
     <!-- ====== FLASH MESSAGES ====== -->
     {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
-    <div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-md px-4">
+    <div id="flash-container" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-full max-w-md px-4">
         {% for category, message in messages %}
         <div class="flash-enter flex items-center gap-3 px-5 py-3.5 rounded-2xl font-500 text-sm
                         {% if category == 'danger' %}bg-red-500/10 border border-red-500/30 text-red-300
                         {% elif category == 'success' %}bg-green-500/10 border border-green-500/30 text-green-300
                         {% elif category == 'info' %}bg-indigo-500/10 border border-indigo-500/30 text-indigo-300
                         {% else %}bg-amber-500/10 border border-amber-500/30 text-amber-300{% endif %}
-                        backdrop-blur-md shadow-lg">
+                        backdrop-blur-md shadow-lg transition-all duration-400"
+             style="cursor:pointer;" onclick="this.style.opacity='0'; this.style.transform='translateY(-10px)'; setTimeout(()=>this.remove(), 400);">
             <span>
                 {% if category == 'danger' %}⛔
                 {% elif category == 'success' %}✅
@@ -143,6 +144,19 @@
         </div>
         {% endfor %}
     </div>
+    <script>
+    // Auto-dismiss flash messages after 5 seconds
+    setTimeout(() => {
+        const flashes = document.querySelectorAll('#flash-container > div');
+        flashes.forEach((el, i) => {
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
+                setTimeout(() => el.remove(), 400);
+            }, i * 200);
+        });
+    }, 5000);
+    </script>
     {% endif %}
     {% endwith %}
 

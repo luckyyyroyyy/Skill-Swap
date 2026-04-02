@@ -87,16 +87,29 @@ def calculate_match_score(user_a, user_b):
         b_wants = {s.name.lower() for s in user_b.skills if s.type == "want"}
         b_offers = {s.name.lower() for s in user_b.skills if s.type == "offer"}
 
-        # Calculate mutual matches
-        mutual_1 = len(a_wants & b_offers)  # A wants what B offers
-        mutual_2 = len(b_wants & a_offers)  # B wants what A offers
+        # Calculate mutual matches using fuzzy string matching
+        mutual_1 = 0
+        for w in a_wants:
+            if any((w in o or o in w) for o in b_offers):
+                mutual_1 += 1
+
+        mutual_2 = 0
+        for w in b_wants:
+            if any((w in o or o in w) for o in a_offers):
+                mutual_2 += 1
+
+        # Timezone bonus
+        timezone_bonus = 0
+        if getattr(user_a, 'timezone', None) and getattr(user_b, 'timezone', None):
+            if user_a.timezone == user_b.timezone and user_a.timezone != "UTC":
+                timezone_bonus = 10
 
         # Weighted scoring
         skill_score = (mutual_1 + mutual_2) * MATCH_SKILL_MULTIPLIER
         rating_score = (user_b.rating or 0) * MATCH_RATING_MULTIPLIER
         xp_score = (user_b.xp or 0) / MATCH_XP_DIVISOR
 
-        total_score = skill_score + rating_score + xp_score
+        total_score = skill_score + rating_score + xp_score + timezone_bonus
         return round(total_score)
     except Exception as e:
         logger.error(f"Error calculating match score: {e}")

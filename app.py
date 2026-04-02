@@ -2,7 +2,7 @@ import os
 import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
-from extensions import db, login_manager
+from extensions import db, login_manager, migrate, mail
 from flask_socketio import SocketIO, join_room  # noqa: F401
 from flask_login import current_user
 from datetime import datetime
@@ -30,6 +30,8 @@ app.config.from_object(config.get(env, config["default"]))
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
 
 db.init_app(app)
+migrate.init_app(app, db, render_as_batch=True)
+mail.init_app(app)
 login_manager.init_app(app)
 
 # 🔥 Initialize CSRF Protection
@@ -58,30 +60,8 @@ app.register_blueprint(chat_bp)
 from models import ChatMessage, SwapRequest, Badge  # noqa: E402
 
 # ----------------------------
-# DATABASE + DEFAULT BADGES
+# DATABASE MIGRATIONS HANDELED VIA FLASK-MIGRATE
 # ----------------------------
-with app.app_context():
-    db.create_all()
-
-    from models import Badge  # noqa: F811
-
-    if not Badge.query.first():
-        default_badges = [
-            Badge(
-                name="First Swap",
-                description="Completed first swap",
-                icon="🎉",
-            ),
-            Badge(name="Rising Star", description="Earned 200 XP", icon="⭐"),
-            Badge(name="Skill Master", description="Earned 500 XP", icon="🔥"),
-            Badge(
-                name="Trusted Mentor",
-                description="Received 5 reviews",
-                icon="🏆",
-            ),
-        ]
-        db.session.add_all(default_badges)
-        db.session.commit()
 
 
 # ----------------------------

@@ -29,7 +29,15 @@ def dashboard():
 
     form = SkillForm()
     category_filter = request.args.get("category")
-    matches = find_matches(current_user, category=category_filter)
+    page = request.args.get("page", 1, type=int)
+    per_page = 9
+
+    all_matches = find_matches(current_user, category=category_filter)
+    total_matches = len(all_matches)
+    total_pages = max(1, (total_matches + per_page - 1) // per_page)
+    page = min(page, total_pages)
+    matches = all_matches[(page - 1) * per_page : page * per_page]
+
     offers = [s for s in current_user.skills if s.type == "offer"]
     wants = [s for s in current_user.skills if s.type == "want"]
     received_requests = (
@@ -49,6 +57,9 @@ def dashboard():
         received_requests=received_requests,
         sent_requests=sent_requests,
         current_category=category_filter,
+        page=page,
+        total_pages=total_pages,
+        total_matches=total_matches,
     )
 
 
@@ -97,6 +108,7 @@ def edit_profile():
     if form.validate_on_submit():
         try:
             current_user.bio = form.bio.data
+            current_user.timezone = form.timezone.data
 
             if form.profile_pic.data:
                 file = form.profile_pic.data
@@ -142,6 +154,7 @@ def edit_profile():
 
     elif request.method == "GET":
         form.bio.data = current_user.bio
+        form.timezone.data = current_user.timezone
 
     return render_template("edit_profile.html", form=form)
 
@@ -175,6 +188,7 @@ def add_skill():
                 name=form.name.data,
                 category=form.category.data,
                 type=form.type.data,
+                proficiency_level=form.proficiency_level.data,
                 user_id=current_user.id,
             )
             db.session.add(new_skill)

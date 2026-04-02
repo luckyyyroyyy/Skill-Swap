@@ -112,6 +112,15 @@ class SkillForm(FlaskForm):
         ],
         validators=[DataRequired()],
     )
+    proficiency_level = SelectField(
+        "Proficiency Level",
+        choices=[
+            ("Beginner", "Beginner"),
+            ("Intermediate", "Intermediate"),
+            ("Expert", "Expert")
+        ],
+        default="Intermediate"
+    )
 
 
 class ReviewForm(FlaskForm):
@@ -135,6 +144,27 @@ class ReviewForm(FlaskForm):
     )
 
 
+class ResetPasswordRequestForm(FlaskForm):
+    """Request password reset form."""
+    email = StringField('Email', validators=[DataRequired(), Email()])
+
+class ResetPasswordForm(FlaskForm):
+    """Reset password form."""
+    password = PasswordField(
+        "New Password",
+        validators=[
+            DataRequired(),
+            Length(min=8, message="Password must be at least 8 characters long.")
+        ],
+    )
+    confirm_password = PasswordField(
+        "Confirm New Password",
+        validators=[
+            DataRequired(),
+            EqualTo("password", message="Passwords must match."),
+        ],
+    )
+
 class EditProfileForm(FlaskForm):
     """Edit user profile form."""
 
@@ -150,6 +180,23 @@ class EditProfileForm(FlaskForm):
         validators=[
             FileAllowed(["jpg", "png", "jpeg", "gif"], "Images only!")
         ],
+    )
+    timezone = SelectField(
+        "Timezone",
+        choices=[
+            ("UTC", "UTC"),
+            ("America/New_York", "Eastern Time (US)"),
+            ("America/Chicago", "Central Time (US)"),
+            ("America/Denver", "Mountain Time (US)"),
+            ("America/Los_Angeles", "Pacific Time (US)"),
+            ("Europe/London", "London"),
+            ("Europe/Paris", "Central European Time"),
+            ("Asia/Kolkata", "India Standard Time"),
+            ("Asia/Tokyo", "Japan Standard Time"),
+            ("Australia/Sydney", "Australian Eastern Time"),
+            ("Other", "Other")
+        ],
+        default="UTC"
     )
 
 

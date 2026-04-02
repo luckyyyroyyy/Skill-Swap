@@ -22,19 +22,44 @@
                           placeholder="Tell others about your expertise and learning goals…">{{ current_user.bio or '' }}</textarea>
             </div>
 
+            <!-- Timezone -->
+            <div class="space-y-1.5">
+                <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Timezone</label>
+                {{ form.timezone(class="form-input") }}
+            </div>
+
             <!-- Profile Picture -->
             <div class="space-y-2">
                 <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Profile Picture</label>
-                <label class="flex flex-col items-center justify-center gap-3 w-full p-8 text-center cursor-pointer
+                <label id="upload-label" class="flex flex-col items-center justify-center gap-3 w-full p-8 text-center cursor-pointer
                               border-2 border-dashed border-white/15 rounded-2xl
                               hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all group">
                     <span class="text-3xl group-hover:scale-110 transition-transform">📸</span>
                     <div class="space-y-0.5">
-                        <div class="text-sm font-600 text-slate-300">Click to upload image</div>
+                        <div id="upload-text" class="text-sm font-600 text-slate-300">Click to upload image</div>
                         <div class="text-xs text-slate-500">JPEG or PNG, max 2MB</div>
                     </div>
-                    <input type="file" name="profile_pic" class="hidden" accept=".jpg,.jpeg,.png">
+                    <input type="file" id="image-input" class="hidden" accept=".jpg,.jpeg,.png">
                 </label>
+
+                <!-- Cropper Preview (hidden by default) -->
+                <div id="cropper-container" class="hidden space-y-4">
+                    <div class="glass-panel rounded-2xl p-4 overflow-hidden" style="max-height: 350px;">
+                        <img id="cropper-image" src="" alt="Preview" style="max-width: 100%; display: block;">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" id="crop-btn"
+                                class="btn-premium flex-1 py-2.5 text-sm text-center">
+                            ✂️ Crop & Use
+                        </button>
+                        <button type="button" id="cancel-crop-btn"
+                                class="flex-1 py-2.5 text-sm text-center rounded-xl font-700 text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                <!-- Hidden input for cropped data -->
+                <input type="file" name="profile_pic" id="cropped-file" class="hidden">
             </div>
 
             <button type="submit" class="btn-premium w-full py-3.5">
@@ -62,13 +87,82 @@
     </div>
 </div>
 
+<!-- Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
 <script>
-// Show selected filename
-document.querySelector('input[type=file]').addEventListener('change', function(e) {
-    const lbl = this.closest('label');
-    const name = this.files[0]?.name;
-    if (name) lbl.querySelector('.text-sm').textContent = '📁 ' + name;
-});
+(function() {
+    const imageInput = document.getElementById('image-input');
+    const cropperContainer = document.getElementById('cropper-container');
+    const cropperImage = document.getElementById('cropper-image');
+    const cropBtn = document.getElementById('crop-btn');
+    const cancelCropBtn = document.getElementById('cancel-crop-btn');
+    const croppedFileInput = document.getElementById('cropped-file');
+    const uploadLabel = document.getElementById('upload-label');
+    const uploadText = document.getElementById('upload-text');
+    let cropper = null;
+
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            cropperImage.src = ev.target.result;
+            cropperContainer.classList.remove('hidden');
+            uploadLabel.classList.add('hidden');
+
+            // Destroy previous cropper instance if exists
+            if (cropper) cropper.destroy();
+
+            cropper = new Cropper(cropperImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                minCropBoxWidth: 100,
+                minCropBoxHeight: 100,
+                background: false,
+                responsive: true,
+                autoCropArea: 0.9,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+
+    cropBtn.addEventListener('click', function() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+            imageSmoothingQuality: 'high',
+        });
+
+        canvas.toBlob(function(blob) {
+            const dt = new DataTransfer();
+            const file = new File([blob], 'avatar.png', { type: 'image/png' });
+            dt.items.add(file);
+            croppedFileInput.files = dt.files;
+
+            cropperContainer.classList.add('hidden');
+            uploadLabel.classList.remove('hidden');
+            uploadText.textContent = '✅ Image cropped & ready!';
+            uploadText.classList.add('text-green-400');
+
+            cropper.destroy();
+            cropper = null;
+        }, 'image/png');
+    });
+
+    cancelCropBtn.addEventListener('click', function() {
+        cropperContainer.classList.add('hidden');
+        uploadLabel.classList.remove('hidden');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageInput.value = '';
+    });
+})();
 </script>
 
 {% endblock %}
