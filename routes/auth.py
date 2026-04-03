@@ -89,21 +89,78 @@ def logout():
 
 def send_password_reset_email(user):
     token = user.get_reset_token()
+    reset_url = url_for('auth.reset_password', token=token, _external=True)
     msg = Message(
-        "Password Reset Request",
+        "🔐 Password Reset — SkillSwap Pro",
+        sender=("SkillSwap Pro", current_app.config['MAIL_DEFAULT_SENDER']),
         recipients=[user.email]
     )
-    msg.body = f'''To reset your password, visit the following link:
-{url_for('auth.reset_password', token=token, _external=True)}
+    msg.body = f'''Hi {user.username},
 
-If you did not make this request then simply ignore this email and no changes will be made.
+We received a request to reset your password. Click the link below:
+
+{reset_url}
+
+This link will expire in 30 minutes.
+
+If you did not request this, please ignore this email.
+
+— The SkillSwap Team
 '''
+    msg.html = f'''
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f0f1a; border-radius: 16px; overflow: hidden; border: 1px solid #1e1e3a;">
+      <!-- Header -->
+      <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7); padding: 40px 30px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">🔄 SkillSwap Pro</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Password Reset Request</p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 40px 30px;">
+        <p style="color: #e2e8f0; font-size: 16px; margin: 0 0 20px; line-height: 1.6;">
+          Hi <strong style="color: #a78bfa;">{user.username}</strong>,
+        </p>
+        <p style="color: #94a3b8; font-size: 15px; margin: 0 0 30px; line-height: 1.6;">
+          We received a request to reset your password. Click the button below to create a new password. This link will expire in <strong style="color: #e2e8f0;">30 minutes</strong>.
+        </p>
+
+        <!-- CTA Button -->
+        <div style="text-align: center; margin: 35px 0;">
+          <a href="{reset_url}" style="display: inline-block; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 10px; font-size: 16px; font-weight: 600; letter-spacing: 0.3px;">
+            Reset My Password
+          </a>
+        </div>
+
+        <p style="color: #64748b; font-size: 13px; margin: 30px 0 0; line-height: 1.6;">
+          If the button doesn't work, copy and paste this link into your browser:
+        </p>
+        <p style="color: #818cf8; font-size: 13px; word-break: break-all; margin: 8px 0 0;">
+          {reset_url}
+        </p>
+
+        <!-- Divider -->
+        <hr style="border: none; border-top: 1px solid #1e1e3a; margin: 30px 0;">
+
+        <p style="color: #475569; font-size: 13px; margin: 0; line-height: 1.5;">
+          🔒 If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background: #0a0a14; padding: 25px 30px; text-align: center; border-top: 1px solid #1e1e3a;">
+        <p style="color: #475569; font-size: 12px; margin: 0;">
+          © 2026 SkillSwap Pro — Swap skills, grow together.
+        </p>
+      </div>
+    </div>
+    '''
     try:
         mail.send(msg)
         logger.info(f"Password reset email sent to {user.email}")
     except Exception as e:
         logger.error(f"Error sending email to {user.email}: {e}")
-        # flash("We encountered an error sending the recovery email. In a real app this would go out.", "warning")
+        flash("We encountered an error sending the recovery email. Please try again later.", "warning")
+
 
 
 @auth_bp.route("/reset_password_request", methods=["GET", "POST"])

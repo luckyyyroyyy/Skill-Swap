@@ -2,15 +2,16 @@ import os
 import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
+
+# Load environment variables BEFORE importing config
+load_dotenv()
+
 from extensions import db, login_manager, migrate, mail
 from flask_socketio import SocketIO, join_room  # noqa: F401
 from flask_login import current_user
 from datetime import datetime
-from dotenv import load_dotenv
 from config import config
-
-# Load environment variables
-load_dotenv()
 
 # Configure logging
 logging.basicConfig(
