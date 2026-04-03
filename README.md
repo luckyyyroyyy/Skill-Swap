@@ -1,65 +1,160 @@
-# Skills-Swap 🤝
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Flask-3.1.2-000000?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/SocketIO-010101?style=for-the-badge&logo=socket.io&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+</p>
 
-A modern skill-sharing platform where users can exchange knowledge and learn from each other through a gamified experience.
+<h1 align="center">🔄 SkillSwap Pro</h1>
 
-## Database Models 🗄️
+<p align="center">
+  <strong>A modern, gamified skill-sharing platform where users exchange knowledge and grow together.</strong>
+</p>
 
-The application uses the following data models:
+<p align="center">
+  <a href="#features-">Features</a> •
+  <a href="#tech-stack-">Tech Stack</a> •
+  <a href="#setup--installation-">Setup</a> •
+  <a href="#project-structure-">Structure</a> •
+  <a href="#api-routes-">API</a> •
+  <a href="#contributing-">Contributing</a>
+</p>
 
-- **User**: Stores user account info, bio, profile picture, XP, badges, rating, and level
-- **Skill**: User-offered and user-wanted skills  
-- **SwapRequest**: Tracks skill exchange requests with status (pending/accepted/rejected/completed)
-- **Review**: User ratings and comments for completed swaps
-- **UserBadge**: Achievement badges earned through gamification
+---
 
 ## Features ✨
 
-- **User Authentication**: Secure registration and login with password hashing
-- **Skill Marketplace**: Browse and discover users offering/wanting specific skills
-- **Smart Matching**: Connect users based on complementary skills
-- **Swap Requests**: Send and manage skill exchange requests with status tracking
-- **Real-time Chat**: Direct messaging with WebSocket support for instant communication
-- **Review System**: Rate and review users after completed swaps
-- **Gamification**: 
-  - XP points system for completing swaps
-  - Achievement badges
-  - User levels: Beginner → Skilled → Expert → Master
-  - Rating and reputation tracking
-- **Notifications**: Stay updated on swap requests and messages
-- **User Profiles**: Customizable profiles with bio and profile picture uploads
-- **Security Features**: CSRF protection, rate limiting, secure session handling
+### 🔐 Authentication & Security
+- Secure registration & login with Werkzeug password hashing
+- **Password reset via email** — styled HTML emails sent through Gmail SMTP
+- CSRF protection on all forms (Flask-WTF)
+- Rate limiting on sensitive endpoints (Flask-Limiter)
+- Secure session cookies with HTTPOnly & SameSite flags
+- Input validation with WTForms & email-validator
+- SQL injection prevention via SQLAlchemy ORM
+
+### 🎯 Smart Skill Matching
+- **Fuzzy matching algorithm** — finds users even with partial skill name matches
+- **Weighted scoring system:**
+  - 🧩 Mutual skill compatibility (25 pts per match)
+  - ⭐ User reputation & rating (10 pts per rating point)
+  - 📈 Experience level / XP (scaled)
+  - 🌍 Timezone bonus (+10 pts for same timezone)
+- Filter matches by skill category
+- Skill proficiency levels: Beginner → Intermediate → Expert
+
+### 💬 Real-Time Chat
+- WebSocket-powered messaging via Flask-SocketIO
+- Per-swap chat rooms with message history
+- Unread message counter in navigation
+- Read/unread message tracking
+
+### 🏆 Gamification System
+- **XP Points:**
+  - +10 XP — Adding a skill
+  - +50 XP — Completing a swap
+  - +50 XP — Receiving a review
+- **Level Progression:** Beginner 🌱 → Skilled 🚀 → Expert 🔥 → Master 👑
+- **Achievement Badges:**
+  | Badge | Requirement |
+  |-------|------------|
+  | 🤝 First Swap | Complete 1 swap |
+  | ⭐ Rising Star | Earn 200 XP |
+  | 🏅 Skill Master | Earn 500 XP |
+  | 🧑‍🏫 Trusted Mentor | Receive 5+ reviews |
+
+### 📋 Core Platform
+- **Skill Marketplace** — Browse users offering/wanting skills across 8 categories
+- **Swap Requests** — Send, accept, reject, and complete skill exchanges
+- **Review System** — Rate (1-5 stars) and comment after completed swaps
+- **User Profiles** — Customizable bio, profile picture upload (2MB limit), timezone
+- **Notifications** — Real-time alerts for swap requests and messages
+- **Dashboard** — Paginated view of matched users with compatibility scores
+
+---
 
 ## Tech Stack 🛠️
 
-- **Backend Framework**: Flask 3.1.2, Flask-Login, Flask-SQLAlchemy
-- **Real-time Communication**: Flask-SocketIO, python-socketio, python-engineio
-- **Database**: SQLite (development), PostgreSQL (production-ready)
-- **Frontend**: HTML, CSS, JavaScript with Jinja2 templates
-- **Authentication**: Flask-Login with Werkzeug password hashing
-- **Form Validation**: Flask-WTF, WTForms, email-validator
-- **Security**: CSRF Protection enabled, Rate limiting, Secure session handling
-- **Event Handler**: eventlet
-- **Environment Management**: python-dotenv
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Flask 3.1.2, Flask-Login, Flask-SQLAlchemy, Flask-Migrate |
+| **Real-Time** | Flask-SocketIO, python-socketio, python-engineio |
+| **Database** | SQLite (dev) / PostgreSQL (production-ready) |
+| **Email** | Flask-Mail with Gmail SMTP |
+| **Frontend** | HTML5, CSS3, JavaScript, Jinja2 Templates |
+| **Auth** | Flask-Login + Werkzeug password hashing |
+| **Forms** | Flask-WTF, WTForms, email-validator |
+| **Security** | CSRF Protection, Rate Limiting, Secure Sessions |
+| **Migrations** | Flask-Migrate (Alembic) |
+| **Environment** | python-dotenv |
+
+---
+
+## Database Models 🗄️
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│     User     │────▶│    Skill     │     │    Badge     │
+│──────────────│     │──────────────│     │──────────────│
+│ id           │     │ id           │     │ id           │
+│ username     │     │ name         │     │ name         │
+│ email        │     │ category     │     │ description  │
+│ password     │     │ type         │     │ icon         │
+│ bio          │     │ proficiency  │     └──────┬───────┘
+│ xp / badge   │     │ user_id (FK) │            │
+│ profile_pic  │     └──────────────┘     ┌──────┴───────┐
+│ rating       │                          │  UserBadge   │
+│ timezone     │◀─────────────────────────│──────────────│
+│ created_at   │     ┌──────────────┐     │ user_id (FK) │
+└──────┬───────┘     │ SwapRequest  │     │ badge_id(FK) │
+       │             │──────────────│     │ earned_at    │
+       │             │ sender_id    │     └──────────────┘
+       ├────────────▶│ receiver_id  │
+       │             │ status       │     ┌──────────────┐
+       │             │ accepted_at  │     │ ChatMessage  │
+       │             │ completed_at │────▶│──────────────│
+       │             └──────────────┘     │ swap_id (FK) │
+       │                                  │ sender_id    │
+       │             ┌──────────────┐     │ message      │
+       ├────────────▶│   Review     │     │ is_read      │
+       │             │──────────────│     └──────────────┘
+       │             │ reviewer_id  │
+       │             │ reviewed_id  │     ┌──────────────┐
+       │             │ rating       │     │ Notification │
+       │             │ comment      │     │──────────────│
+       │             └──────────────┘     │ user_id (FK) │
+       └─────────────────────────────────▶│ message      │
+                                          │ is_read      │
+                                          └──────────────┘
+```
+
+---
 
 ## Setup & Installation 🚀
 
 ### Prerequisites
 - Python 3.9+
 - pip (Python package manager)
-- Virtual environment (recommended)
+- Gmail account with [App Password](https://myaccount.google.com/apppasswords) (for password reset emails)
 
 ### Installation Steps
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/luckyyyroyyy/Skill-Swap.git
    cd Skills-Swap
    ```
 
-2. **Create virtual environment**
+2. **Create & activate virtual environment**
    ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+   # Windows
+   venv\Scripts\activate
+
+   # macOS/Linux
+   source venv/bin/activate
    ```
 
 3. **Install dependencies**
@@ -67,235 +162,237 @@ The application uses the following data models:
    pip install -r requirements.txt
    ```
 
-4. **Setup environment variables**
+4. **Configure environment variables**
    ```bash
    cp .env.example .env
    ```
-   Edit `.env` and set your configuration:
-   ```
+   Edit `.env` with your settings:
+   ```env
    SECRET_KEY=your-secret-key-here
    FLASK_ENV=development
    DATABASE_URL=sqlite:///skillswap.db
+   UPLOAD_FOLDER=static/profile_pics
+
+   # Gmail SMTP (for password reset emails)
+   MAIL_SERVER=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USE_TLS=True
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-16-char-app-password
+   MAIL_DEFAULT_SENDER=your-email@gmail.com
    ```
 
 5. **Initialize the database**
    ```bash
-   python
-   >>> from app import app, db
-   >>> with app.app_context():
-   ...     db.create_all()
-   >>> exit()
+   python -m flask db upgrade
+   ```
+   Or manually:
+   ```python
+   python -c "from app import app, db; app.app_context().push(); db.create_all()"
    ```
 
 6. **Run the application**
    ```bash
-   python -m flask run
+   python app.py
    ```
-   The app will be available at `http://localhost:5000`
+   The app will be available at **http://localhost:5000** 🎉
+
+---
 
 ## Project Structure 📁
 
 ```
 Skills-Swap/
-├── app.py                 # Main Flask application with SocketIO
-├── config.py              # Configuration management (Dev/Prod/Test)
-├── extensions.py          # Flask extensions (DB, Login Manager, CSRF, Limiter)
-├── models.py              # Database models (User, Skill, SwapRequest, Review)
-├── forms.py               # Form validation with Flask-WTF
-├── utils.py               # Utility functions
-├── test_app.py            # Unit tests
-├── requirements.txt       # Python dependencies
-├── DEPLOYMENT.md          # Deployment guide
-├── .env                   # Environment variables (local)
-├── .env.example          # Environment variables template
+├── app.py                  # Flask app, SocketIO events, context processors
+├── config.py               # Config classes (Dev / Prod / Test)
+├── extensions.py           # Flask extensions (DB, Login, Limiter, Mail, SocketIO)
+├── models.py               # SQLAlchemy models (User, Skill, Swap, Review, etc.)
+├── forms.py                # WTForms (Registration, Login, Skills, Reviews, Reset)
+├── utils.py                # XP, rating, matching, badge & notification systems
+├── seed.py                 # Database seeding script
+├── test_app.py             # Unit tests
+├── requirements.txt        # Python dependencies
+├── .env.example            # Environment template
+├── .gitignore              # Git ignore rules
 │
-├── routes/                # Application blueprints
-│   ├── main.py            # Landing page
-│   ├── auth.py            # Authentication (register, login, logout)
-│   ├── user.py            # User profile management
-│   ├── swap.py            # Skill swap requests and matching
-│   ├── chat.py            # Real-time messaging
-│   └── __init__.py
+├── routes/                 # Blueprint modules
+│   ├── __init__.py         # Blueprint exports
+│   ├── main.py             # Landing page
+│   ├── auth.py             # Register, login, logout, password reset
+│   ├── user.py             # Profile, dashboard, skills management
+│   ├── swap.py             # Swap requests, reviews, matching
+│   └── chat.py             # Real-time messaging
 │
-├── static/               # Static files
-│   ├── css/              # Stylesheets (style.css, animations.css)
-│   │   ├── style.css
-│   │   └── animations.css
-│   ├── js/               # JavaScript files
-│   │   ├── main.js
-│   │   └── animations.js
-│   └── profile_pics/     # User profile pictures
+├── templates/              # Jinja2 HTML templates
+│   ├── base.html           # Base layout with nav & scripts
+│   ├── landing.html        # Public landing page
+│   ├── register.html       # Registration form
+│   ├── login.html          # Login form
+│   ├── reset_password_request.html  # Forgot password
+│   ├── reset_password.html # Password reset form
+│   ├── dashboard.html      # Main dashboard with matches
+│   ├── profile.html        # User profile view
+│   ├── edit_profile.html   # Profile editor with avatar upload
+│   ├── my_swaps.html       # Swap request management
+│   ├── matches.html        # Skill matching results
+│   ├── chat.html           # Real-time chat interface
+│   └── notifications.html  # Notification center
 │
-├── templates/            # Jinja2 templates
-│   ├── base.html
-│   ├── landing.html
-│   ├── register.html
-│   ├── login.html
-│   ├── dashboard.html
-│   ├── profile.html
-│   ├── edit_profile.html
-│   ├── my_swaps.html
-│   ├── chat.html
-│   ├── notifications.html
-│   └── matches.html
+├── static/                 # Static assets
+│   ├── css/                # Stylesheets
+│   ├── js/                 # JavaScript files
+│   ├── img/                # Images & icons
+│   └── profile_pics/       # User uploaded avatars
 │
-└── instance/             # Instance-specific files
-    └── skillswap.db      # SQLite database
+├── migrations/             # Flask-Migrate / Alembic
+│   ├── versions/           # Migration scripts
+│   ├── env.py              # Migration environment
+│   └── alembic.ini         # Alembic configuration
+│
+└── instance/               # Instance-specific files
+    └── skillswap.db        # SQLite database
 ```
+
+---
 
 ## API Routes 📡
 
-### Authentication
-- `GET /` - Landing page
-- `GET/POST /register` - User registration
-- `GET/POST /login` - User login
-- `GET /logout` - User logout
+### 🔓 Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET/POST` | `/register` | User registration |
+| `GET/POST` | `/login` | User login |
+| `GET` | `/logout` | Logout (auth required) |
+| `GET/POST` | `/reset_password_request` | Request password reset email |
+| `GET/POST` | `/reset_password/<token>` | Reset password with token |
 
-### Dashboard & Matching
-- `GET /dashboard` - View matched users
-- `GET/POST /profile/<username>` - View user profile
-- `GET/POST /edit_profile` - Edit profile
-- `POST /add_skill` - Add a new skill
+### 👤 User & Profile
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/dashboard` | Dashboard with matched users |
+| `GET/POST` | `/profile/<username>` | View user profile |
+| `GET/POST` | `/edit_profile` | Edit profile (bio, avatar, timezone) |
+| `POST` | `/add_skill` | Add a new skill |
 
-### Swaps
-- `POST /send_swap/<user_id>` - Send swap request
-- `GET/POST /my-swaps` - View all swaps
-- `GET /accept/<swap_id>` - Accept swap request
-- `GET /reject/<swap_id>` - Reject swap request
-- `GET /complete/<swap_id>` - Complete swap
-- `POST /submit_review/<user_id>` - Submit review
+### 🔄 Swaps & Reviews
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/send_swap/<user_id>` | Send swap request |
+| `GET/POST` | `/my-swaps` | View all swap requests |
+| `GET` | `/accept/<swap_id>` | Accept a swap |
+| `GET` | `/reject/<swap_id>` | Reject a swap |
+| `GET` | `/complete/<swap_id>` | Mark swap as completed |
+| `POST` | `/submit_review/<user_id>` | Submit review for user |
 
-### Chat & Notifications
-- `GET/POST /chat/<swap_id>` - Chat for swap
-- `GET /notifications` - View notifications
+### 💬 Chat & Notifications
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET/POST` | `/chat/<swap_id>` | Chat for a specific swap |
+| `GET` | `/notifications` | View all notifications |
 
-## Key Features Explained 🎯
+### 🔌 WebSocket Events
+| Event | Direction | Description |
+|-------|-----------|-------------|
+| `join_room` | Client → Server | Join a chat room |
+| `send_message` | Client → Server | Send a chat message |
+| `receive_message` | Server → Client | Receive a chat message |
+| `new_notification` | Server → Client | Real-time notification push |
 
-### Matching Algorithm
-The smart matching algorithm calculates compatibility scores based on:
-- **Mutual Skills** (40%): Skills user A wants that B offers + vice versa
-- **Reputation** (40%): User B's average rating and reviews
-- **Experience** (20%): User B's XP level
+---
 
-### XP System
-Users earn XP through:
-- Adding skills: +10 XP
-- Completing swaps: +50 XP per user
-- Receiving reviews: +50 XP per user
+## Environment Variables 🔐
 
-### Badge System
-Unlock achievements by:
-- **First Swap**: Complete 1 swap
-- **Rising Star**: Earn 200 XP
-- **Skill Master**: Earn 500 XP
-- **Trusted Mentor**: Receive 5 positive reviews
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SECRET_KEY` | `dev-secret-key...` | Flask secret key **(change in production!)** |
+| `FLASK_ENV` | `development` | `development` / `production` / `testing` |
+| `DATABASE_URL` | `sqlite:///skillswap.db` | Database connection string |
+| `UPLOAD_FOLDER` | `static/profile_pics` | Profile picture upload path |
+| `DEBUG` | `True` | Enable debug mode |
+| `MAIL_SERVER` | `smtp.gmail.com` | SMTP server address |
+| `MAIL_PORT` | `587` | SMTP port (587 for TLS) |
+| `MAIL_USE_TLS` | `True` | Enable TLS encryption |
+| `MAIL_USERNAME` | — | Gmail address |
+| `MAIL_PASSWORD` | — | Gmail App Password (16-char) |
+| `MAIL_DEFAULT_SENDER` | — | Default "From" email address |
 
-## Security Features 🔒
-
-- **CSRF Protection**: Flask-WTF CSRF tokens on all forms
-- **Password Hashing**: Werkzeug secure password hashing
-- **Session Security**: Secure session cookies with HTTPOnly flag
-- **Input Validation**: WTForms validation on all inputs
-- **Authorization Checks**: Role-based access control on all routes
-- **SQL Injection Prevention**: SQLAlchemy ORM parameterized queries
+---
 
 ## Testing 🧪
 
-Run the test suite:
 ```bash
 pip install pytest
 pytest test_app.py -v
 ```
 
 Tests cover:
-- User model operations
-- Skill management
-- Swap request creation
-- Matching algorithm
-- Badge system
-- Notifications
+- ✅ User model operations
+- ✅ Skill management (CRUD)
+- ✅ Swap request lifecycle
+- ✅ Matching algorithm accuracy
+- ✅ Badge award system
+- ✅ Notification creation
+- ✅ Review system
 
-## Logging 📝
-
-Application logs are written to `skillswap.log` and console:
-- Authentication events
-- Swap operations
-- Badge awards
-- Errors and exceptions
-
-## Environment Variables 🔐
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| SECRET_KEY | dev-key | Flask secret key (change in production!) |
-| FLASK_ENV | development | Application environment |
-| DATABASE_URL | sqlite:///skillswap.db | Database connection string |
-| UPLOAD_FOLDER | static/profile_pics | Profile picture upload location |
-| DEBUG | True | Enable debug mode (set to False in production) |
+---
 
 ## Production Deployment 🌐
 
-1. **Update `.env`** with production values
-2. **Use PostgreSQL** instead of SQLite
-3. **Set `DEBUG=False`** and `SESSION_COOKIE_SECURE=True`
-4. **Use a production WSGI server** (Gunicorn, uWSGI)
-5. **Enable HTTPS** with SSL certificates
-6. **Setup error monitoring** (Sentry, etc.)
+1. **Set production environment variables** — Use a strong `SECRET_KEY`, set `FLASK_ENV=production`, `DEBUG=False`
+2. **Switch to PostgreSQL** — Update `DATABASE_URL` connection string
+3. **Apply migrations** — `flask db upgrade`
+4. **Use a production WSGI server:**
+   ```bash
+   gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:8000 app:app
+   ```
+5. **Enable HTTPS** with SSL/TLS certificates
+6. **Setup monitoring** (Sentry, Datadog, etc.)
 
-Example production run:
-```bash
-gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:8000 app:app
-```
-
-## Known Limitations ⚠️
-
-- Real-time chat uses eventlet (not ideal for large scale deployments)
-- No email verification system implemented
-- Profile picture upload limited to 2MB files
-- WebSocket connections limited by single-threaded eventlet worker
-
-## Future Enhancements 🔮
-
-- [ ] Two-factor authentication
-- [ ] Email notifications
-- [ ] Video/call integration
-- [ ] Skill categories and subcategories
-- [ ] Advanced search and filtering
-- [ ] User blocking system
-- [ ] Dispute resolution system
-- [ ] Payment integration for premium features
-- [ ] Mobile app (React Native)
-- [ ] Advanced analytics dashboard
+---
 
 ## Contributing 🤝
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+---
+
+## Changelog 📜
+
+### v1.1.0 (Current)
+- ✅ Password reset via Gmail SMTP with styled HTML emails
+- ✅ Flask-Migrate database migrations
+- ✅ Timezone-aware matching with timezone bonus
+- ✅ Skill proficiency levels (Beginner / Intermediate / Expert)
+- ✅ Fuzzy skill name matching
+- ✅ Improved error handling & user feedback
+
+### v1.0.0
+- ✅ Core platform with auth, skills, swaps, chat
+- ✅ Gamification (XP, badges, levels)
+- ✅ Security hardening (CSRF, rate limiting, secure sessions)
+- ✅ Unit tests & logging
+
+---
 
 ## License 📄
 
-This project is licensed under the MIT License - see LICENSE file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Support 💬
 
 For issues, suggestions, or questions:
-- Open an issue on GitHub
-- Contact: luckyyyroyyy@gmail.com
-
-## Changelog 📜
-
-### Version 1.0.0 (Current)
-- ✅ Initial release with core features
-- ✅ Security hardening complete
-- ✅ Unit tests implemented
-- ✅ Full documentation
-- ✅ Environment configuration
-- ✅ Form validation
-- ✅ Error handling and logging
+- 📧 Email: luckyyyroyyy@gmail.com
+- 🐛 [Open an Issue](https://github.com/luckyyyroyyy/Skill-Swap/issues)
 
 ---
 
-**Made with ❤️ for skill-sharing**
+<p align="center">
+  <strong>Made with ❤️ for skill-sharing</strong><br/>
+  <sub>© 2026 SkillSwap Pro — Swap skills, grow together.</sub>
+</p>
