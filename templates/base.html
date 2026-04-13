@@ -84,6 +84,7 @@
                 <a href="/" class="nav-link hover:bg-white/10 rounded-lg transition-all text-sm" style="padding: 0.35rem 0.6rem;">Explore</a>
                 {% if current_user.is_authenticated %}
                 <a href="{{ url_for('user.dashboard') }}" class="nav-link hover:bg-white/10 rounded-lg transition-all text-sm" style="padding: 0.35rem 0.6rem;">Dashboard</a>
+                <a href="{{ url_for('user.discover') }}" class="nav-link hover:bg-white/10 rounded-lg transition-all text-sm font-800 text-cyan-400" style="padding: 0.35rem 0.6rem;">Discover ✨</a>
                 <a href="{{ url_for('swap.my_swaps') }}" class="nav-link hover:bg-white/10 rounded-lg transition-all hidden sm:block text-sm" style="padding: 0.35rem 0.6rem;">My Swaps</a>
                 {% endif %}
             </div>

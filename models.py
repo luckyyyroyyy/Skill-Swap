@@ -20,6 +20,10 @@ class User(db.Model, UserMixin):
     total_reviews = db.Column(db.Integer, default=0)
     timezone = db.Column(db.String(50), default="UTC")
 
+    github_username = db.Column(db.String(100), nullable=True)
+    linkedin_url = db.Column(db.String(255), nullable=True)
+    portfolio_url = db.Column(db.String(255), nullable=True)
+
     is_active = db.Column(db.Boolean, default=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -44,6 +48,12 @@ class User(db.Model, UserMixin):
     )
     skills = db.relationship(
         "Skill", backref="user", lazy=True, cascade="all, delete"
+    )
+    availability = db.relationship(
+        "AvailabilitySlot", backref="user", lazy=True, cascade="all, delete"
+    )
+    portfolio_projects = db.relationship(
+        "PortfolioProject", backref="user", lazy=True, cascade="all, delete"
     )
 
     # Level System
@@ -92,6 +102,24 @@ class Skill(db.Model):
 
 
 # =========================
+# PORTFOLIO PROJECT MODEL
+# =========================
+class PortfolioProject(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    project_url = db.Column(db.String(255), nullable=True)
+    image_url = db.Column(db.String(255), nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
+
+
+# =========================
 # SWAP REQUEST MODEL
 # =========================
 class SwapRequest(db.Model):
@@ -110,6 +138,7 @@ class SwapRequest(db.Model):
 
     accepted_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
+    proposed_time = db.Column(db.DateTime)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -202,3 +231,20 @@ class ChatMessage(db.Model):
 
     sender = db.relationship("User")
     swap = db.relationship("SwapRequest", backref="messages")
+
+
+# =========================
+# AVAILABILITY SLOT MODEL
+# =========================
+class AvailabilitySlot(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
+    
+    day_of_week = db.Column(db.Integer, nullable=False) # 0=Monday, 6=Sunday
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -13,9 +13,9 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 
 from extensions import db
-from models import User, Skill
-from forms import SkillForm, EditProfileForm
-from utils import find_matches, check_and_award_badges, XP_ADD_SKILL
+from models import User, Skill, AvailabilitySlot, PortfolioProject
+from forms import SkillForm, EditProfileForm, AvailabilityForm, PortfolioProjectForm
+from utils import find_matches, check_and_award_badges, XP_ADD_SKILL, convert_availability_to_viewer_tz
 
 user_bp = Blueprint("user", __name__)
 logger = logging.getLogger(__name__)
@@ -28,15 +28,8 @@ def dashboard():
     from forms import SkillForm
 
     form = SkillForm()
-    category_filter = request.args.get("category")
-    page = request.args.get("page", 1, type=int)
-    per_page = 9
-
-    all_matches = find_matches(current_user, category=category_filter)
-    total_matches = len(all_matches)
-    total_pages = max(1, (total_matches + per_page - 1) // per_page)
-    page = min(page, total_pages)
-    matches = all_matches[(page - 1) * per_page : page * per_page]
+    all_matches = find_matches(current_user)
+    matches = all_matches[:3]
 
     offers = [s for s in current_user.skills if s.type == "offer"]
     wants = [s for s in current_user.skills if s.type == "want"]
@@ -56,10 +49,19 @@ def dashboard():
         wants=wants,
         received_requests=received_requests,
         sent_requests=sent_requests,
-        current_category=category_filter,
-        page=page,
-        total_pages=total_pages,
-        total_matches=total_matches,
+    )
+
+
+@user_bp.route("/discover")
+@login_required
+def discover():
+    category_filter = request.args.get("category")
+    all_matches = find_matches(current_user, category=category_filter)
+    
+    return render_template(
+        "discover.html", 
+        matches=all_matches, 
+        current_category=category_filter
     )
 
 
@@ -90,6 +92,24 @@ def profile(username):
         Review.reviewed_user_id == user.id
     ).order_by(Review.created_at.desc()).all()
 
+    # Availability calculation
+    viewer_availability = []
+    if current_user.is_authenticated and getattr(current_user, 'timezone', None):
+        for slot in user.availability:
+            new_day, new_start, new_end = convert_availability_to_viewer_tz(slot, user.timezone or "UTC", current_user.timezone)
+            viewer_availability.append({
+                'day_of_week': new_day,
+                'start_time': new_start,
+                'end_time': new_end
+            })
+    else:
+        for slot in user.availability:
+            viewer_availability.append({
+                'day_of_week': slot.day_of_week,
+                'start_time': slot.start_time,
+                'end_time': slot.end_time
+            })
+
     return render_template(
         "profile.html",
         user=user,
@@ -98,7 +118,51 @@ def profile(username):
         review_form=review_form,
         has_reviewed=has_reviewed,
         reviews_data=reviews_data,
+        viewer_availability=viewer_availability,
     )
+
+
+@user_bp.route("/add_availability", methods=["POST"])
+@login_required
+def add_availability():
+    form = AvailabilityForm()
+    if form.validate_on_submit():
+        try:
+            slot = AvailabilitySlot(
+                user_id=current_user.id,
+                day_of_week=int(form.day_of_week.data),
+                start_time=form.start_time.data,
+                end_time=form.end_time.data
+            )
+            db.session.add(slot)
+            db.session.commit()
+            flash("Availability added successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error adding availability for user {current_user.id}: {e}")
+            flash("An error occurred.", "danger")
+    else:
+        for error in form.errors.values():
+            flash(str(error), "danger")
+    return redirect(url_for("user.edit_profile"))
+
+
+@user_bp.route("/remove_availability/<int:slot_id>", methods=["POST", "GET"])
+@login_required
+def remove_availability(slot_id):
+    try:
+        slot = db.session.get(AvailabilitySlot, slot_id)
+        if slot and slot.user_id == current_user.id:
+            db.session.delete(slot)
+            db.session.commit()
+            flash("Availability removed.", "info")
+        else:
+            flash("Invalid availability slot.", "warning")
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error removing availability for user {current_user.id}: {e}")
+        flash("An error occurred.", "danger")
+    return redirect(url_for("user.edit_profile"))
 
 
 @user_bp.route("/edit_profile", methods=["GET", "POST"])
@@ -109,6 +173,9 @@ def edit_profile():
         try:
             current_user.bio = form.bio.data
             current_user.timezone = form.timezone.data
+            current_user.github_username = form.github_username.data or None
+            current_user.linkedin_url = form.linkedin_url.data or None
+            current_user.portfolio_url = form.portfolio_url.data or None
 
             if form.profile_pic.data:
                 file = form.profile_pic.data
@@ -155,8 +222,57 @@ def edit_profile():
     elif request.method == "GET":
         form.bio.data = current_user.bio
         form.timezone.data = current_user.timezone
+        form.github_username.data = current_user.github_username
+        form.linkedin_url.data = current_user.linkedin_url
+        form.portfolio_url.data = current_user.portfolio_url
 
-    return render_template("edit_profile.html", form=form)
+    availability_form = AvailabilityForm()
+    portfolio_form = PortfolioProjectForm()
+    return render_template("edit_profile.html", form=form, availability_form=availability_form, portfolio_form=portfolio_form)
+
+
+@user_bp.route("/add_portfolio_project", methods=["POST"])
+@login_required
+def add_portfolio_project():
+    form = PortfolioProjectForm()
+    if form.validate_on_submit():
+        try:
+            filename = None
+            if form.image.data:
+                file = form.image.data
+                filename = secure_filename(file.filename)
+                
+                import uuid
+                filename = f"{uuid.uuid4().hex}_{filename}"
+                filepath = os.path.join(current_app.root_path, "static", "portfolio_pics", filename)
+                os.makedirs(os.path.dirname(filepath), exist_ok=True)
+                file.save(filepath)
+
+            project = PortfolioProject(
+                user_id=current_user.id,
+                title=form.title.data,
+                description=form.description.data or None,
+                project_url=form.project_url.data or None,
+                image_url=filename
+            )
+            db.session.add(project)
+            db.session.commit()
+            flash("Portfolio project added successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Error adding portfolio project: {e}")
+            flash("An error occurred.", "danger")
+    return redirect(url_for("user.edit_profile"))
+
+@user_bp.route("/remove_portfolio_project/<int:project_id>", methods=["POST"])
+@login_required
+def remove_portfolio_project(project_id):
+    project = db.session.get(PortfolioProject, project_id)
+    if project and project.user_id == current_user.id:
+        db.session.delete(project)
+        db.session.commit()
+        flash("Project removed.", "info")
+    return redirect(url_for("user.edit_profile"))
 
 
 @user_bp.route("/delete_account", methods=["POST"])

@@ -34,6 +34,11 @@
                         </div>
                     </div>
                     <div class="text-xs font-600 text-slate-400 capitalize">Status: {{ req.status }}</div>
+                    {% if req.proposed_time %}
+                        <div class="text-xs font-600 text-indigo-400 bg-indigo-500/10 inline-block px-2 py-1 rounded">
+                            📅 Proposed Time: {{ req.proposed_time.strftime('%b %d, %Y at %H:%M') }}
+                        </div>
+                    {% endif %}
 
                     {% if req.status == "pending" %}
                         <div class="flex gap-2">
@@ -85,6 +90,11 @@
                         <div class="flex-1">
                             <div class="font-700">{{ req.receiver.username }}</div>
                             <div class="text-xs text-slate-500 mt-0.5 capitalize">{{ req.status }}</div>
+                            {% if req.proposed_time %}
+                                <div class="text-xs font-600 text-indigo-400 bg-indigo-500/10 inline-block px-2 py-1 rounded mt-2">
+                                    📅 Proposed Time: {{ req.proposed_time.strftime('%b %d, %Y at %H:%M') }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="status-dot
                             {% if req.status == 'pending' %}status-pending

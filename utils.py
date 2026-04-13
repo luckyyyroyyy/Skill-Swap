@@ -1,4 +1,7 @@
 import logging
+import difflib
+from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta
 from models import (  # noqa: F401
     User,
     Skill,
@@ -80,37 +83,50 @@ def calculate_match_score(user_a, user_b):
     - User B's experience level (XP)
     """
     try:
-        # Get skills for both users
-        a_wants = {s.name.lower() for s in user_a.skills if s.type == "want"}
-        a_offers = {s.name.lower() for s in user_a.skills if s.type == "offer"}
+        def get_similarity(s1, s2):
+            return difflib.SequenceMatcher(None, s1, s2).ratio()
 
-        b_wants = {s.name.lower() for s in user_b.skills if s.type == "want"}
-        b_offers = {s.name.lower() for s in user_b.skills if s.type == "offer"}
+        a_wants = [(s.name.lower(), getattr(s, 'proficiency_level', 'Beginner')) for s in user_a.skills if s.type == "want"]
+        a_offers = [(s.name.lower(), getattr(s, 'proficiency_level', 'Beginner')) for s in user_a.skills if s.type == "offer"]
 
-        # Calculate mutual matches using fuzzy string matching
-        mutual_1 = 0
-        for w in a_wants:
-            if any((w in o or o in w) for o in b_offers):
-                mutual_1 += 1
+        b_wants = [(s.name.lower(), getattr(s, 'proficiency_level', 'Beginner')) for s in user_b.skills if s.type == "want"]
+        b_offers = [(s.name.lower(), getattr(s, 'proficiency_level', 'Beginner')) for s in user_b.skills if s.type == "offer"]
 
-        mutual_2 = 0
-        for w in b_wants:
-            if any((w in o or o in w) for o in a_offers):
-                mutual_2 += 1
+        def calc_mutual_score(wants, offers):
+            score = 0
+            for w_name, w_prof in wants:
+                best_match = 0
+                for o_name, o_prof in offers:
+                    sim = get_similarity(w_name, o_name)
+                    if w_name in o_name or o_name in w_name:
+                        sim = max(sim, 0.85)
+
+                    if sim > 0.6:
+                        prof_bonus = 0
+                        if w_prof in ['Beginner', 'Intermediate'] and o_prof == 'Expert':
+                            prof_bonus = 0.25
+                        elif w_prof == 'Beginner' and o_prof == 'Intermediate':
+                            prof_bonus = 0.15
+                        best_match = max(best_match, sim + prof_bonus)
+                score += best_match
+            return score
+
+        mutual_1 = calc_mutual_score(a_wants, b_offers)
+        mutual_2 = calc_mutual_score(b_wants, a_offers)
 
         # Timezone bonus
         timezone_bonus = 0
         if getattr(user_a, 'timezone', None) and getattr(user_b, 'timezone', None):
             if user_a.timezone == user_b.timezone and user_a.timezone != "UTC":
-                timezone_bonus = 10
+                timezone_bonus = 5
 
-        # Weighted scoring
-        skill_score = (mutual_1 + mutual_2) * MATCH_SKILL_MULTIPLIER
-        rating_score = (user_b.rating or 0) * MATCH_RATING_MULTIPLIER
+        # Weighted scoring (modified for semantic scores)
+        skill_score = (mutual_1 + mutual_2) * 30  # Adjust multiplier for semantic ratio
+        rating_score = (user_b.rating or 0) * 8
         xp_score = (user_b.xp or 0) / MATCH_XP_DIVISOR
 
         total_score = skill_score + rating_score + xp_score + timezone_bonus
-        return round(total_score)
+        return min(round(total_score), 100)  # Cap at 100%
     except Exception as e:
         logger.error(f"Error calculating match score: {e}")
         return 0
@@ -251,3 +267,41 @@ def create_notification(user_id, message):
     except Exception as e:
         logger.error(f"Failed to create notification for user {user_id}: {e}")
         db.session.rollback()
+
+
+# =========================
+# TIMEZONE UTILITIES
+# =========================
+def convert_availability_to_viewer_tz(slot, owner_tz_str, viewer_tz_str):
+    """
+    Converts an availability slot from the owner's timezone to the viewer's timezone.
+    Returns (new_day_of_week, new_start_time, new_end_time)
+    """
+    if owner_tz_str == viewer_tz_str:
+        return slot.day_of_week, slot.start_time, slot.end_time
+
+    try:
+        owner_tz = ZoneInfo(owner_tz_str if owner_tz_str != "Other" else "UTC")
+        viewer_tz = ZoneInfo(viewer_tz_str if viewer_tz_str != "Other" else "UTC")
+    except Exception as e:
+        logger.error(f"Invalid timezone strings during conversion: {e}")
+        return slot.day_of_week, slot.start_time, slot.end_time
+    
+    now = datetime.now(owner_tz)
+    days_ahead = slot.day_of_week - now.weekday()
+    if days_ahead < 0:
+        days_ahead += 7
+    
+    target_date = now + timedelta(days=days_ahead)
+    
+    dt_start = datetime.combine(target_date.date(), slot.start_time, tzinfo=owner_tz)
+    dt_end = datetime.combine(target_date.date(), slot.end_time, tzinfo=owner_tz)
+    
+    # Handle overnight slots gracefully by ensuring end > start date-wise if needed
+    if slot.end_time < slot.start_time:
+        dt_end += timedelta(days=1)
+
+    viewer_dt_start = dt_start.astimezone(viewer_tz)
+    viewer_dt_end = dt_end.astimezone(viewer_tz)
+    
+    return viewer_dt_start.weekday(), viewer_dt_start.time(), viewer_dt_end.time()

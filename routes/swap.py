@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
 from flask_login import login_required, current_user
 
 from extensions import db
@@ -19,7 +19,7 @@ swap_bp = Blueprint("swap", __name__)
 logger = logging.getLogger(__name__)
 
 
-@swap_bp.route("/send_swap/<int:user_id>")
+@swap_bp.route("/send_swap/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def send_swap(user_id):
     try:
@@ -43,8 +43,16 @@ def send_swap(user_id):
             )
             return redirect(url_for("user.dashboard"))
 
+        proposed_time_str = request.form.get("proposed_time")
+        proposed_time = None
+        if proposed_time_str:
+            try:
+                proposed_time = datetime.fromisoformat(proposed_time_str.replace("Z", "+00:00"))
+            except ValueError:
+                pass
+
         swap = SwapRequest(
-            sender_id=current_user.id, receiver_id=user_id, status="pending"
+            sender_id=current_user.id, receiver_id=user_id, status="pending", proposed_time=proposed_time
         )
         db.session.add(swap)
         db.session.commit()

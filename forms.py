@@ -6,6 +6,7 @@ from wtforms import (
     TextAreaField,
     SelectField,
     IntegerField,
+    TimeField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -198,6 +199,16 @@ class EditProfileForm(FlaskForm):
         ],
         default="UTC"
     )
+    github_username = StringField("GitHub Username", validators=[Optional(), Length(max=100)])
+    linkedin_url = StringField("LinkedIn URL", validators=[Optional(), Length(max=255)])
+    portfolio_url = StringField("Personal Portfolio URL", validators=[Optional(), Length(max=255)])
+
+class PortfolioProjectForm(FlaskForm):
+    """Add a portfolio project form."""
+    title = StringField("Project Title", validators=[DataRequired(), Length(max=150)])
+    description = TextAreaField("Description", validators=[Optional(), Length(max=1000)])
+    project_url = StringField("Project Link (Optional)", validators=[Optional(), Length(max=255)])
+    image = FileField("Cover Image", validators=[FileAllowed(["jpg", "png", "jpeg", "gif"], "Images only!")])
 
 
 class ChatMessageForm(FlaskForm):
@@ -214,3 +225,22 @@ class ChatMessageForm(FlaskForm):
             ),
         ],
     )
+
+
+class AvailabilityForm(FlaskForm):
+    """Add availability slot form."""
+    day_of_week = SelectField(
+        "Day of Week",
+        choices=[
+            ("0", "Monday"),
+            ("1", "Tuesday"),
+            ("2", "Wednesday"),
+            ("3", "Thursday"),
+            ("4", "Friday"),
+            ("5", "Saturday"),
+            ("6", "Sunday"),
+        ],
+        validators=[DataRequired()],
+    )
+    start_time = TimeField("Start Time", validators=[DataRequired()])
+    end_time = TimeField("End Time", validators=[DataRequired()])
