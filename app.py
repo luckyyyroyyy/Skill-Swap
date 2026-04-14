@@ -48,6 +48,7 @@ socketio.init_app(app, cors_allowed_origins="*")
 
 # Import models and routes AFTER initializing app
 import models  # noqa: E402, F401
+import events  # noqa: E402, F401
 from routes import main_bp, auth_bp, user_bp, swap_bp, chat_bp  # noqa: E402
 
 # Register Blueprints

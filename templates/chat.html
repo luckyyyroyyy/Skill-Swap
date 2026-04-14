@@ -20,8 +20,15 @@
                 </div>
             </div>
         </div>
-        <div class="badge badge-cyan hidden sm:flex shadow-[0_0_10px_currentColor]">
-            ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
+        <div class="flex items-center gap-3">
+            <a href="https://meet.jit.si/SkillSwap-Session-{{ swap.id }}-{{ swap.sender_id }}-{{ swap.receiver_id }}"
+               target="_blank"
+               class="btn-premium magnetic px-4 py-2 text-sm shadow-[0_0_15px_rgba(79,172,254,0.4)] flex items-center gap-2">
+               Start Video Call 📹
+            </a>
+            <div class="badge badge-cyan hidden sm:flex shadow-[0_0_10px_currentColor]">
+                ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
+            </div>
         </div>
     </div>
 
@@ -82,9 +89,66 @@
 <script>
     const chatBox = document.getElementById('chat-box');
     chatBox.scrollTop = chatBox.scrollHeight;
-    document.getElementById('chat-form').addEventListener('submit', () => {
-        setTimeout(() => chatBox.scrollTop = chatBox.scrollHeight, 80);
-    });
+    const chatForm = document.getElementById('chat-form');
+    const msgInput = document.querySelector('input[name="content"]');
+    
+    if (window.socket) {
+        // Join the specific swap room
+        window.socket.emit('join_chat_room', { swap_id: {{ swap.id }} });
+
+        // Listen for incoming messages
+        window.socket.on('new_room_message', (data) => {
+            const placeholder = chatBox.querySelector('.italic.text-slate-500');
+            if(placeholder) placeholder.parentElement.remove();
+
+            const isSelf = data.sender_id == {{ current_user.id }};
+            const msgDiv = document.createElement('div');
+
+            if (isSelf) {
+                msgDiv.className = 'flex justify-end';
+                msgDiv.innerHTML = `
+                    <div class="max-w-[72%] space-y-1">
+                        <div class="chat-bubble-self px-5 py-3 text-sm leading-relaxed text-white hover:scale-[1.01] transition-transform">
+                            ${data.message}
+                        </div>
+                        <div class="text-[10px] text-right text-slate-500 px-2">You</div>
+                    </div>
+                `;
+            } else {
+                msgDiv.className = 'flex justify-start gap-2.5';
+                msgDiv.innerHTML = `
+                    <div class="avatar shrink-0 mt-1">${data.avatar}</div>
+                    <div class="max-w-[72%] space-y-1">
+                        <div class="chat-bubble-other px-5 py-3 text-sm leading-relaxed text-slate-200 hover:scale-[1.01] transition-transform">
+                            ${data.message}
+                        </div>
+                        <div class="text-[10px] text-slate-500 px-2">${data.sender_name}</div>
+                    </div>
+                `;
+            }
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Intercept form submission
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const content = msgInput.value.trim();
+            if (content) {
+                window.socket.emit('send_room_message', {
+                    swap_id: {{ swap.id }},
+                    content: content
+                });
+                msgInput.value = '';
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    } else {
+        // Fallback for non-websocket browsers
+        chatForm.addEventListener('submit', () => {
+            setTimeout(() => chatBox.scrollTop = chatBox.scrollHeight, 80);
+        });
+    }
 </script>
 
 {% endblock %}

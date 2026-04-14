@@ -245,11 +245,11 @@
         // ---- Socket.IO ----
         /* {% if current_user.is_authenticated %} */
         if (typeof io !== 'undefined') {
-            const socket = io();
-            socket.on('connect', () => {
-                socket.emit('join_personal_room', '{{ current_user.id }}');
+            window.socket = io();
+            window.socket.on('connect', () => {
+                window.socket.emit('join_personal_room', '{{ current_user.id }}');
             });
-            socket.on('new_notification', (data) => {
+            window.socket.on('new_notification', (data) => {
                 showToast(data.message);
             });
         }
