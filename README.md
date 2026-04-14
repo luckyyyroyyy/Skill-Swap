@@ -67,9 +67,12 @@
 ### 📋 Core Platform
 - **Skill Marketplace** — Browse users offering/wanting skills across 8 categories
 - **Swap Requests** — Send, accept, reject, and complete skill exchanges
+- **Smart Scheduling** — Set your weekly availability and propose swap times converted automatically to the viewer's timezone
 - **Review System** — Rate (1-5 stars) and comment after completed swaps
-- **User Profiles** — Customizable bio, profile picture upload (2MB limit), timezone
-- **Notifications** — Real-time alerts for swap requests and messages
+- **User Profiles** — Customizable bio, social links (GitHub, LinkedIn, Portfolio)
+- **Portfolio Showcase** — Add project highlights with descriptions and images to your profile
+- **Interactive Avatar Cropper** — Crop and precisely adjust your profile picture before upload (2MB limit)
+- **Notifications & Feedback** — Real-time alerts for requests and elegant toast notifications for actions
 - **Dashboard** — Paginated view of matched users with compatibility scores
 
 ---
@@ -93,7 +96,7 @@
 
 ## Database Models 🗄️
 
-```
+```text
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
 │     User     │────▶│    Skill     │     │    Badge     │
 │──────────────│     │──────────────│     │──────────────│
@@ -101,7 +104,7 @@
 │ username     │     │ name         │     │ name         │
 │ email        │     │ category     │     │ description  │
 │ password     │     │ type         │     │ icon         │
-│ bio          │     │ proficiency  │     └──────┬───────┘
+│ bio / socials│     │ proficiency  │     └──────┬───────┘
 │ xp / badge   │     │ user_id (FK) │            │
 │ profile_pic  │     └──────────────┘     ┌──────┴───────┐
 │ rating       │                          │  UserBadge   │
@@ -112,7 +115,7 @@
        │             │ sender_id    │     └──────────────┘
        ├────────────▶│ receiver_id  │
        │             │ status       │     ┌──────────────┐
-       │             │ accepted_at  │     │ ChatMessage  │
+       │             │ proposed_time│     │ ChatMessage  │
        │             │ completed_at │────▶│──────────────│
        │             └──────────────┘     │ swap_id (FK) │
        │                                  │ sender_id    │
@@ -124,9 +127,20 @@
        │             │ rating       │     │ Notification │
        │             │ comment      │     │──────────────│
        │             └──────────────┘     │ user_id (FK) │
-       └─────────────────────────────────▶│ message      │
-                                          │ is_read      │
-                                          └──────────────┘
+       │                                  │ message      │
+       │             ┌──────────────┐     │ is_read      │
+       ├────────────▶│ PortfolioProj│     └──────────────┘
+       │             │──────────────│
+       │             │ title / desc │
+       │             │ project_url  │
+       │             └──────────────┘
+       │
+       │             ┌──────────────┐
+       └────────────▶│ Availability │
+                     │──────────────│
+                     │ day_of_week  │
+                     │ start / end  │
+                     └──────────────┘
 ```
 
 ---
@@ -362,7 +376,17 @@ Tests cover:
 
 ## Changelog 📜
 
-### v1.1.0 (Current)
+### v1.2.0 (Stable Release)
+- ✅ **End-to-end quality assurance (QA)** validation complete
+- ✅ Verified real-time WebSocket interactions & DOM updates
+- ✅ **New Feature:** Weekly Availability Scheduling with timezone-aware logic
+- ✅ **New Feature:** Portfolio Projects and Social Links on User Profiles
+- ✅ **UI/UX Polish:** Interactive Avatar Cropper, UI Pagination, and stylish Toast Notifications
+- ✅ Production-ready deployment optimizations
+- ✅ Database records cleaned and reset for fresh deployment
+- ✅ Temporary logs and cache files cleaned
+
+### v1.1.0
 - ✅ Password reset via Gmail SMTP with styled HTML emails
 - ✅ Flask-Migrate database migrations
 - ✅ Timezone-aware matching with timezone bonus
