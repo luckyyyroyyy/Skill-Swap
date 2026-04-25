@@ -34,6 +34,7 @@ db.init_app(app)
 migrate.init_app(app, db, render_as_batch=True)
 mail.init_app(app)
 login_manager.init_app(app)
+login_manager.login_view = "auth.register"
 
 # 🔥 Initialize CSRF Protection
 csrf = CSRFProtect(app)
