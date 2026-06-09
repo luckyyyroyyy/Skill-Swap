@@ -32,9 +32,14 @@
 
                 <div class="space-y-1">
                     <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Password</label>
-                    <input type="password" name="password" required
-                           placeholder="••••••••"
-                           class="form-input">
+                    <div class="relative">
+                        <input type="password" id="login-password" name="password" required
+                               placeholder="••••••••"
+                               class="form-input w-full pr-10">
+                        <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white" onclick="togglePassword('login-password', this)">
+                            👁️
+                        </button>
+                    </div>
                     {% if form.password.errors %}
                         {% for err in form.password.errors %}
                             <p class="text-xs text-red-400 mt-1">⚠ {{ err }}</p>
@@ -65,4 +70,19 @@
     </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.innerText = '🙈';
+    } else {
+        input.type = 'password';
+        button.innerText = '👁️';
+    }
+}
+</script>
 {% endblock %}
