@@ -6,9 +6,12 @@ class Config:
     """Base configuration."""
 
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL", "sqlite:///skillswap.db"
-    )
+    # Cloud providers (like Render) sometimes provide 'postgres://' but SQLAlchemy 1.4+ needs 'postgresql://'
+    _db_url = os.getenv("DATABASE_URL", "sqlite:///skillswap.db")
+    if _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+    
+    SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # File upload config
