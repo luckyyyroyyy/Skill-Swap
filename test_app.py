@@ -110,10 +110,57 @@ class TestAuth:
         # Should fail validation
         assert response.status_code in [200, 400]
 
+    def test_register_post_success(self, test_client):
+        """Test registration redirects to login page instead of dashboard."""
+        response = test_client.post(
+            "/register",
+            data={
+                "username": "freshuser",
+                "email": "freshuser@example.com",
+                "password": "validpassword123",
+                "confirm_password": "validpassword123",
+            },
+            follow_redirects=False,
+        )
+        assert response.status_code == 302
+        assert "/login" in response.headers["Location"]
+
+
     def test_login_get(self, test_client):
         """Test login page loads."""
         response = test_client.get("/login")
         assert response.status_code == 200
+
+    def test_login_ajax_success(self, test_client, test_user):
+        """Test AJAX login returns JSON with username for Apple animation."""
+        response = test_client.post(
+            "/login",
+            data={
+                "email": "test@example.com",
+                "password": "testpassword123",
+            },
+            headers={"X-Requested-With": "XMLHttpRequest"},
+        )
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["success"] is True
+        assert data["username"] == "testuser"
+        assert "/dashboard" in data["redirect_url"]
+
+    def test_login_ajax_invalid(self, test_client, test_user):
+        """Test AJAX login with incorrect password returns 401 JSON."""
+        response = test_client.post(
+            "/login",
+            data={
+                "email": "test@example.com",
+                "password": "wrongpassword",
+            },
+            headers={"X-Requested-With": "XMLHttpRequest"},
+        )
+        assert response.status_code == 401
+        data = response.get_json()
+        assert data["success"] is False
+        assert "Invalid email or password" in data["message"]
 
 
 class TestUserModel:
@@ -287,6 +334,40 @@ class TestNotificationSystem:
 
             assert notification.message == "You have a new swap request!"
             assert notification.is_read is False
+
+
+class TestDashboardAndSkillManagement:
+    """Test dashboard loading and skill removal."""
+
+    def test_dashboard_authenticated(self, test_client, test_user):
+        """Test dashboard renders for authenticated user."""
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        response = test_client.get("/dashboard")
+        assert response.status_code == 200
+        assert b"Cyber Command" in response.data or b"Two-Domain Skill Studio" in response.data
+
+    def test_delete_skill(self, test_client, test_user):
+        """Test user can delete a skill they created."""
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        with app.app_context():
+            skill = Skill(name="Rust", category="Tech", type="offer", proficiency_level="Intermediate", user_id=test_user.id)
+            db.session.add(skill)
+            db.session.commit()
+            skill_id = skill.id
+
+        response = test_client.post(f"/delete_skill/{skill_id}", follow_redirects=True)
+        assert response.status_code == 200
+        assert b"Removed skill Rust" in response.data
+
+        with app.app_context():
+            deleted = db.session.get(Skill, skill_id)
+            assert deleted is None
 
 
 if __name__ == "__main__":

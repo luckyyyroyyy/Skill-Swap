@@ -26,17 +26,15 @@
             <div class="space-y-1.5">
                 <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Timezone</label>
                 {{ form.timezone(class="form-input") }}
-            </div>
-
-            <!-- Profile Picture -->
+            </div>            <!-- Profile Picture -->
             <div class="space-y-2">
-                <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Profile Picture</label>
+                <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Profile Picture</label>
                 <label id="upload-label" class="flex flex-col items-center justify-center gap-3 w-full p-8 text-center cursor-pointer
-                              border-2 border-dashed border-white/15 rounded-2xl
-                              hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all group">
+                              border-2 border-dashed border-slate-300 rounded-2xl
+                              hover:border-indigo-500 hover:bg-indigo-50/50 transition-all group bg-white shadow-xs">
                     <span class="text-3xl group-hover:scale-110 transition-transform">📸</span>
                     <div class="space-y-0.5">
-                        <div id="upload-text" class="text-sm font-600 text-slate-300">Click to upload image</div>
+                        <div id="upload-text" class="text-sm font-600 text-slate-700">Click to upload image</div>
                         <div class="text-xs text-slate-500">JPEG or PNG, max 2MB</div>
                     </div>
                     <input type="file" id="image-input" class="hidden" accept=".jpg,.jpeg,.png">
@@ -44,16 +42,16 @@
 
                 <!-- Cropper Preview (hidden by default) -->
                 <div id="cropper-container" class="hidden space-y-4">
-                    <div class="glass-panel rounded-2xl p-4 overflow-hidden" style="max-height: 350px;">
+                    <div class="glass-panel rounded-2xl p-4 overflow-hidden border border-slate-200 bg-slate-50" style="max-height: 350px;">
                         <img id="cropper-image" src="" alt="Preview" style="max-width: 100%; display: block;">
                     </div>
                     <div class="flex gap-2">
                         <button type="button" id="crop-btn"
-                                class="btn-premium flex-1 py-2.5 text-sm text-center">
+                                class="btn-premium flex-1 py-2.5 text-sm text-center shadow-md">
                             ✂️ Crop & Use
                         </button>
                         <button type="button" id="cancel-crop-btn"
-                                class="flex-1 py-2.5 text-sm text-center rounded-xl font-700 text-slate-400 bg-white/5 hover:bg-white/10 border border-white/10 transition-all">
+                                class="flex-1 py-2.5 text-sm text-center rounded-xl font-700 text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all shadow-xs">
                             Cancel
                         </button>
                     </div>
@@ -63,48 +61,48 @@
             </div>
 
             <!-- Social Links -->
-            <div class="space-y-3 pt-4 border-t border-white/5">
-                <h3 class="text-sm font-800 text-slate-300">Social & Links</h3>
+            <div class="space-y-3 pt-4 border-t border-slate-200/80">
+                <h3 class="text-sm font-800 text-slate-900">Social & Links</h3>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">GitHub Username</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">GitHub Username</label>
                     <div class="flex">
-                        <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-white/10 bg-white/5 text-slate-400 text-sm">github.com/</span>
+                        <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-slate-200 bg-slate-100 text-slate-600 text-sm">github.com/</span>
                         {{ form.github_username(class="form-input rounded-l-none", placeholder="username") }}
                     </div>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">LinkedIn URL</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">LinkedIn URL</label>
                     {{ form.linkedin_url(class="form-input", placeholder="https://linkedin.com/in/...") }}
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Portfolio URL</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Portfolio URL</label>
                     {{ form.portfolio_url(class="form-input", placeholder="https://yourwebsite.com") }}
                 </div>
             </div>
 
-            <button type="submit" class="btn-premium w-full py-3.5">
+            <button type="submit" class="btn-premium w-full py-3.5 shadow-md">
                 Save Changes ✓
             </button>
         </form>
 
         <!-- My Availability Section -->
-        <div class="mt-8 pt-6 border-t border-white/5 space-y-4">
+        <div class="mt-8 pt-6 border-t border-slate-200/80 space-y-4">
             <div>
-                <h3 class="text-xl font-800">My Availability</h3>
+                <h3 class="text-xl font-800 text-slate-900">My Availability</h3>
                 <p class="text-xs text-slate-500 mt-1">Set your weekly recurring free time. We'll automatically handle timezone conversions for others!</p>
             </div>
             
             <div class="space-y-3">
                 {% for slot in current_user.availability %}
-                    <div class="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/5">
+                    <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-xs">
                         <div class="text-sm font-600">
                             {% set days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
-                            <span class="text-indigo-400">{{ days[slot.day_of_week] }}</span>
-                            <span class="text-slate-300 ml-2">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</span>
+                            <span class="text-indigo-700 font-bold">{{ days[slot.day_of_week] }}</span>
+                            <span class="text-slate-700 ml-2 font-medium">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</span>
                         </div>
                         <form method="POST" action="{{ url_for('user.remove_availability', slot_id=slot.id) }}" class="inline">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 rounded bg-red-500/10 hover:bg-red-500/20 transition-all">Remove</button>
+                            <button type="submit" class="text-red-600 hover:text-red-700 text-xs px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 transition-all font-semibold">Remove</button>
                         </form>
                     </div>
                 {% else %}
@@ -112,43 +110,43 @@
                 {% endfor %}
             </div>
 
-            <form method="POST" action="{{ url_for('user.add_availability') }}" class="mt-4 p-4 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+            <form method="POST" action="{{ url_for('user.add_availability') }}" class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-xs">
                 {{ availability_form.csrf_token }}
                 <div class="grid grid-cols-3 gap-3">
                     <div class="space-y-1">
-                        <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Day</label>
+                        <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Day</label>
                         {{ availability_form.day_of_week(class="form-input py-2") }}
                     </div>
                     <div class="space-y-1">
-                        <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">From</label>
+                        <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">From</label>
                         {{ availability_form.start_time(class="form-input py-2", type="time") }}
                     </div>
                     <div class="space-y-1">
-                        <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">To</label>
+                        <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">To</label>
                         {{ availability_form.end_time(class="form-input py-2", type="time") }}
                     </div>
                 </div>
-                <button type="submit" class="btn-premium w-full py-2 text-sm">Add Slot +</button>
+                <button type="submit" class="btn-premium w-full py-2 text-sm shadow-sm">Add Slot +</button>
             </form>
         </div>
 
         <!-- Portfolio Projects Section -->
-        <div class="mt-8 pt-6 border-t border-white/5 space-y-4">
+        <div class="mt-8 pt-6 border-t border-slate-200/80 space-y-4">
             <div>
-                <h3 class="text-xl font-800">Portfolio Projects</h3>
+                <h3 class="text-xl font-800 text-slate-900">Portfolio Projects</h3>
                 <p class="text-xs text-slate-500 mt-1">Showcase your best work to build trust with potential swap partners.</p>
             </div>
             
             <div class="grid grid-cols-2 gap-3">
                 {% for p in current_user.portfolio_projects %}
-                    <div class="bg-white/5 p-3 rounded-xl border border-white/10 relative group overflow-hidden">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 relative group overflow-hidden shadow-xs">
                         {% if p.image_url %}
                             <div class="w-full h-24 rounded-lg bg-cover bg-center mb-2" style="background-image: url('{{ url_for('static', filename='portfolio_pics/' ~ p.image_url) }}')"></div>
                         {% endif %}
-                        <div class="text-sm font-700 truncate text-slate-200">{{ p.title }}</div>
+                        <div class="text-sm font-700 truncate text-slate-900">{{ p.title }}</div>
                         <form method="POST" action="{{ url_for('user.remove_portfolio_project', project_id=p.id) }}" class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="w-6 h-6 rounded-md bg-red-500/80 text-white flex items-center justify-center text-xs hover:bg-red-500">✕</button>
+                            <button type="submit" class="w-6 h-6 rounded-md bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 shadow-sm">✕</button>
                         </form>
                     </div>
                 {% else %}
@@ -156,41 +154,41 @@
                 {% endfor %}
             </div>
 
-            <form method="POST" action="{{ url_for('user.add_portfolio_project') }}" enctype="multipart/form-data" class="mt-4 p-4 bg-white/5 rounded-2xl border border-white/10 space-y-4">
+            <form method="POST" action="{{ url_for('user.add_portfolio_project') }}" enctype="multipart/form-data" class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-xs">
                 {{ portfolio_form.csrf_token }}
                 <div class="space-y-1">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Project Title</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Project Title</label>
                     {{ portfolio_form.title(class="form-input py-2") }}
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Description</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Description</label>
                     {{ portfolio_form.description(class="form-input py-2 resize-none", rows="2") }}
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Link (Optional)</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Link (Optional)</label>
                     {{ portfolio_form.project_url(class="form-input py-2", placeholder="https://...") }}
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Cover Image</label>
+                    <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Cover Image</label>
                     {{ portfolio_form.image(class="form-input py-2 text-xs", style="padding: 0.4rem;") }}
                 </div>
-                <button type="submit" class="btn-premium w-full py-2 text-sm">Upload Project 📁</button>
+                <button type="submit" class="btn-premium w-full py-2 text-sm shadow-sm">Upload Project 📁</button>
             </form>
         </div>
 
         <!-- Danger Zone -->
-        <div class="mt-8 pt-6 border-t border-white/5 space-y-4">
+        <div class="mt-8 pt-6 border-t border-slate-200/80 space-y-4">
             <div>
-                <h3 class="text-base font-800 text-red-400">Danger Zone</h3>
+                <h3 class="text-base font-800 text-red-600">Danger Zone</h3>
                 <p class="text-xs text-slate-500 mt-1">This action is permanent and cannot be undone.</p>
             </div>
             <form method="POST" action="{{ url_for('user.delete_account') }}"
                   onsubmit="return confirm('Permanently deactivate your account? This cannot be undone.');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit"
-                        class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-700 text-red-400
-                               border border-red-500/25 bg-red-500/8 hover:bg-red-500/20 hover:border-red-500/50
-                               transition-all">
+                        class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-700 text-red-600
+                               border border-red-200 bg-red-50 hover:bg-red-100 hover:border-red-300
+                               transition-all shadow-xs">
                     🗑 Delete Account
                 </button>
             </form>

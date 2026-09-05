@@ -1,6 +1,57 @@
 {% extends "base.html" %}
 {% block content %}
 
+<!-- Load Apple-style Cursive Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+<!-- ====== CINEMATIC APPLE "HELLO" FULLSCREEN OVERLAY ====== -->
+<div id="apple-login-overlay" class="apple-overlay" aria-hidden="true">
+    <div class="apple-ambient-glow"></div>
+    <div class="apple-stage-wrapper">
+        <div class="apple-svg-wrap">
+            <svg id="apple-svg-stage" class="apple-svg-stage" viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <clipPath id="tangerine-wipe-clip">
+                        <rect id="tangerine-wipe-rect" x="0" y="0" width="0" height="380" />
+                    </clipPath>
+                    <filter id="appleTubeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="2.5" result="blurCore"/>
+                        <feGaussianBlur stdDeviation="9" result="blurMedium"/>
+                        <feGaussianBlur stdDeviation="22" result="blurAura"/>
+                        <feMerge>
+                            <feMergeNode in="blurAura"/>
+                            <feMergeNode in="blurMedium"/>
+                            <feMergeNode in="blurCore"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Layer 1: Tangerine Calligraphic Outlined Stroke Draw -->
+                <text id="apple-stroke-text" class="tangerine-apple-stroke" x="500" y="225" text-anchor="middle">Lucky</text>
+
+                <!-- Layer 2: Tangerine Solid Luminous Calligraphy with progressive reveal -->
+                <g clip-path="url(#tangerine-wipe-clip)">
+                    <text id="apple-fill-text" class="tangerine-apple-fill" x="500" y="225" text-anchor="middle">Lucky</text>
+                </g>
+
+                <!-- Traveling Pen Cursor -->
+                <circle id="apple-pen-cursor" class="apple-pen-cursor" cx="0" cy="0" r="6" />
+            </svg>
+            <div id="apple-shimmer-layer" class="apple-shimmer-mask"></div>
+        </div>
+
+        <div id="apple-subline-box" class="apple-subline-box">
+            <span id="apple-subline" class="apple-subline-text">WELCOME BACK, LUCKY</span>
+            <div class="apple-progress-track">
+                <div id="apple-progress-fill" class="apple-progress-fill"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <section class="flex justify-center items-center min-h-[70vh]">
     <div class="w-full max-w-md animate-scale-in">
 
@@ -18,7 +69,7 @@
             <form method="POST" class="space-y-4" id="loginForm">
                 {{ form.csrf_token }}
 
-                <div id="login-errors" class="hidden text-sm text-red-400 bg-red-400/10 p-3 rounded-lg border border-red-400/20"></div>
+                <div id="login-errors" class="hidden text-sm text-red-400 bg-red-400/10 p-3.5 rounded-xl border border-red-400/20"></div>
 
                 <div class="space-y-1">
                     <label class="text-xs font-700 text-slate-400 uppercase tracking-wider">Email</label>
@@ -55,8 +106,8 @@
                     </a>
                 </div>
 
-                <button type="submit" class="btn-premium magnetic w-full py-3.5 text-base mt-2">
-                    Sign In 🚀
+                <button type="submit" id="submitBtn" class="btn-premium magnetic w-full py-3.5 text-base mt-2 flex items-center justify-center gap-2">
+                    <span id="submitBtnText">Sign In 🚀</span>
                 </button>
             </form>
 
@@ -87,14 +138,147 @@ function togglePassword(inputId, button) {
     }
 }
 
+// -------------------------------------------------------------
+// 🍎 TANGERINE CALLIGRAPHY LOGIN ANIMATION ENGINE
+// Powered by Google Font Tangerine with authentic write-on progressive reveal
+// -------------------------------------------------------------
+let activeAppleAnim = null;
+
+function playAppleAnimation(displayName, redirectUrl) {
+    const overlay = document.getElementById('apple-login-overlay');
+    const strokeText = document.getElementById('apple-stroke-text');
+    const fillText = document.getElementById('apple-fill-text');
+    const wipeRect = document.getElementById('tangerine-wipe-rect');
+    const cursorEl = document.getElementById('apple-pen-cursor');
+    const subline = document.getElementById('apple-subline');
+
+    if (!overlay || !strokeText) {
+        if (redirectUrl) window.location.href = redirectUrl;
+        return;
+    }
+
+    if (activeAppleAnim) {
+        cancelAnimationFrame(activeAppleAnim);
+    }
+
+    // Extract first clean token and format with proper capitalization
+    let raw = (displayName || "Lucky").trim().replace(/[_.-]+/g, ' ');
+    let firstWord = raw.split(/\s+/)[0] || "Lucky";
+    let cleanName = firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
+
+    strokeText.textContent = cleanName;
+    fillText.textContent = cleanName;
+
+    if (subline) {
+        subline.textContent = `WELCOME BACK, ${cleanName.toUpperCase()}`;
+    }
+
+    // Reset overlay state classes
+    overlay.classList.remove('exit', 'shimmer-active', 'show-subline');
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+
+    // Calculate approximate width and baseline based on Tangerine font metrics
+    const approxWidth = Math.max(180, 80 + (cleanName.length - 1) * 48);
+    const startX = 500 - (approxWidth / 2) - 35;
+    const endX = 500 + (approxWidth / 2) + 35;
+    const totalW = endX - startX;
+    const baselineY = 225;
+
+    const textStrokeLen = Math.max(1400, cleanName.length * 320);
+    strokeText.style.strokeDasharray = textStrokeLen;
+    strokeText.style.strokeDashoffset = textStrokeLen;
+
+    wipeRect.setAttribute('x', startX);
+    wipeRect.setAttribute('width', 0);
+
+    if (cursorEl) {
+        cursorEl.classList.add('active');
+        cursorEl.setAttribute('cx', startX);
+        cursorEl.setAttribute('cy', baselineY);
+    }
+
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    const duration = Math.min(2300, Math.max(1600, cleanName.length * 280));
+    let startTime = null;
+
+    function frameStep(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(1, elapsed / duration);
+        const eased = easeInOutCubic(progress);
+
+        // Progressively draw the outline stroke and wipe-fill the solid calligraphy
+        strokeText.style.strokeDashoffset = textStrokeLen * (1 - eased);
+        const currentW = totalW * eased;
+        wipeRect.setAttribute('width', currentW);
+
+        // Position luminous traveling pen cursor along leading edge
+        if (cursorEl) {
+            cursorEl.setAttribute('cx', startX + currentW);
+            const waveY = Math.sin(progress * cleanName.length * Math.PI) * 12;
+            cursorEl.setAttribute('cy', baselineY + waveY);
+        }
+
+        if (progress < 1) {
+            activeAppleAnim = requestAnimationFrame(frameStep);
+        } else {
+            // Finished write-on!
+            strokeText.style.strokeDashoffset = 0;
+            wipeRect.setAttribute('width', totalW + 200);
+            if (cursorEl) cursorEl.classList.remove('active');
+
+            // 1. Specular light gleam sweep across the signature
+            setTimeout(() => {
+                overlay.classList.add('shimmer-active');
+            }, 80);
+
+            // 2. Reveal Apple San Francisco typography subline
+            setTimeout(() => {
+                overlay.classList.add('show-subline');
+            }, 260);
+
+            // 3. Apple camera-push zoom & blur dissolve into dashboard
+            setTimeout(() => {
+                overlay.classList.add('exit');
+            }, 1800);
+
+            setTimeout(() => {
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.href = '/dashboard';
+                }
+            }, 2350);
+        }
+    }
+
+    // Start drawing on next repaint
+    requestAnimationFrame(() => {
+        requestAnimationFrame((time) => {
+            frameStep(time);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('loginForm');
     const errorContainer = document.getElementById('login-errors');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
 
+    // Asynchronous Login submission with Apple animation
     if (form) {
-        form.addEventListener('submit', function(e) {
-            let email = document.querySelector('input[name="email"]').value;
-            let password = document.getElementById('login-password').value;
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const emailInput = document.querySelector('input[name="email"]');
+            const passwordInput = document.getElementById('login-password');
+            let email = emailInput.value.trim();
+            let password = passwordInput.value;
             let errors = [];
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -107,11 +291,48 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (errors.length > 0) {
-                e.preventDefault();
                 errorContainer.innerHTML = errors.map(err => `⚠ ${err}`).join('<br>');
                 errorContainer.classList.remove('hidden');
-            } else {
-                errorContainer.classList.add('hidden');
+                return;
+            }
+
+            errorContainer.classList.add('hidden');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtnText.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg> Verifying...
+            `;
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch("{{ url_for('auth.login') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: formData
+                });
+
+                const data = await response.json().catch(() => null);
+
+                if (response.ok && data && data.success) {
+                    // Trigger the Apple "hello" signature animation!
+                    playAppleAnimation(data.username, data.redirect_url);
+                } else {
+                    const message = (data && data.message) ? data.message : "Invalid email or password.";
+                    errorContainer.innerHTML = `⚠ ${message}`;
+                    errorContainer.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtnText.innerText = "Sign In 🚀";
+                }
+            } catch (err) {
+                console.error("Login request failed:", err);
+                // Fallback to normal form submission if network or parsing issue
+                form.submit();
             }
         });
     }

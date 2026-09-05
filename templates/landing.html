@@ -1,213 +1,1163 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- ====== HERO SECTION ====== -->
-<section class="relative pt-8 pb-24">
-    <div class="flex flex-col lg:flex-row items-center gap-16">
+<!-- Synaptic Background Particle Canvas -->
+<canvas id="synaptic-canvas" class="hero-grid-pattern"></canvas>
+<div class="absolute top-20 left-1/4 w-96 h-96 bg-sky-400/15 rounded-full blur-3xl pointer-events-none z-0"></div>
+<div class="absolute top-40 right-1/4 w-96 h-96 bg-indigo-400/12 rounded-full blur-3xl pointer-events-none z-0"></div>
 
-        <!-- Hero Text -->
-        <div class="flex-1 text-center lg:text-left space-y-7 z-10 animate-fade-up">
-            <!-- Pill badge -->
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-600
-                        bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 shadow-[0_0_15px_rgba(0,242,254,0.3)]">
-                <span class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
-                Smart Matching AI ✨ — Now Live
+<!-- =========================================================================
+     1. HERO SECTION: CYBERNETIC SYNAPTIC ARCHITECTURE
+     ========================================================================= -->
+<section class="relative pt-4 pb-14 z-10">
+    <div class="flex flex-col lg:flex-row items-center gap-12 xl:gap-16">
+
+        <!-- Hero Copy -->
+        <div class="flex-1 text-center lg:text-left space-y-6 animate-fade-up">
+            <!-- Pill Status Badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs sm:text-sm font-600
+                        bg-cyan-50 border border-cyan-200 text-cyan-800 shadow-sm backdrop-blur-md">
+                <span class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping"></span>
+                <span>✨ AI Synergy v2.0 • 100% Peer-to-Peer • Zero Hidden Fees</span>
             </div>
 
-            <!-- Headline -->
-            <h1 class="text-6xl md:text-7xl lg:text-8xl font-900 leading-[0.95] tracking-tight">
-                Exchange<br>
-                <span class="text-gradient">Skills.</span><br>
-                <span class="text-white/40 font-400 text-5xl md:text-6xl">Elevate Together.</span>
+            <!-- Main Punchy Headline -->
+            <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-900 leading-[0.96] tracking-tight">
+                Where Skills Become <br>
+                <span class="text-gradient">Currency.</span><br>
+                <span class="text-slate-400 font-400 text-3xl sm:text-4xl md:text-5xl lg:text-6xl">Trade Mastery. Zero Friction.</span>
             </h1>
 
-            <!-- Subtext -->
-            <p class="text-lg text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed font-400">
-                The world's most advanced peer-to-peer knowledge exchange platform.
-                Teach what you master, learn what you've always wanted.
+            <!-- Value Proposition Subtext -->
+            <p class="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-400">
+                The next-generation knowledge exchange network. Teach the craft you've perfected, 
+                unlock the skills you desire, and build a verified reputation—without spending a dime.
             </p>
 
-            <!-- CTAs -->
-            <div class="flex flex-col sm:flex-row items-center gap-4 pt-2 justify-center lg:justify-start">
-                <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic w-full sm:w-auto px-8 py-4 text-base">
-                    🚀 Start Your Journey
+            <!-- Primary CTAs -->
+            <div class="flex flex-col sm:flex-row items-center gap-4 pt-1 justify-center lg:justify-start">
+                <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic w-full sm:w-auto px-9 py-4 text-base font-700 shadow-xl shadow-cyan-500/25">
+                    🚀 Start Swapping Free
                 </a>
-                <a href="{{ url_for('user.dashboard') }}" class="btn-outline magnetic w-full sm:w-auto px-8 py-4 text-base">
-                    Explore Network →
+                <a href="#match-simulator" class="btn-outline magnetic w-full sm:w-auto px-8 py-4 text-base font-600 border-slate-200 text-slate-700 hover:border-cyan-500 hover:text-cyan-700 bg-white/70 shadow-sm">
+                    ⚡ Live Match Finder ↓
                 </a>
             </div>
 
-            <!-- Stats row -->
-            <div class="flex items-center gap-10 pt-4 justify-center lg:justify-start border-t border-white/5 mt-6 stagger">
-                {% for stat, label in [('12K+','Learners'), ('450+','Skills'), ('4.9★','Rating')] %}
-                    <div class="animate-fade-up text-center lg:text-left">
-                        <div class="text-2xl font-800 text-gradient">{{ stat }}</div>
-                        <div class="text-xs text-slate-500 font-600 uppercase tracking-wider mt-0.5">{{ label }}</div>
+            <!-- Live Active Swappers Stack -->
+            <div class="flex items-center justify-center lg:justify-start gap-4 pt-2">
+                <div class="flex -space-x-2.5 overflow-hidden">
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white shadow-sm bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-[10px] font-700 text-white shadow-md">ML</div>
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white shadow-sm bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-[10px] font-700 text-white shadow-md">DV</div>
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white shadow-sm bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-[10px] font-700 text-white shadow-md">AN</div>
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white shadow-sm bg-gradient-to-tr from-purple-500 to-indigo-600 flex items-center justify-center text-[10px] font-700 text-white shadow-md">ST</div>
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white shadow-sm bg-gradient-to-tr from-emerald-400 to-teal-600 flex items-center justify-center text-[10px] font-700 text-white shadow-md">+48</div>
+                </div>
+                <div class="text-xs text-slate-600 flex items-center gap-2">
+                    <span class="radar-beacon w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span><strong>48 creators</strong> swapping live right now • Avg match: <strong>42s</strong></span>
+                </div>
+            </div>
+
+            <!-- Live Trust Signals & Metrics -->
+            <div class="grid grid-cols-3 gap-6 pt-5 border-t border-slate-200/80 mt-4">
+                <div>
+                    <div class="text-2xl sm:text-3xl font-800 text-slate-900 flex items-center justify-center lg:justify-start gap-1">
+                        <span>14.2K</span><span class="text-cyan-400 text-xl">+</span>
                     </div>
-                {% endfor %}
+                    <div class="text-[11px] text-slate-500 font-600 uppercase tracking-wider mt-1">Active Swappers</div>
+                </div>
+                <div>
+                    <div class="text-2xl sm:text-3xl font-800 text-slate-900 flex items-center justify-center lg:justify-start gap-1">
+                        <span>520</span><span class="text-pink-400 text-xl">+</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 font-600 uppercase tracking-wider mt-1">Skills Indexed</div>
+                </div>
+                <div>
+                    <div class="text-2xl sm:text-3xl font-800 text-slate-900 flex items-center justify-center lg:justify-start gap-1">
+                        <span>99.4</span><span class="text-amber-400 text-xl">%</span>
+                    </div>
+                    <div class="text-[11px] text-slate-500 font-600 uppercase tracking-wider mt-1">Satisfaction</div>
+                </div>
             </div>
         </div>
 
-        <!-- Hero Floating Cards -->
-        <div class="flex-1 relative w-full max-w-lg mx-auto">
-            <!-- Main floating card -->
-            <div class="glass-card card-shine radial-glow p-6 rounded-3xl relative z-20 animate-fade-up"
-                 style="animation-delay:0.2s; box-shadow: 0 40px 80px rgba(0,0,0,0.8), var(--shadow-indigo);">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="avatar avatar-lg bg-gradient-premium text-white text-xl font-800 shadow-lg shadow-cyan-500/30">A</div>
-                    <div>
-                        <div class="font-700">Alex Chen</div>
-                        <div class="text-sm text-slate-400">Python Expert • Master 👑</div>
+        <!-- Hero Synaptic Swap Simulation Hologram with Floating Micro-Chips -->
+        <div class="flex-1 relative w-full max-w-lg lg:max-w-none">
+            <!-- Floating Ambient Micro-Badge 1 (Top-Right) -->
+            <div class="floating-chip-1 absolute -top-5 -right-4 sm:right-2 z-30 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-cyan-200 text-cyan-800 text-xs font-700 shadow-lg backdrop-blur-md">
+                <span>⚡</span>
+                <span>+180 XP Earned • "Figma System Mastery"</span>
+            </div>
+
+            <!-- Floating Ambient Micro-Badge 2 (Bottom-Left) -->
+            <div class="floating-chip-2 absolute -bottom-5 -left-4 sm:left-2 z-30 hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-emerald-200 text-emerald-800 text-xs font-700 shadow-lg backdrop-blur-md">
+                <span>🛡️</span>
+                <span>Verified Peer Swap • 5.0 ⭐ Rating</span>
+            </div>
+
+            <div class="relative flex flex-col sm:flex-row gap-5 items-center justify-center">
+
+                <!-- Creator Card A (Maya - Designer) -->
+                <div class="glass-card card-shine p-6 rounded-3xl w-full sm:w-72 relative z-20 animate-float-slow border border-slate-200/90 bg-white/90 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-400 to-indigo-500 flex items-center justify-center text-white font-800 text-base shadow-lg shadow-cyan-500/30">
+                                M
+                            </div>
+                            <div>
+                                <div class="font-700 text-slate-900 text-sm">Maya Lin</div>
+                                <div class="text-[11px] text-cyan-700 font-600">UI/UX Designer • Lvl 5</div>
+                            </div>
+                        </div>
+                        <span class="radar-beacon w-2 h-2 rounded-full bg-emerald-400" title="Online now"></span>
                     </div>
-                    <div class="ml-auto badge badge-cyan shadow-lg shadow-cyan-500/20">⚡ 850 XP</div>
+
+                    <div class="space-y-2 mb-3.5">
+                        <div class="text-[10px] font-700 uppercase tracking-wider text-slate-500">Can Teach</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="skill-chip skill-chip-offer text-xs py-0.5 px-2.5">Figma Systems</span>
+                            <span class="skill-chip skill-chip-offer text-xs py-0.5 px-2.5">Micro-Interactions</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-[10px] font-700 uppercase tracking-wider text-slate-500">Wants to Learn</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="skill-chip skill-chip-want text-xs py-0.5 px-2.5">FastAPI</span>
+                            <span class="skill-chip skill-chip-want text-xs py-0.5 px-2.5">AI Agents</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                        <span>⭐ 4.98 (24 reviews)</span>
+                        <span class="text-cyan-700 font-bold">⚡ 920 XP</span>
+                    </div>
                 </div>
 
-                <div class="space-y-3">
-                    <div class="text-xs text-slate-500 font-700 uppercase tracking-wider mb-2">Offers</div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-chip skill-chip-offer">Python</span>
-                        <span class="skill-chip skill-chip-offer">ML/AI</span>
-                        <span class="skill-chip skill-chip-offer">FastAPI</span>
+                <!-- Synaptic Connection Bridge & Match Pill -->
+                <div class="hidden sm:flex flex-col items-center justify-center z-30 -mx-3 my-auto">
+                    <div class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-cyan-500 to-pink-500 text-white text-xs font-800 shadow-[0_0_20px_rgba(0,242,254,0.6)] flex items-center gap-1.5 animate-pulse">
+                        <span>⚡</span>
+                        <span>98% MATCH</span>
+                    </div>
+                    <svg class="w-16 h-8 text-cyan-400 overflow-visible" viewBox="0 0 60 20">
+                        <line x1="0" y1="10" x2="60" y2="10" stroke="url(#synapseGrad)" stroke-width="2.5" class="synaptic-beam" />
+                        <defs>
+                            <linearGradient id="synapseGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#00f2fe" />
+                                <stop offset="100%" stop-color="#e879f9" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+
+                <!-- Creator Card B (Devon - Engineer) -->
+                <div class="glass-card card-shine p-6 rounded-3xl w-full sm:w-72 relative z-20 animate-float-reverse border border-slate-200/90 bg-white/90 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 to-amber-500 flex items-center justify-center text-white font-800 text-base shadow-lg shadow-pink-500/30">
+                                D
+                            </div>
+                            <div>
+                                <div class="font-700 text-slate-900 text-sm">Devon Vance</div>
+                                <div class="text-[11px] text-pink-700 font-600">AI Engineer • Master 👑</div>
+                            </div>
+                        </div>
+                        <span class="radar-beacon w-2 h-2 rounded-full bg-emerald-400" title="Online now"></span>
+                    </div>
+
+                    <div class="space-y-2 mb-3.5">
+                        <div class="text-[10px] font-700 uppercase tracking-wider text-slate-500">Can Teach</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="skill-chip skill-chip-offer text-xs py-0.5 px-2.5">FastAPI & Python</span>
+                            <span class="skill-chip skill-chip-offer text-xs py-0.5 px-2.5">LangChain</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="text-[10px] font-700 uppercase tracking-wider text-slate-500">Wants to Learn</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="skill-chip skill-chip-want text-xs py-0.5 px-2.5">Figma Systems</span>
+                            <span class="skill-chip skill-chip-want text-xs py-0.5 px-2.5">3D WebGL</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                        <span>⭐ 5.0 (38 reviews)</span>
+                        <span class="text-pink-400 font-600">🏆 1,150 XP</span>
                     </div>
                 </div>
 
-                <div class="space-y-3 mt-4">
-                    <div class="text-xs text-slate-500 font-700 uppercase tracking-wider mb-2">Wants</div>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="skill-chip skill-chip-want">Figma</span>
-                        <span class="skill-chip skill-chip-want">Web Design</span>
-                    </div>
-                </div>
+            </div>
 
-                <a href="{{ url_for('auth.register') }}" class="btn-premium w-full mt-6 py-3 text-sm">
-                    Send Swap Request ✉️
+            <!-- Live Swap Execution Pill Banner -->
+            <div class="mt-6 mx-auto max-w-sm glass-panel py-3 px-5 rounded-2xl flex items-center justify-between shadow-md border border-slate-200/80 bg-white/90 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span class="text-slate-600 font-semibold">High Synergy Pair Detected</span>
+                </div>
+                <a href="{{ url_for('auth.register') }}" class="text-cyan-700 hover:text-cyan-800 font-bold transition-colors flex items-center gap-1">
+                    <span>Connect Now</span>
+                    <span>→</span>
                 </a>
             </div>
+        </div>
 
-            <!-- Floating badge pill (top-right) -->
-            <div class="absolute -top-4 -right-4 glass-panel px-4 py-3 z-30 animate-fade-up"
-                 style="animation-delay:0.5s; box-shadow: var(--shadow-pink); border-color: rgba(184,41,234,0.3);">
-                <div class="flex items-center gap-2 text-sm font-600">
-                    <span class="text-lg">🎯</span>
-                    <span class="text-pink-300">94% Match</span>
-                </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     2. LIVE COMMUNITY ACTIVITY MARQUEE
+     ========================================================================= -->
+<section class="py-5 border-y border-slate-200/80 bg-white/60 shadow-sm relative z-10 backdrop-blur-sm">
+    <div class="marquee-container">
+        <div class="marquee-track text-xs sm:text-sm text-slate-300 font-500">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-emerald-400">🟢</span>
+                <span><strong>Elena</strong> swapped with <strong>Marcus</strong> (UX ⇄ Blender 3D)</span>
+                <span class="text-slate-500">• 2m ago</span>
             </div>
-
-            <!-- Floating mini card (bottom-left) -->
-            <div class="absolute -bottom-6 -left-6 glass-panel px-5 py-4 z-30 animate-fade-up"
-                 style="animation-delay:0.7s;">
-                <div class="flex items-center gap-3 text-sm">
-                    <span class="text-2xl">🏆</span>
-                    <div>
-                        <div class="font-700 text-amber-300">New Badge!</div>
-                        <div class="text-xs text-slate-500">Skill Master Unlocked</div>
-                    </div>
-                </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-amber-400">🏆</span>
+                <span><strong>Kai</strong> unlocked <strong>"Skill Master"</strong> badge</span>
+                <span class="text-slate-500">• 4m ago</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-cyan-400">🚀</span>
+                <span><strong>Aarav</strong> matched with <strong>Sophie</strong> (Go ⇄ Japanese)</span>
+                <span class="text-slate-500">• 7m ago</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-pink-400">⭐</span>
+                <span><strong>David</strong> completed 5-star session on React Hooks</span>
+                <span class="text-slate-500">• 11m ago</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-purple-400">💎</span>
+                <span><strong>Chloe & Leo</strong> exchanged Fullstack & Motion Graphics</span>
+                <span class="text-slate-500">• 14m ago</span>
+            </div>
+            <!-- Duplicated for seamless infinite looping -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-emerald-400">🟢</span>
+                <span><strong>Elena</strong> swapped with <strong>Marcus</strong> (UX ⇄ Blender 3D)</span>
+                <span class="text-slate-500">• 2m ago</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-amber-400">🏆</span>
+                <span><strong>Kai</strong> unlocked <strong>"Skill Master"</strong> badge</span>
+                <span class="text-slate-500">• 4m ago</span>
+            </div>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-xs">
+                <span class="text-cyan-400">🚀</span>
+                <span><strong>Aarav</strong> matched with <strong>Sophie</strong> (Go ⇄ Japanese)</span>
+                <span class="text-slate-500">• 7m ago</span>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ====== HOW IT WORKS ====== -->
-<section class="py-24 reveal">
-    <div class="text-center mb-16 space-y-3">
-        <div class="section-label">How It Works</div>
-        <h2 class="text-4xl md:text-5xl font-800 mt-3">
-            Trade Skills<br><span class="text-gradient">Effortlessly</span>
+<!-- =========================================================================
+     3. INTERACTIVE "LIVE MATCH FINDER" PLAYGROUND
+     ========================================================================= -->
+<section id="match-simulator" class="py-16 relative z-10 reveal">
+    <div class="text-center mb-10 space-y-3">
+        <div class="section-label">Interactive Playground</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            Find Your Synergy Match <span class="text-gradient">in Real-Time</span>
         </h2>
-        <p class="text-slate-400 max-w-xl mx-auto leading-relaxed">
-            From signup to your first swap in under 5 minutes. No fees, no friction.
+        <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+            Click what you can teach and what you want to learn. Watch our algorithmic matching engine surface verified peers instantly.
         </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6 stagger">
-        {% for step, icon, title, desc in [
-            ('01', '✍️', 'List Your Skills', 'Tell us what you offer and what you want to learn. Our AI takes it from there.'),
-            ('02', '🤝', 'Get Matched', 'Our algorithm surfaces your perfect learning partners based on skill synergy.'),
-            ('03', '🚀', 'Swap & Grow', 'Chat, exchange knowledge, complete your swap and earn XP and badges.')
-        ] %}
-        <div class="glass-card card-shine radial-glow p-8 rounded-3xl space-y-5 animate-fade-up hover-glow">
-            <div class="flex items-center gap-3">
-                <div class="text-3xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{{ icon }}</div>
-                <span class="text-xs font-800 text-slate-600 tracking-widest">STEP {{ step }}</span>
+    <div class="glass-card card-shine p-7 sm:p-10 rounded-3xl max-w-4xl mx-auto border border-slate-200/90 bg-white/90 shadow-xl">
+        <div class="grid md:grid-cols-2 gap-8">
+
+            <!-- Step 1: What can you teach? -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-700 text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[11px] font-800">1</span>
+                        I can teach:
+                    </label>
+                    <span id="selected-teach-label" class="text-xs text-slate-400">Selected: Python</span>
+                </div>
+                <div class="flex flex-wrap gap-2" id="teach-chips">
+                    <button type="button" class="interactive-chip active-teach px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="python">Python 🐍</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="figma">Figma & UI 🎨</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="japanese">Japanese 🇯🇵</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="guitar">Guitar 🎸</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="seo">SEO Growth 📈</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="blender">Blender 3D 🧊</button>
+                </div>
             </div>
-            <h3 class="text-xl font-700">{{ title }}</h3>
-            <p class="text-slate-400 leading-relaxed text-sm">{{ desc }}</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
 
-<!-- ====== FEATURES ====== -->
-<section class="py-24 reveal">
-    <div class="text-center mb-16 space-y-3">
-        <div class="section-label">Platform Features</div>
-        <h2 class="text-4xl md:text-5xl font-800 mt-3">Designed for <span class="text-gradient">Impact</span></h2>
-    </div>
-
-    <div class="grid md:grid-cols-3 gap-6 stagger">
-        {% for icon, color, title, desc, badge_class, badge_text in [
-            ('🎯', 'cyan', 'AI Matching', 'Our advanced algorithm connects you based on personality and skill synergy.', 'badge-cyan', 'Smart AI'),
-            ('🏆', 'pink', 'Gamified Growth', 'Earn XP, unlock exclusive badges, and climb the leaderboard as you share expertise.', 'badge-pink', 'Gamified'),
-            ('💬', 'amber', 'Real-Time Chat', 'Integrated messaging and swap management ensures a seamless, safe learning experience.', 'badge-amber', 'Live'),
-        ] %}
-        <div class="glass-card card-shine radial-glow p-9 rounded-3xl space-y-5 animate-fade-up hover-glow">
-            <div class="flex items-start justify-between">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-[0_0_15px_currentColor] text-{{ color }}-400
-                            bg-{{ color }}-500/10 border border-{{ color }}-500/20">{{ icon }}</div>
-                <span class="badge {{ badge_class }} shadow-[0_0_10px_currentColor]">{{ badge_text }}</span>
+            <!-- Step 2: What do you want to learn? -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-700 text-pink-300 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center text-[11px] font-800">2</span>
+                        I want to learn:
+                    </label>
+                    <span id="selected-learn-label" class="text-xs text-slate-400">Selected: UI/UX Design</span>
+                </div>
+                <div class="flex flex-wrap gap-2" id="learn-chips">
+                    <button type="button" class="interactive-chip active-learn px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="figma">UI/UX Design 📱</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="fastapi">FastAPI ⚡</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="spanish">Spanish 🇪🇸</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="piano">Piano 🎹</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="ml">AI & ML 🤖</button>
+                    <button type="button" class="interactive-chip px-3.5 py-2 rounded-xl text-xs font-600 border border-slate-200/90 bg-white/5 text-slate-300" data-skill="copy">Copywriting ✍️</button>
+                </div>
             </div>
-            <h3 class="text-xl font-700">{{ title }}</h3>
-            <p class="text-slate-400 leading-relaxed text-sm">{{ desc }}</p>
-        </div>
-        {% endfor %}
-    </div>
-</section>
 
-<!-- ====== CTA BANNER ====== -->
-<section class="py-12 reveal">
-    <div class="glass-card rounded-3xl p-10 md:p-16 text-center relative overflow-hidden card-shine"
-         style="background: linear-gradient(135deg, rgba(79,172,254,0.1), rgba(184,41,234,0.08));">
-        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-pink-500/5 pointer-events-none"></div>
-        <div class="relative z-10 space-y-6">
-            <h2 class="text-4xl md:text-5xl font-800">
-                Ready to <span class="text-gradient">Start Swapping?</span>
-            </h2>
-            <p class="text-slate-400 max-w-md mx-auto">
-                Join thousands of learners already levelling up through collaborative skill exchange.
-            </p>
-            <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic px-10 py-4 text-base inline-flex">
-                Create Free Account 🎉
+        </div>
+
+        <!-- Calculated Live Result Box -->
+        <div class="mt-8 p-5 rounded-2xl bg-slate-50/80 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-5">
+            <div class="flex items-center gap-4">
+                <div class="relative w-16 h-16 flex items-center justify-center shrink-0">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="transparent"/>
+                        <circle id="match-circle" cx="32" cy="32" r="28" stroke="#00f2fe" stroke-width="4" stroke-dasharray="176" stroke-dashoffset="7" stroke-linecap="round" fill="transparent" class="transition-all duration-700"/>
+                    </svg>
+                    <span id="match-percent" class="absolute text-sm font-800 text-slate-900">96%</span>
+                </div>
+                <div>
+                    <div class="text-sm font-700 text-slate-900 flex items-center gap-2">
+                        <span id="match-partner-name">Sophie Tremblay</span>
+                        <span class="badge badge-cyan text-[10px] py-0.5">Top Synergy Match</span>
+                    </div>
+                    <div id="match-partner-desc" class="text-xs text-slate-400 mt-0.5">
+                        Teaches UI/UX Design • Looking for Python Mentor
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic px-6 py-3 text-xs sm:text-sm font-700 whitespace-nowrap w-full sm:w-auto text-center shadow-lg shadow-cyan-500/20">
+                Claim Match & Swap →
             </a>
         </div>
+
+        <!-- Live Exchange Blueprint Preview -->
+        <div class="mt-6 pt-5 border-t border-slate-200/80">
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-3 font-600">
+                <span class="flex items-center gap-1.5 text-cyan-300">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    Synthesized Exchange Blueprint
+                </span>
+                <span>Est. Time: 2 Sessions / Week</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="p-3 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm">
+                    <div class="text-[10px] font-700 text-cyan-400 uppercase mb-1">Session 1</div>
+                    <div id="blueprint-s1" class="text-slate-300 font-500">Python Scripting & Data Parsing</div>
+                    <div class="text-[10px] text-slate-500 mt-1">45 mins • Live Voice & Screen</div>
+                </div>
+                <div class="p-3 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm">
+                    <div class="text-[10px] font-700 text-pink-400 uppercase mb-1">Session 2</div>
+                    <div id="blueprint-s2" class="text-slate-300 font-500">FastAPI Backend Architecture</div>
+                    <div class="text-[10px] text-slate-500 mt-1">60 mins • Shared Project Sandbox</div>
+                </div>
+                <div class="p-3 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm">
+                    <div class="text-[10px] font-700 text-amber-400 uppercase mb-1">Session 3</div>
+                    <div class="text-slate-300 font-500">Mutual Review, XP & Endorsement</div>
+                    <div class="text-[10px] text-slate-500 mt-1">15 mins • Verified Credentials</div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
-<style>
-.reveal { opacity:0; transform:translateY(32px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
-.reveal.active { opacity:1; transform:translateY(0); }
-</style>
+<!-- =========================================================================
+     4. NEW UNIQUE SECTION: "THE VALUE ENGINE" (ROI / SAVINGS CALCULATOR)
+     ========================================================================= -->
+<section class="py-16 relative z-10 reveal">
+    <div class="text-center mb-10 space-y-3">
+        <div class="section-label">Economic Superiority</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            Why Pay $60/hr When You Can <span class="text-gradient">Trade Mastery?</span>
+        </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+            Drag the slider to see how much money you save by joining the peer knowledge exchange network.
+        </p>
+    </div>
+
+    <div class="glass-card card-shine p-8 sm:p-10 rounded-3xl max-w-4xl mx-auto border border-slate-200/90 bg-white/90 shadow-xl">
+        <!-- Interactive Slider Controls -->
+        <div class="space-y-4 mb-8">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-700 text-slate-300">Learning Commitment:</span>
+                <span id="slider-hours-label" class="text-lg font-800 text-cyan-400">20 Hours</span>
+            </div>
+            <input type="range" id="hours-slider" min="5" max="100" step="5" value="20" class="custom-slider">
+            <div class="flex justify-between text-[11px] text-slate-500 font-600">
+                <span>5 Hours (Starter)</span>
+                <span>25 Hours (Standard)</span>
+                <span>50 Hours (Advanced)</span>
+                <span>100 Hours (Mastery)</span>
+            </div>
+        </div>
+
+        <!-- Comparison Columns -->
+        <div class="grid sm:grid-cols-2 gap-6">
+            <!-- Traditional Side -->
+            <div class="p-6 rounded-2xl bg-red-500/5 border border-red-500/20 flex flex-col justify-between">
+                <div>
+                    <div class="text-xs font-700 text-red-400 uppercase tracking-wider mb-1">Traditional Private Tutoring</div>
+                    <div id="cost-traditional" class="text-3xl sm:text-4xl font-900 text-red-400">$1,300</div>
+                    <div class="text-xs text-slate-400 mt-1 mb-4">Calculated at typical $65/hr tutoring rate</div>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li class="flex items-center gap-2">❌ Expensive hourly drain on your budget</li>
+                        <li class="flex items-center gap-2">❌ Transactional, one-way lectures</li>
+                        <li class="flex items-center gap-2">❌ No mutual peer community formed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SkillSwap Side -->
+            <div class="p-6 rounded-2xl bg-cyan-500/10 border border-cyan-500/40 relative overflow-hidden flex flex-col justify-between shadow-[0_0_30px_rgba(0,242,254,0.15)]">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="text-xs font-700 text-cyan-300 uppercase tracking-wider">SkillSwap Peer Exchange</div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-800 bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">100% FREE</span>
+                    </div>
+                    <div class="text-3xl sm:text-4xl font-900 text-cyan-300">$0.00</div>
+                    <div class="text-xs text-slate-300 mt-1 mb-4">Currency is your own expertise</div>
+                    <ul class="space-y-2 text-xs text-slate-300">
+                        <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> <strong>You save <span id="money-saved">$1,300</span></strong> straight to your wallet</li>
+                        <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> 1-on-1 reciprocal peer relationship</li>
+                        <li class="flex items-center gap-2"><span class="text-emerald-400">✓</span> Earn verified XP, reputation & badges</li>
+                    </ul>
+                </div>
+                <div class="pt-4 mt-4 border-t border-cyan-500/20">
+                    <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic w-full py-2.5 text-xs font-700 text-center block">
+                        Start Trading Zero-Cost Mastery →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     5. NEXT-GEN ASYMMETRIC BENTO GRID: PLATFORM PILLARS
+     ========================================================================= -->
+<section class="py-16 relative z-10 reveal">
+    <div class="text-center mb-12 space-y-3">
+        <div class="section-label">Engineered for Excellence</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            Why Top Creators Choose <span class="text-gradient">SkillSwap</span>
+        </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+            Every feature is designed to remove friction, guarantee reciprocity, and accelerate personal mastery.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+
+        <!-- Bento 1: AI Algorithmic Synergy (Large Card) -->
+        <div class="bento-card md:col-span-2 p-7 md:p-9 rounded-3xl flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-2xl text-cyan-400 mb-5 shadow-[0_0_15px_rgba(0,242,254,0.2)]">
+                    🎯
+                </div>
+                <h3 class="text-2xl font-800 text-slate-900 mb-2">Multivariate Synergy Matching</h3>
+                <p class="text-slate-600 text-sm leading-relaxed max-w-md">
+                    Our AI evaluates skill proficiency, timezone alignment, complementary goals, and past learning pace to surface peers who accelerate each other's progress.
+                </p>
+            </div>
+
+            <!-- Simulated Neural Network Pulse -->
+            <div class="mt-6 p-4 rounded-2xl bg-white/90 border border-slate-200/80 shadow-sm flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span class="text-xs text-slate-300 font-500">Autonomous Synergy Optimization Active</span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="px-2.5 py-1 rounded-md bg-cyan-50 text-[11px] text-cyan-700 font-semibold border border-cyan-200">NLP Keyword Graph</span>
+                    <span class="px-2.5 py-1 rounded-md bg-pink-50 text-[11px] text-pink-700 font-semibold border border-pink-200">Timezone Delta &lt; 3h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento 2: Live Split-Screen Collaboration Workspace -->
+        <div class="bento-card p-7 md:p-9 rounded-3xl flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-2xl text-pink-400 mb-5 shadow-[0_0_15px_rgba(184,41,234,0.2)]">
+                    ⚡
+                </div>
+                <h3 class="text-2xl font-800 text-slate-900 mb-2">Live Collaboration</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">
+                    Integrated WebSocket chat, shared code/design reviews, and calendar synchronization keep your sessions structured.
+                </p>
+            </div>
+
+            <!-- Interactive Live Chat & Code Mock -->
+            <div class="mt-6 p-3.5 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm space-y-2.5">
+                <div class="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-200/80 pb-2">
+                    <span class="flex items-center gap-1.5 text-emerald-400 font-600">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Active Room #104
+                    </span>
+                    <span class="text-slate-500">FastAPI ⇄ Figma</span>
+                </div>
+                <div class="mock-code-block text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-200">
+                    <span class="keyword">async def</span> <span class="func">swap_session</span>(peer):<br>
+                    &nbsp;&nbsp;<span class="keyword">await</span> peer.<span class="func">pair_build</span>()<br>
+                    &nbsp;&nbsp;<span class="keyword">return</span> <span class="str">"Mastery Unlocked"</span>
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                    <div class="w-5 h-5 rounded-full bg-pink-500 flex items-center justify-center text-[10px] text-white font-700">D</div>
+                    <div class="px-2.5 py-1 rounded-lg bg-white/10 text-[11px] text-slate-300 flex items-center gap-1.5">
+                        <span>Devon is typing</span>
+                        <div class="flex gap-1 items-center">
+                            <span class="w-1 h-1 rounded-full bg-cyan-400 typing-dot"></span>
+                            <span class="w-1 h-1 rounded-full bg-cyan-400 typing-dot"></span>
+                            <span class="w-1 h-1 rounded-full bg-cyan-400 typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento 3: Verified Mastery & Dynamic XP Level Gauge -->
+        <div class="bento-card p-7 md:p-9 rounded-3xl flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl text-amber-400 mb-5 shadow-[0_0_15px_rgba(248,54,0,0.2)]">
+                    🏆
+                </div>
+                <h3 class="text-2xl font-800 text-slate-900 mb-2">Verified Mastery</h3>
+                <p class="text-slate-600 text-sm leading-relaxed">
+                    Earn verifiable badges based on mutual peer evaluations and milestones.
+                </p>
+            </div>
+
+            <!-- XP Level Progression Ring & Holographic Badges -->
+            <div class="mt-6 space-y-3">
+                <div class="p-3 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 font-900 text-sm">
+                            L7
+                        </div>
+                        <div>
+                            <div class="text-xs font-700 text-slate-900">Grandmaster Tier</div>
+                            <div class="text-[10px] text-slate-400">8,450 / 10,000 XP</div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-800 text-amber-400">84.5%</span>
+                </div>
+
+                <div class="grid grid-cols-4 gap-1.5 text-center">
+                    <div class="p-2 rounded-lg bg-slate-50/80 border border-slate-200 hover:border-amber-400/50 transition-colors" title="Master Mentor">
+                        <span class="text-lg">👑</span>
+                        <div class="text-[9px] text-slate-400 font-600 mt-0.5">Master</div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-50/80 border border-slate-200 hover:border-cyan-400/50 transition-colors" title="Speed Learner">
+                        <span class="text-lg">⚡</span>
+                        <div class="text-[9px] text-slate-400 font-600 mt-0.5">Speed</div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-50/80 border border-slate-200 hover:border-pink-400/50 transition-colors" title="Polyglot Craftsman">
+                        <span class="text-lg">💎</span>
+                        <div class="text-[9px] text-slate-400 font-600 mt-0.5">Polymath</div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-50/80 border border-slate-200 hover:border-emerald-400/50 transition-colors" title="100% Reputation Guardian">
+                        <span class="text-lg">🛡️</span>
+                        <div class="text-[9px] text-slate-400 font-600 mt-0.5">Guardian</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bento 4: Peer Vouching & Trust Protocol (Large Card) -->
+        <div class="bento-card md:col-span-2 p-7 md:p-9 rounded-3xl flex flex-col justify-between">
+            <div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl text-emerald-400 mb-5 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                    🛡️
+                </div>
+                <h3 class="text-2xl font-800 text-slate-900 mb-2">Reputation You Own</h3>
+                <p class="text-slate-600 text-sm leading-relaxed max-w-md">
+                    Zero fake reviews. Ratings can only be submitted after both parties complete their verified knowledge exchange session.
+                </p>
+            </div>
+
+            <div class="mt-6 grid sm:grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-1 text-amber-400 text-xs">★★★★★</div>
+                        <span class="text-[10px] text-emerald-400 font-600">✓ Verified Swap</span>
+                    </div>
+                    <div class="text-xs text-slate-300 font-500">"Taught me Docker deployment in exchange for Figma wireframing. Incredible experience."</div>
+                    <div class="text-[10px] text-slate-500 mt-2">— Marcus Thorne, Verified Swapper</div>
+                </div>
+                <div class="p-4 rounded-xl bg-white/90 border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between mb-1">
+                        <div class="flex items-center gap-1 text-amber-400 text-xs">★★★★★</div>
+                        <span class="text-[10px] text-emerald-400 font-600">✓ Verified Swap</span>
+                    </div>
+                    <div class="text-xs text-slate-300 font-500">"Leveling up my Japanese speaking while teaching Python pandas. The community is gold."</div>
+                    <div class="text-[10px] text-slate-500 mt-2">— Priya Patel, 500 XP Earner</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- =========================================================================
+     6. 4-STEP INTERACTIVE WORKFLOW WITH GLOWING CONNECTORS
+     ========================================================================= -->
+<section class="py-16 relative z-10 reveal">
+    <div class="text-center mb-12 space-y-3">
+        <div class="section-label">Frictionless Workflow</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            From Profile to Swap <span class="text-gradient">in 4 Simple Steps</span>
+        </h2>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative">
+        {% for num, icon, title, desc, tag in [
+            ('01', '✍️', 'Define Your Craft', 'List what skills you are confident teaching, and select what you want to master.', '< 2 min setup'),
+            ('02', '🤝', 'Synergy Pairing', 'Our algorithm connects you with peers who offer what you want and seek what you teach.', 'AI Matrix'),
+            ('03', '💬', 'Collaborate & Learn', 'Chat in realtime, align your schedules, and exchange practical knowledge 1-on-1.', 'Built-in Audio/Chat'),
+            ('04', '🏆', 'Level Up & Vouch', 'Submit mutual verified reviews, collect XP, and unlock exclusive mentor badges.', 'Verifiable XP')
+        ] %}
+        <div class="glass-card card-shine p-6 rounded-3xl border border-slate-200/90 bg-white/85 shadow-md space-y-3 hover:border-cyan-400/40 transition-all duration-300 group flex flex-col justify-between relative">
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-3xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] group-hover:scale-110 transition-transform">{{ icon }}</span>
+                    <span class="text-xs font-900 text-slate-600 tracking-widest group-hover:text-cyan-400 transition-colors">STEP {{ num }}</span>
+                </div>
+                <h3 class="text-base font-700 text-slate-900 mb-1">{{ title }}</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">{{ desc }}</p>
+            </div>
+            <div class="pt-3 border-t border-slate-200/80 flex items-center justify-between">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">{{ tag }}</span>
+                <span class="text-cyan-400 text-xs step-arrow-pulse">→</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- =========================================================================
+     7. NEW UNIQUE SECTION: "WALL OF LOVE" (DUAL OPPOSING MARQUEES)
+     ========================================================================= -->
+<section class="py-14 border-y border-slate-200/80 bg-slate-100/40 relative z-10 overflow-hidden">
+    <div class="text-center mb-8 space-y-2">
+        <div class="section-label">Community Stories</div>
+        <h3 class="text-2xl sm:text-3xl font-800 text-slate-900">
+            Loved by Builders, Creators & Polyglots
+        </h3>
+    </div>
+
+    <!-- Row 1: Sliding Left -->
+    <div class="marquee-container mb-4">
+        <div class="marquee-track">
+            {% for name, role, trade, quote in [
+                ('Aarav Nair', 'Cloud Architect', 'Go ⇄ Japanese', 'Found an engineer in Tokyo who helped me prep for my Japanese interview. In exchange, I tutored him in Kubernetes. Flawless!'),
+                ('Chloe Bennet', 'UI Lead', 'Design Systems ⇄ Rust', 'Never thought I could learn Rust without tearing my hair out. My peer broke down borrow checking with custom visual diagrams.'),
+                ('Marcus Cole', '3D Artist', 'Blender ⇄ Three.js WebGL', 'The barter mechanism creates immediate respect. Both parties are equally invested in making the other person succeed.'),
+                ('Elena Rostova', 'Growth Strategist', 'SEO ⇄ Python Automation', 'Automated our entire keyword pipeline in 3 sessions. Trade mastery beats expensive consultants any day.')
+            ] %}
+            <div class="w-80 p-5 rounded-2xl glass-card border border-slate-200/90 bg-white/95 border-slate-200 shrink-0 space-y-3 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-gradient-premium flex items-center justify-center text-xs font-700 text-white">{{ name[0] }}</div>
+                        <div>
+                            <div class="text-xs font-700 text-slate-900">{{ name }}</div>
+                            <div class="text-[10px] text-slate-400">{{ role }}</div>
+                        </div>
+                    </div>
+                    <span class="text-amber-400 text-xs">★★★★★</span>
+                </div>
+                <div class="text-xs text-slate-300 italic leading-relaxed">"{{ quote }}"</div>
+                <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] text-cyan-300 font-600">
+                    <span>🔁 {{ trade }}</span>
+                    <span class="text-emerald-400">✓ Verified</span>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Duplicate for seamless looping -->
+            {% for name, role, trade, quote in [
+                ('Aarav Nair', 'Cloud Architect', 'Go ⇄ Japanese', 'Found an engineer in Tokyo who helped me prep for my Japanese interview. In exchange, I tutored him in Kubernetes. Flawless!'),
+                ('Chloe Bennet', 'UI Lead', 'Design Systems ⇄ Rust', 'Never thought I could learn Rust without tearing my hair out. My peer broke down borrow checking with custom visual diagrams.'),
+                ('Marcus Cole', '3D Artist', 'Blender ⇄ Three.js WebGL', 'The barter mechanism creates immediate respect. Both parties are equally invested in making the other person succeed.')
+            ] %}
+            <div class="w-80 p-5 rounded-2xl glass-card border border-slate-200/90 bg-white/95 border-slate-200 shrink-0 space-y-3 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-gradient-premium flex items-center justify-center text-xs font-700 text-white">{{ name[0] }}</div>
+                        <div>
+                            <div class="text-xs font-700 text-slate-900">{{ name }}</div>
+                            <div class="text-[10px] text-slate-400">{{ role }}</div>
+                        </div>
+                    </div>
+                    <span class="text-amber-400 text-xs">★★★★★</span>
+                </div>
+                <div class="text-xs text-slate-300 italic leading-relaxed">"{{ quote }}"</div>
+                <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] text-cyan-300 font-600">
+                    <span>🔁 {{ trade }}</span>
+                    <span class="text-emerald-400">✓ Verified</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Row 2: Sliding Right -->
+    <div class="marquee-container">
+        <div class="marquee-track-reverse">
+            {% for name, role, trade, quote in [
+                ('David Chen', 'ML Researcher', 'PyTorch ⇄ Product Copy', 'My partner helped me rewrite our research grant proposal into magnetic storytelling. Taught him transformers in return!'),
+                ('Sora Takahashi', 'Sound Designer', 'Audio Mixing ⇄ Swift iOS', 'Built my first native audio synthesizer iOS app thanks to pair programming sessions here. 10/10.'),
+                ('Priya Patel', 'Data Engineer', 'SQL / Spark ⇄ Conversational Spanish', 'Going to Madrid next month and feel 100x more confident in my everyday conversation. Best community ever!'),
+                ('Liam Zhang', 'Indie Hacker', 'Next.js ⇄ Branding', 'SkillSwap eliminated the need for me to spend $2k on design contractors for my side project.')
+            ] %}
+            <div class="w-80 p-5 rounded-2xl glass-card border border-slate-200/90 bg-white/95 border-slate-200 shrink-0 space-y-3 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center text-xs font-700 text-white">{{ name[0] }}</div>
+                        <div>
+                            <div class="text-xs font-700 text-slate-900">{{ name }}</div>
+                            <div class="text-[10px] text-slate-400">{{ role }}</div>
+                        </div>
+                    </div>
+                    <span class="text-amber-400 text-xs">★★★★★</span>
+                </div>
+                <div class="text-xs text-slate-300 italic leading-relaxed">"{{ quote }}"</div>
+                <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] text-pink-300 font-600">
+                    <span>🔁 {{ trade }}</span>
+                    <span class="text-emerald-400">✓ Verified</span>
+                </div>
+            </div>
+            {% endfor %}
+            <!-- Duplicate for seamless looping -->
+            {% for name, role, trade, quote in [
+                ('David Chen', 'ML Researcher', 'PyTorch ⇄ Product Copy', 'My partner helped me rewrite our research grant proposal into magnetic storytelling. Taught him transformers in return!'),
+                ('Sora Takahashi', 'Sound Designer', 'Audio Mixing ⇄ Swift iOS', 'Built my first native audio synthesizer iOS app thanks to pair programming sessions here. 10/10.'),
+                ('Priya Patel', 'Data Engineer', 'SQL / Spark ⇄ Conversational Spanish', 'Going to Madrid next month and feel 100x more confident in my everyday conversation. Best community ever!')
+            ] %}
+            <div class="w-80 p-5 rounded-2xl glass-card border border-slate-200/90 bg-white/95 border-slate-200 shrink-0 space-y-3 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 flex items-center justify-center text-xs font-700 text-white">{{ name[0] }}</div>
+                        <div>
+                            <div class="text-xs font-700 text-slate-900">{{ name }}</div>
+                            <div class="text-[10px] text-slate-400">{{ role }}</div>
+                        </div>
+                    </div>
+                    <span class="text-amber-400 text-xs">★★★★★</span>
+                </div>
+                <div class="text-xs text-slate-300 italic leading-relaxed">"{{ quote }}"</div>
+                <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] text-pink-300 font-600">
+                    <span>🔁 {{ trade }}</span>
+                    <span class="text-emerald-400">✓ Verified</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     8. FILTERABLE SKILL ECOSYSTEM MATRIX WITH INSTANT LIVE SEARCH
+     ========================================================================= -->
+<section class="py-16 relative z-10 reveal">
+    <div class="text-center mb-8 space-y-3">
+        <div class="section-label">Browse Opportunities</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            Explore 500+ Skills <span class="text-gradient">Ready to Trade</span>
+        </h2>
+    </div>
+
+    <!-- Live Search Input -->
+    <div class="max-w-md mx-auto mb-8 relative">
+        <input type="text" id="skill-search-input" placeholder="🔍 Search any skill (e.g. Python, Figma, 3D, Japanese, AI...)"
+               class="w-full px-5 py-3.5 rounded-2xl bg-white border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 ring-cyan-500/20 backdrop-blur-md transition-all shadow-md">
+    </div>
+
+    <!-- Category Filters -->
+    <div class="flex flex-wrap items-center justify-center gap-2.5 mb-8 max-w-3xl mx-auto">
+        <button type="button" class="category-pill active px-3.5 py-1.5 rounded-xl text-xs font-700 border border-cyan-400 bg-cyan-50 text-cyan-800 shadow-sm" onclick="filterSkills('all', this)">All Categories</button>
+        <button type="button" class="category-pill px-3.5 py-1.5 rounded-xl text-xs font-700 border border-slate-200 bg-white/80 text-slate-700 hover:text-cyan-700 hover:bg-cyan-50/50 shadow-xs" onclick="filterSkills('tech', this)">Code & Engineering</button>
+        <button type="button" class="category-pill px-3.5 py-1.5 rounded-xl text-xs font-700 border border-slate-200 bg-white/80 text-slate-700 hover:text-cyan-700 hover:bg-cyan-50/50 shadow-xs" onclick="filterSkills('design', this)">Design & 3D</button>
+        <button type="button" class="category-pill px-3.5 py-1.5 rounded-xl text-xs font-700 border border-slate-200 bg-white/80 text-slate-700 hover:text-cyan-700 hover:bg-cyan-50/50 shadow-xs" onclick="filterSkills('ai', this)">AI & Machine Learning</button>
+        <button type="button" class="category-pill px-3.5 py-1.5 rounded-xl text-xs font-700 border border-slate-200 bg-white/80 text-slate-700 hover:text-cyan-700 hover:bg-cyan-50/50 shadow-xs" onclick="filterSkills('languages', this)">Languages</button>
+        <button type="button" class="category-pill px-3.5 py-1.5 rounded-xl text-xs font-700 border border-slate-200 bg-white/80 text-slate-700 hover:text-cyan-700 hover:bg-cyan-50/50 shadow-xs" onclick="filterSkills('music', this)">Audio & Creative</button>
+    </div>
+
+    <!-- Skill Cards Grid (12 Diverse High-Demand Skills) -->
+    <div id="skills-grid" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
+        {% for cat, name, count, mentors, tag, level in [
+            ('tech', 'Python & Django', '142 Swappers', '4.9 ★', 'Trending', 'Intermediate'),
+            ('design', 'Figma UI/UX Systems', '98 Swappers', '4.9 ★', 'Hot', 'All Levels'),
+            ('ai', 'Prompt Engineering', '84 Swappers', '4.8 ★', 'New', 'Beginner'),
+            ('tech', 'Full-Stack React & Next.js', '120 Swappers', '5.0 ★', 'Popular', 'Advanced'),
+            ('languages', 'Conversational Japanese', '65 Swappers', '4.9 ★', 'Trending', 'JLPT N5-N2'),
+            ('design', 'Blender 3D Modeling', '54 Swappers', '4.8 ★', 'Hot', 'All Levels'),
+            ('ai', 'PyTorch & Fine-Tuning', '71 Swappers', '5.0 ★', 'Pro', 'Advanced'),
+            ('languages', 'Business Spanish', '89 Swappers', '4.9 ★', 'Popular', 'Conversational'),
+            ('music', 'Ableton & Sound Design', '43 Swappers', '4.9 ★', 'Trending', 'All Levels'),
+            ('tech', 'Rust & Systems Design', '58 Swappers', '5.0 ★', 'Pro', 'Advanced'),
+            ('design', 'Three.js & WebGL', '39 Swappers', '4.8 ★', 'Hot', 'Intermediate'),
+            ('ai', 'Autonomous Agents (LangChain)', '62 Swappers', '5.0 ★', 'New', 'Advanced')
+        ] %}
+        <div class="skill-card-item glass-panel p-5 rounded-2xl border-slate-200 hover:border-cyan-500/40 bg-white/90 shadow-sm hover:-translate-y-1 transition-all flex flex-col justify-between" data-category="{{ cat }}" data-skill-name="{{ name|lower }}">
+            <div>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                    <span class="font-700 text-sm text-slate-900">{{ name }}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-600">{{ tag }}</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mb-2">{{ level }}</div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-2.5 border-t border-slate-200/80">
+                <span class="font-500">{{ count }}</span>
+                <span class="text-amber-300 font-700">{{ mentors }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Empty State for Live Search -->
+    <div id="no-skills-found" class="hidden text-center py-10 text-slate-400 text-sm">
+        No matching skills found. Try searching for "Python", "Figma", "Japanese", or "AI"!
+    </div>
+</section>
+
+<!-- =========================================================================
+     9. NEW UNIQUE SECTION: "LIVE GLOBAL PEER RADAR"
+     ========================================================================= -->
+<section class="py-12 relative z-10 reveal">
+    <div class="max-w-4xl mx-auto glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/90 bg-white/90 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-center md:text-left">
+            <div class="flex items-center justify-center md:justify-start gap-2">
+                <span class="radar-beacon w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-xs font-700 uppercase tracking-wider text-emerald-300">Global Peer Telemetry</span>
+            </div>
+            <h3 class="text-xl font-800 text-slate-900">Continuous Knowledge Exchange Active</h3>
+            <p class="text-xs text-slate-400 max-w-md">
+                Over 1,428 verified knowledge swaps completed in the last 24 hours across 42 countries.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2 justify-center md:justify-end text-[11px]">
+            <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs text-slate-300">🟢 Tokyo ⇄ SF</span>
+            <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs text-slate-300">🟢 London ⇄ Berlin</span>
+            <span class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-xs text-slate-300">🟢 NYC ⇄ Bengaluru</span>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     10. GLASSMORRHIC FAQ ACCORDION
+     ========================================================================= -->
+<section class="py-16 relative z-10 reveal">
+    <div class="text-center mb-10 space-y-3">
+        <div class="section-label">Got Questions?</div>
+        <h2 class="text-4xl md:text-5xl font-800">
+            Frequently Asked <span class="text-gradient">Questions</span>
+        </h2>
+    </div>
+
+    <div class="max-w-3xl mx-auto space-y-3">
+        {% for q, a in [
+            ('Is SkillSwap completely free to use?', 'Yes, 100% free forever. No credit cards, subscriptions, or hidden booking fees. Your knowledge and time are the only currency on the platform.'),
+            ('How does the matching algorithm calculate synergy?', 'Our matching algorithm analyzes your offer and want skills, experience levels, timezones, and mutual availability to generate a real-time synergy score, prioritizing members who can teach what you seek and vice-versa.'),
+            ('What happens if my partner is in a different timezone?', 'Each profile includes availability slots and timezone tags. You can filter peers within your preferred working hours, or negotiate flexible asynchronous exchange sessions using the real-time workspace.'),
+            ('How do XP, reputation, and badges work?', 'Every time you complete a mutual swap session and receive a review from your learning partner, you earn XP. Hitting milestones automatically unlocks verified badges (such as Skill Master and Trusted Mentor) that appear permanently on your profile.'),
+            ('Can I offer multiple skills at different proficiency levels?', 'Absolutely! You can list as many skills as you want under both "Offer" and "Want", setting individual proficiency tags (Beginner, Intermediate, Expert) to find your perfect learning partners.')
+        ] %}
+        <div class="faq-item glass-card rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="faq-header p-5 flex items-center justify-between gap-4 font-700 text-slate-800 text-sm sm:text-base" onclick="toggleFaq(this)">
+                <span>{{ q }}</span>
+                <span class="faq-icon text-cyan-400 text-sm">▼</span>
+            </div>
+            <div class="faq-body px-5 pb-5 text-xs sm:text-sm text-slate-400 leading-relaxed">
+                {{ a }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- =========================================================================
+     11. HIGH-IMPACT PORTAL CTA BANNER
+     ========================================================================= -->
+<section class="py-14 relative z-10 reveal">
+    <div class="glass-card rounded-3xl p-8 md:p-14 text-center relative overflow-hidden border border-slate-200/90 card-shine shadow-xl bg-white/90"
+         style="background: linear-gradient(135deg, rgba(0,242,254,0.08) 0%, rgba(184,41,234,0.08) 100%);">
+        
+        <div class="absolute inset-0 portal-glow pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-2xl mx-auto space-y-5">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-600 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Open Registration • 100% Free Peer Onboarding</span>
+            </div>
+
+            <h2 class="text-3xl md:text-5xl lg:text-6xl font-900 leading-tight">
+                Ready to Upgrade Your <br>
+                <span class="text-gradient">Skill Arsenal?</span>
+            </h2>
+
+            <p class="text-slate-600 text-sm md:text-base max-w-md mx-auto leading-relaxed">
+                Join thousands of software engineers, designers, creators, and linguists trading mastery every day.
+            </p>
+
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{{ url_for('auth.register') }}" class="btn-premium magnetic px-10 py-4 text-base font-700 inline-flex shadow-xl shadow-cyan-500/25">
+                    Create Free Account 🎉
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn-outline magnetic px-8 py-4 text-sm font-600 border-slate-200 text-slate-700 hover:border-cyan-500 hover:text-cyan-700 bg-white/70 shadow-sm">
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- =========================================================================
+     INTERACTIVE JAVASCRIPT CONTROLLERS & PARTICLE ENGINE
+     ========================================================================= -->
 <script>
-// Magnetic Buttons
+// 1. Synaptic Particle Constellation Canvas Engine
+(function() {
+    const canvas = document.getElementById('synaptic-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = Math.min(window.innerHeight, 900);
+
+    const particles = [];
+    const particleCount = Math.floor(Math.min(width / 35, 45));
+
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            radius: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? '#0284c7' : '#7c3aed'
+        });
+    }
+
+    let mouse = { x: -1000, y: -1000 };
+    window.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = Math.min(window.innerHeight, 900);
+    }, { passive: true });
+
+    function renderCanvas() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0) p.x = width;
+            if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height;
+            if (p.y > height) p.y = 0;
+
+            // Interactive mouse repulsion
+            const dx = mouse.x - p.x;
+            const dy = mouse.y - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+                p.x -= (dx / dist) * 1.2;
+                p.y -= (dy / dist) * 1.2;
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = 0.4;
+            ctx.fill();
+
+            // Synaptic Connecting Lines
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const d = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
+                if (d < 110) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = '#0284c7';
+                    ctx.globalAlpha = (1 - d / 110) * 0.14;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.globalAlpha = 1.0;
+        requestAnimationFrame(renderCanvas);
+    }
+    renderCanvas();
+})();
+
+// 2. Interactive Match Finder Logic & Dynamic Blueprint
+const matchData = {
+    'python': { name: 'Sophie Tremblay', desc: 'Teaches UI/UX & Figma • Seeking Python Mentor', pct: '96%', s1: 'Python Scripting & Data Parsing', s2: 'FastAPI Backend Architecture' },
+    'figma': { name: 'Devon Vance', desc: 'Teaches FastAPI & Backend • Seeking UI/UX Partner', pct: '98%', s1: 'Design Systems & Atomic Tokens', s2: 'Interactive Micro-prototyping' },
+    'japanese': { name: 'Aarav Nair', desc: 'Teaches Go & Cloud • Seeking Conversational Japanese', pct: '94%', s1: 'Conversational Hiragana & Kanji', s2: 'Business Roleplay & Accent Work' },
+    'guitar': { name: 'Liam Zhang', desc: 'Teaches Music Production • Seeking Guitar Techniques', pct: '92%', s1: 'Fingerpicking & Chord Progressions', s2: 'Soloing Techniques & Harmony' },
+    'seo': { name: 'Elena Rostova', desc: 'Teaches Copywriting • Seeking Organic Search Growth', pct: '95%', s1: 'Technical SEO Audit & Keyword Maps', s2: 'Content Silos & Backlink Strategy' },
+    'blender': { name: 'Marcus Cole', desc: 'Teaches Three.js WebGL • Seeking Blender 3D Artist', pct: '97%', s1: 'Low-Poly Modeling & Topology', s2: 'PBR Shaders & WebGL Asset Export' }
+};
+
+document.querySelectorAll('#teach-chips .interactive-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#teach-chips .interactive-chip').forEach(b => b.classList.remove('active-teach'));
+        btn.classList.add('active-teach');
+        const skill = btn.getAttribute('data-skill');
+        document.getElementById('selected-teach-label').textContent = `Selected: ${btn.textContent.trim()}`;
+        updateMatch(skill);
+    });
+});
+
+document.querySelectorAll('#learn-chips .interactive-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#learn-chips .interactive-chip').forEach(b => b.classList.remove('active-learn'));
+        btn.classList.add('active-learn');
+        document.getElementById('selected-learn-label').textContent = `Selected: ${btn.textContent.trim()}`;
+    });
+});
+
+function updateMatch(skill) {
+    const data = matchData[skill] || matchData['python'];
+    const pctNum = parseInt(data.pct);
+    const circle = document.getElementById('match-circle');
+    const percentEl = document.getElementById('match-percent');
+    const nameEl = document.getElementById('match-partner-name');
+    const descEl = document.getElementById('match-partner-desc');
+    const b1 = document.getElementById('blueprint-s1');
+    const b2 = document.getElementById('blueprint-s2');
+
+    const offset = 176 - (176 * (pctNum / 100));
+    circle.style.strokeDashoffset = offset;
+    percentEl.textContent = data.pct;
+    nameEl.textContent = data.name;
+    descEl.textContent = data.desc;
+    if (b1) b1.textContent = data.s1;
+    if (b2) b2.textContent = data.s2;
+}
+
+// 3. Interactive ROI / Value Engine Slider
+const slider = document.getElementById('hours-slider');
+const hoursLabel = document.getElementById('slider-hours-label');
+const costTrad = document.getElementById('cost-traditional');
+const moneySaved = document.getElementById('money-saved');
+
+if (slider) {
+    slider.addEventListener('input', (e) => {
+        const hours = parseInt(e.target.value);
+        const cost = hours * 65;
+        hoursLabel.textContent = `${hours} Hours`;
+        costTrad.textContent = `$${cost.toLocaleString()}`;
+        moneySaved.textContent = `$${cost.toLocaleString()}`;
+    });
+}
+
+// 4. Skill Filter Pills & Live Instant Search
+function filterSkills(category, buttonEl) {
+    document.querySelectorAll('.category-pill').forEach(btn => btn.classList.remove('active'));
+    buttonEl.classList.add('active');
+
+    const query = (document.getElementById('skill-search-input')?.value || '').toLowerCase().trim();
+    applySkillFilters(category, query);
+}
+
+const searchInput = document.getElementById('skill-search-input');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const activePill = document.querySelector('.category-pill.active');
+        const cat = activePill ? (activePill.getAttribute('onclick').match(/'(.*?)'/) ? activePill.getAttribute('onclick').match(/'(.*?)'/)[1] : 'all') : 'all';
+        applySkillFilters(cat, e.target.value.toLowerCase().trim());
+    });
+}
+
+function applySkillFilters(category, query) {
+    let visibleCount = 0;
+    document.querySelectorAll('.skill-card-item').forEach(card => {
+        const itemCat = card.getAttribute('data-category');
+        const itemName = (card.getAttribute('data-skill-name') || '').toLowerCase();
+
+        const catMatches = (category === 'all' || itemCat === category);
+        const queryMatches = !query || itemName.includes(query);
+
+        if (catMatches && queryMatches) {
+            card.style.display = 'flex';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    const noFound = document.getElementById('no-skills-found');
+    if (noFound) {
+        noFound.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+}
+
+// 5. FAQ Accordion Toggle
+function toggleFaq(headerEl) {
+    const item = headerEl.parentElement;
+    const isOpen = item.classList.contains('open');
+
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) {
+        item.classList.add('open');
+    }
+}
+
+// 6. Scroll Reveal Animations
+function revealOnScroll() {
+    document.querySelectorAll('.reveal').forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 50) {
+            el.classList.add('active');
+        }
+    });
+}
+window.addEventListener('scroll', revealOnScroll, { passive: true });
+document.addEventListener('DOMContentLoaded', () => {
+    revealOnScroll();
+});
+
+// 7. Magnetic Buttons Physics
 document.querySelectorAll('.magnetic').forEach(btn => {
     btn.addEventListener('mousemove', (e) => {
         const rect = btn.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+        btn.style.transform = `translate(${x * 0.22}px, ${y * 0.22}px)`;
     });
     btn.addEventListener('mouseleave', () => {
         btn.style.transform = 'translate(0px, 0px)';
     });
 });
 
-function revealOnScroll() {
-    document.querySelectorAll('.reveal').forEach(el => {
-        if (el.getBoundingClientRect().top < window.innerHeight - 80) el.classList.add('active');
+// 8. Bento Card Radial Dynamic Mouse Tracking Glow
+document.querySelectorAll('.bento-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
     });
-}
-window.addEventListener('scroll', revealOnScroll, { passive: true });
-document.addEventListener('DOMContentLoaded', revealOnScroll);
+});
 </script>
 
 {% endblock %}

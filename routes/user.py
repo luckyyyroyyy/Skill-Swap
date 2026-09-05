@@ -29,26 +29,64 @@ def dashboard():
 
     form = SkillForm()
     all_matches = find_matches(current_user)
-    matches = all_matches[:3]
+    matches = all_matches[:4]
 
     offers = [s for s in current_user.skills if s.type == "offer"]
     wants = [s for s in current_user.skills if s.type == "want"]
     received_requests = (
         SwapRequest.query.filter_by(receiver_id=current_user.id)
-        .filter(SwapRequest.status.in_(["pending", "accepted"]))
+        .order_by(SwapRequest.created_at.desc())
         .all()
     )
     sent_requests = SwapRequest.query.filter_by(
         sender_id=current_user.id
-    ).all()
+    ).order_by(SwapRequest.created_at.desc()).all()
+
+    # Active swap sessions
+    active_swaps = [r for r in received_requests if r.status == "accepted"] + [s for s in sent_requests if s.status == "accepted"]
+    pending_incoming = [r for r in received_requests if r.status == "pending"]
+
+    # XP & Level thresholds
+    xp = current_user.xp
+    if xp < 100:
+        current_rank = "Beginner 🌱"
+        next_rank = "Skilled 🚀"
+        rank_base = 0
+        rank_target = 100
+    elif xp < 300:
+        current_rank = "Skilled 🚀"
+        next_rank = "Expert 🔥"
+        rank_base = 100
+        rank_target = 300
+    elif xp < 600:
+        current_rank = "Expert 🔥"
+        next_rank = "Master 👑"
+        rank_base = 300
+        rank_target = 600
+    else:
+        current_rank = "Master 👑"
+        next_rank = "Grandmaster ⚡"
+        rank_base = 600
+        rank_target = 1000
+
+    rank_progress_pct = min(100, max(5, int(((xp - rank_base) / (rank_target - rank_base)) * 100)))
+
     return render_template(
         "dashboard.html",
         matches=matches,
+        all_matches_count=len(all_matches),
         form=form,
         offers=offers,
         wants=wants,
         received_requests=received_requests,
+        pending_incoming=pending_incoming,
         sent_requests=sent_requests,
+        active_swaps=active_swaps,
+        current_rank=current_rank,
+        next_rank=next_rank,
+        rank_base=rank_base,
+        rank_target=rank_target,
+        rank_progress_pct=rank_progress_pct,
     )
 
 
@@ -180,22 +218,29 @@ def edit_profile():
             if form.profile_pic.data:
                 file = form.profile_pic.data
 
-                # Check MIME type using python-magic
-                import magic
-
-                file_content = file.read()
-                mime_type = magic.from_buffer(file_content, mime=True)
-                file.seek(0)  # Reset file pointer after reading
-
-                allowed_mimes = ["image/jpeg", "image/png"]
-                if mime_type not in allowed_mimes:
+                # Validate image integrity and format using Pillow
+                try:
+                    from PIL import Image
+                    img = Image.open(file)
+                    img.verify()
+                    if img.format not in ["JPEG", "PNG", "GIF", "WEBP"]:
+                        flash(
+                            "Invalid file type! Please upload a valid JPEG, PNG, or GIF image.",
+                            "danger",
+                        )
+                        return redirect(url_for("user.edit_profile"))
+                    file.seek(0)
+                except Exception as img_err:
+                    logger.warning(f"Invalid image uploaded: {img_err}")
                     flash(
-                        "Invalid file type! Please upload a valid JPEG or PNG image.",  # noqa: E501
+                        "Corrupted or invalid image file! Please choose a valid image.",
                         "danger",
                     )
                     return redirect(url_for("user.edit_profile"))
 
-                filename = secure_filename(file.filename)
+                import uuid
+                raw_filename = secure_filename(file.filename)
+                filename = f"{uuid.uuid4().hex}_{raw_filename}"
                 filepath = os.path.join(
                     current_app.config["UPLOAD_FOLDER"], filename
                 )
@@ -324,4 +369,24 @@ def add_skill():
     else:
         for error in form.errors.values():
             flash(str(error), "danger")
+    return redirect(request.referrer or url_for("user.dashboard"))
+
+
+@user_bp.route("/delete_skill/<int:skill_id>", methods=["POST", "GET"])
+@login_required
+def delete_skill(skill_id):
+    try:
+        skill = db.session.get(Skill, skill_id)
+        if not skill or skill.user_id != current_user.id:
+            flash("Skill not found or unauthorized.", "danger")
+            return redirect(url_for("user.dashboard"))
+        skill_name = skill.name
+        db.session.delete(skill)
+        db.session.commit()
+        logger.info(f"User {current_user.username} removed skill {skill_name}")
+        flash(f"Removed skill {skill_name}.", "info")
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting skill {skill_id}: {e}")
+        flash("An error occurred while removing the skill.", "danger")
     return redirect(request.referrer or url_for("user.dashboard"))

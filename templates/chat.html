@@ -7,15 +7,15 @@
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
             <a href="{{ url_for('user.dashboard') }}"
-               class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-white/10 transition-colors text-lg">
+               class="w-10 h-10 glass-panel flex items-center justify-center hover:bg-slate-100 transition-colors text-lg text-slate-700 shadow-xs">
                 ←
             </a>
             <div>
-                <h2 class="text-xl font-700">
+                <h2 class="text-xl font-700 text-slate-900">
                     Chat with <span class="text-gradient">{{ other_user.username }}</span>
                 </h2>
                 <div class="flex items-center gap-2 mt-0.5">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-xs"></span>
                     <span class="text-[10px] text-slate-500 font-700 uppercase tracking-widest">Active Swap Session</span>
                 </div>
             </div>
@@ -23,18 +23,18 @@
         <div class="flex items-center gap-3">
             <a href="https://meet.jit.si/SkillSwap-Session-{{ swap.id }}-{{ swap.sender_id }}-{{ swap.receiver_id }}"
                target="_blank"
-               class="btn-premium magnetic px-4 py-2 text-sm shadow-[0_0_15px_rgba(79,172,254,0.4)] flex items-center gap-2">
+               class="btn-premium magnetic px-4 py-2 text-sm shadow-md flex items-center gap-2">
                Start Video Call 📹
             </a>
-            <div class="badge badge-cyan hidden sm:flex shadow-[0_0_10px_currentColor]">
+            <div class="badge badge-cyan hidden sm:flex">
                 ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
             </div>
         </div>
     </div>
 
     <!-- Chat Window -->
-    <div class="glass-card radial-glow rounded-3xl flex flex-col overflow-hidden"
-         style="height: 72vh; box-shadow: var(--shadow-lg);">
+    <div class="glass-card radial-glow rounded-3xl flex flex-col overflow-hidden border border-slate-200/90 bg-white/95 shadow-xl"
+         style="height: 72vh;">
 
         <!-- Messages -->
         <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">
@@ -53,13 +53,13 @@
                 {% else %}
                     <!-- Other -->
                     <div class="flex justify-start gap-2.5">
-                        <div class="avatar shrink-0 mt-1">{{ other_user.username[0]|upper }}</div>
+                        <div class="avatar shrink-0 mt-1 bg-slate-100 border border-slate-200 text-slate-800 font-bold">{{ other_user.username[0]|upper }}</div>
                         <div class="max-w-[72%] space-y-1">
-                            <div class="chat-bubble-other px-5 py-3 text-sm leading-relaxed text-slate-200
+                            <div class="chat-bubble-other px-5 py-3 text-sm leading-relaxed text-slate-800
                                         hover:scale-[1.01] transition-transform">
                                 {{ message.message }}
                             </div>
-                            <div class="text-[10px] text-slate-500 px-2">{{ other_user.username }}</div>
+                            <div class="text-[10px] text-slate-500 px-2 font-medium">{{ other_user.username }}</div>
                         </div>
                     </div>
                 {% endif %}

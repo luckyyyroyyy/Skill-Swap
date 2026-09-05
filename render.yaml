@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: skillswap-pro
+    runtime: python
+    buildCommand: pip install -r requirements.txt && flask db upgrade
+    startCommand: gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skillswap-db
+          property: connectionString
+
+databases:
+  - name: skillswap-db
+    databaseName: skillswap
+    user: skillswap
+    plan: free

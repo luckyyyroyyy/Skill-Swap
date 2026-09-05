@@ -1,3 +1,4 @@
+# Core Web Framework & Extensions
 Flask==3.1.2
 Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
@@ -5,28 +6,24 @@ Flask-WTF==1.2.1
 Flask-SocketIO==5.3.5
 Flask-Migrate==4.0.5
 Flask-Mail==0.10.0
-itsdangerous==2.2.0
-python-dotenv==1.0.0
-Werkzeug
+Flask-Limiter==4.1.1
+SQLAlchemy==2.0.46
+Werkzeug==3.1.8
 WTForms==3.1.1
 email-validator==2.1.0
+itsdangerous==2.2.0
+python-dotenv==1.0.0
+
+# Real-Time WebSockets
 python-socketio==5.10.0
 python-engineio==4.8.0
 eventlet==0.33.3
 
-scipy==1.17.0
-six==1.17.0
-smmap==5.0.2
-SQLAlchemy==2.0.46
-streamlit==1.54.0
-tenacity==9.1.4
-tifffile==2026.1.28
-toml==0.10.2
-tornado==6.5.4
-tqdm==4.67.3
-typing_extensions==4.15.0
-tzdata==2025.3
-urllib3==2.6.3
-watchdog==6.0.0
+# Image Processing & Utilities
+Pillow>=10.0.0
+typing_extensions>=4.9.0
+tzdata>=2024.1
+
+# Production Deployment (WSGI & PostgreSQL)
 gunicorn==21.2.0
 psycopg2-binary==2.9.9

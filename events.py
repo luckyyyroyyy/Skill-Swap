@@ -10,8 +10,10 @@ logger = logging.getLogger(__name__)
 @socketio.on("join_personal_room")
 def handle_join_personal_room(user_id):
     """Called in base.html for receiving toast notifications"""
-    join_room(user_id)
-    logger.info(f"User {user_id} joined their personal room.")
+    uid_str = str(user_id)
+    join_room(f"user_{uid_str}")
+    join_room(uid_str)
+    logger.info(f"User {user_id} joined their personal room (user_{uid_str}).")
 
 @socketio.on("join_chat_room")
 def handle_join_chat_room(data):

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, current_app, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import logging
@@ -20,11 +20,14 @@ def load_user(user_id):
 @limiter.limit("5 per minute")
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for("user.dashboard"))
+        logout_user()
 
     form = RegistrationForm()
     if form.validate_on_submit():
         try:
+            # Clear any session cookie so the user lands cleanly on the login page
+            logout_user()
+
             user = User(
                 username=form.username.data,
                 email=form.email.data,
@@ -36,6 +39,7 @@ def register():
             logger.info(f"New user registered: {user.username}")
             flash("Account created successfully! Please log in.", "success")
             return redirect(url_for("auth.login"))
+
         except Exception as e:
             db.session.rollback()
             logger.error(f"Registration error: {e}")
@@ -51,31 +55,55 @@ def register():
 @limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json:
+            return jsonify({
+                "success": True,
+                "username": current_user.username,
+                "redirect_url": url_for("user.dashboard")
+            })
         return redirect(url_for("user.dashboard"))
 
     form = LoginForm()
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest" or request.is_json
+
     if form.validate_on_submit():
         try:
             user = User.query.filter_by(email=form.email.data).first()
 
             if user and check_password_hash(user.password, form.password.data):
                 if not user.is_active:
+                    if is_ajax:
+                        return jsonify({"success": False, "message": "This account has been deactivated."}), 403
                     flash("This account has been deactivated.", "danger")
                     return render_template("login.html", form=form)
 
                 login_user(user)
                 logger.info(f"User logged in: {user.username}")
+
+                if is_ajax:
+                    return jsonify({
+                        "success": True,
+                        "username": user.username,
+                        "redirect_url": url_for("user.dashboard")
+                    })
                 return redirect(url_for("user.dashboard"))
 
             logger.warning(
                 f"Failed login attempt for email: {form.email.data}"
             )
+            if is_ajax:
+                return jsonify({"success": False, "message": "Invalid email or password."}), 401
             flash("Invalid email or password.", "danger")
         except Exception as e:
             logger.error(f"Login error: {e}")
+            if is_ajax:
+                return jsonify({"success": False, "message": "An error occurred during login. Please try again."}), 500
             flash(
                 "An error occurred during login. Please try again.", "danger"
             )
+    elif request.method == "POST" and is_ajax and form.errors:
+        error_msgs = [err for errors in form.errors.values() for err in errors]
+        return jsonify({"success": False, "message": error_msgs[0] if error_msgs else "Validation error."}), 400
 
     return render_template("login.html", form=form)
 

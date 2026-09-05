@@ -3,339 +3,581 @@
 
 <div class="space-y-10 animate-fade-up">
 
-    <!-- ====== WELCOME HEADER ====== -->
-    <section class="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
-        <div class="space-y-1">
-            <div class="section-label">Dashboard</div>
-            <h1 class="text-4xl md:text-5xl font-800 leading-tight mt-2">
-                Hey, <span class="text-gradient">{{ current_user.username }}</span> 👋
-            </h1>
-            <p class="text-slate-400 text-base mt-1">Ready for your next skill exchange?</p>
-        </div>
+    <!-- =========================================================================
+         1. EXECUTIVE IDENTITY RIBBON & XP PROGRESSION ENGINE
+         ========================================================================= -->
+    <section class="glass-card card-shine p-6 sm:p-8 rounded-3xl border border-slate-200/90 bg-white/90 shadow-xl relative overflow-hidden shadow-2xl">
+        <div class="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div class="glass-panel px-6 py-4 flex items-center gap-6 shrink-0">
-            <div class="text-center">
-                <div class="text-xl font-800 text-amber-400">⭐ {{ "%.1f"|format(current_user.rating) }}</div>
-                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">{{
-                    current_user.total_reviews }} Reviews</div>
-            </div>
-            <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center">
-                <div class="text-xl font-800 text-indigo-400">{{ current_user.xp }} XP</div>
-                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">Total Points</div>
-            </div>
-            <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center">
-                <div class="text-xl font-800"
-                    style="background: var(--grad-primary); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                    {{ current_user.get_level().split()[0] }}
+        <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <!-- User Identity & Rank Crest -->
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="relative shrink-0">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-premium flex items-center justify-center text-2xl sm:text-3xl font-900 text-slate-900 shadow-xl shadow-cyan-500/30 ring-2 ring-cyan-400/40">
+                        {{ current_user.username[0]|upper }}
+                    </div>
+                    <span class="radar-beacon absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400" title="Online & Ready to Swap"></span>
                 </div>
-                <div class="text-[10px] uppercase tracking-wider text-slate-500 font-700 mt-0.5">Status</div>
+
+                <div class="space-y-1.5">
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <h1 class="text-2xl sm:text-3xl font-900 text-slate-900 tracking-tight">
+                            {{ current_user.username }}
+                        </h1>
+                        <span class="px-3 py-1 rounded-full text-xs font-700 bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 shadow-[0_0_12px_rgba(0,242,254,0.25)]">
+                            {{ current_rank }}
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-300 max-w-md line-clamp-1">
+                        {{ current_user.bio or "Active knowledge swapper leveling up craft & community." }}
+                    </p>
+                    <div class="flex items-center gap-3 text-xs text-slate-400 font-500 pt-0.5">
+                        <span class="flex items-center gap-1">🌐 {{ current_user.timezone or "UTC" }}</span>
+                        <span>•</span>
+                        <span class="text-amber-400 font-600">⭐ {{ "%.1f"|format(current_user.rating) }} ({{ current_user.total_reviews }} reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next-Tier Progression Engine -->
+            <div class="w-full lg:w-80 p-4 rounded-2xl bg-slate-50/90 border border-slate-200 shadow-xs space-y-2.5">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400 font-600">Rank Progression</span>
+                    <span class="text-cyan-300 font-800">{{ current_user.xp }} / {{ rank_target }} XP</span>
+                </div>
+
+                <!-- Custom Progress Bar -->
+                <div class="h-2.5 w-full bg-white/10 rounded-full overflow-hidden relative">
+                    <div class="h-full bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full transition-all duration-700"
+                         style="width: {{ rank_progress_pct }}%;"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-[11px] font-700">
+                    <span class="text-slate-400">{{ current_rank }}</span>
+                    <span class="text-indigo-400 flex items-center gap-1">
+                        <span>Next: {{ next_rank }}</span>
+                        <span>({{ rank_target - current_user.xp }} XP left)</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Quick Action Hub -->
+            <div class="flex flex-wrap lg:flex-col gap-2 w-full sm:w-auto shrink-0">
+                <a href="{{ url_for('user.discover') }}" class="btn-premium magnetic px-4 py-2.5 text-xs font-700 flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-500/20">
+                    <span>Discover Peers ✨</span>
+                </a>
+                <a href="{{ url_for('user.edit_profile') }}" class="btn-outline magnetic px-4 py-2 text-xs font-600 flex items-center justify-center gap-1.5 border-slate-200 text-slate-700 hover:border-cyan-500 hover:text-cyan-800 bg-white shadow-xs">
+                    <span>⚙️ Edit Profile</span>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- ====== XP CARD + BADGES ====== -->
-    <section class="grid md:grid-cols-3 gap-6">
-        <!-- XP Progress -->
-        <div class="md:col-span-2 glass-card p-8 rounded-3xl space-y-5 card-shine">
-            <div class="flex items-end justify-between">
-                <div>
-                    <h3 class="font-700 text-lg">XP Progress</h3>
-                    <p class="text-sm text-slate-500 mt-0.5">Current Level: <span class="text-indigo-300 font-600">{{
-                            current_user.get_level() }}</span></p>
-                </div>
-                <div class="text-right">
-                    <span class="text-3xl font-900 text-gradient">{{ current_user.xp }}</span>
-                    <span class="text-xs text-slate-500 font-700 ml-1 uppercase tracking-wide">XP</span>
-                </div>
+    <!-- =========================================================================
+         2. TELEMETRY KPI COMMAND GRID
+         ========================================================================= -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <!-- Metric 1: Synergy Potential -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
+                <span>Synergy Matches</span>
+                <span class="text-cyan-400 text-base">🎯</span>
             </div>
-
-            <div class="progress-track" style="height:4px">
-                <div class="progress-fill" style="width: {{ [current_user.xp % 100, 3]|max }}%;"></div>
+            <div class="text-2xl sm:text-3xl font-900 text-slate-900 flex items-center gap-1.5">
+                <span>{{ all_matches_count }}</span>
+                <span class="text-xs text-cyan-400 font-700 bg-cyan-500/10 px-1.5 py-0.5 rounded-md">Live</span>
             </div>
-            <div class="flex justify-between text-[10px] font-800 text-slate-600 uppercase tracking-widest">
-                <span>Current</span>
-                <span>Next Rank</span>
-            </div>
-
-            <!-- Mini stats -->
-            <div class="grid grid-cols-3 gap-4 pt-2 border-t border-white/5">
-                {% for icon, val, label in [('🏅', current_user.badges|length, 'Badges'), ('⚡', current_user.xp // 100,
-                'Levels'), ('⭐', current_user.total_reviews, 'Reviews')] %}
-                <div class="text-center">
-                    <div class="text-base">{{ icon }}</div>
-                    <div class="text-lg font-800 mt-0.5">{{ val }}</div>
-                    <div class="text-[10px] text-slate-500 font-600 uppercase tracking-wide">{{ label }}</div>
-                </div>
-                {% endfor %}
+            <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                <span>Compatible peers ready</span>
+                <a href="{{ url_for('user.discover') }}" class="text-cyan-300 hover:underline">View →</a>
             </div>
         </div>
 
-        <!-- Badges Panel -->
-        <div class="glass-card p-8 rounded-3xl flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="font-700 text-lg">Badges</h3>
-                <span class="badge badge-amber">{{ current_user.badges|length }} earned</span>
+        <!-- Metric 2: Earned XP & Mastery -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
+                <span>Mastery XP</span>
+                <span class="text-indigo-400 text-base">⚡</span>
             </div>
-            <div class="flex flex-wrap gap-3 flex-1">
-                {% for ub in current_user.badges[:6] %}
-                <div class="w-12 h-12 glass-panel flex items-center justify-center text-2xl
-                                hover:scale-115 transition-transform cursor-default hover:bg-white/10"
-                    title="{{ ub.badge.name }}: {{ ub.badge.description }}">
-                    {{ ub.badge.icon }}
-                </div>
-                {% else %}
-                <div class="text-sm text-slate-500 italic">Start swapping to unlock badges!</div>
-                {% endfor %}
+            <div class="text-2xl sm:text-3xl font-900 text-slate-900">
+                {{ current_user.xp }}
             </div>
-            {% if current_user.badges|length > 6 %}
-            <a href="#badges" class="text-xs text-indigo-400 hover:underline mt-4 block">
-                View all {{ current_user.badges|length }} badges →
-            </a>
-            {% endif %}
-        </div>
-    </section>
-
-    <!-- ====== SKILLS MANAGEMENT ====== -->
-    <section class="grid lg:grid-cols-2 gap-6">
-        <!-- Offers -->
-        <div class="glass-card radial-glow p-8 rounded-3xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-700">🎯 Skills I Offer</h3>
-                <span class="badge badge-cyan">Mastery</span>
-            </div>
-
-            <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex flex-wrap gap-2 mb-6">
-                {{ form.csrf_token }}
-                <input type="hidden" name="type" value="offer">
-                <input type="text" name="name" placeholder="Add a skill you offer…" class="form-input flex-1" required>
-                {{ form.category(class="form-input w-36 shrink-0") }}
-                {{ form.proficiency_level(class="form-input w-36 shrink-0") }}
-                <button type="submit" class="btn-premium magnetic px-4 py-2 text-sm rounded-2xl shrink-0">+</button>
-            </form>
-
-            <div class="flex flex-wrap gap-2">
-                {% for skill in offers %}
-                <span class="skill-chip skill-chip-offer">
-                    🎯 {{ skill.name }}
-                    <span class="text-[9px] opacity-70 ml-1.5 uppercase font-800 tracking-wider mix-blend-overlay">{{ skill.proficiency_level }}</span>
-                </span>
-                {% else %}
-                <p class="text-sm text-slate-500 italic">No skills added yet. Share your first skill!</p>
-                {% endfor %}
+            <div class="text-[11px] text-slate-400 mt-1">
+                {{ current_user.xp // 100 }} Milestone ranks cleared
             </div>
         </div>
 
-        <!-- Wants -->
-        <div class="glass-card radial-glow p-8 rounded-3xl">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-700">📚 Skills I Want</h3>
-                <span class="badge badge-pink">Growth</span>
+        <!-- Metric 3: Community Trust Score -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
+                <span>Trust Rating</span>
+                <span class="text-amber-400 text-base">⭐</span>
             </div>
+            <div class="text-2xl sm:text-3xl font-900 text-amber-400">
+                {{ "%.1f"|format(current_user.rating) }}
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">
+                {{ current_user.total_reviews }} Verified peer evaluations
+            </div>
+        </div>
 
-            <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex flex-wrap gap-2 mb-6">
-                {{ form.csrf_token }}
-                <input type="hidden" name="type" value="want">
-                <input type="text" name="name" placeholder="What do you want to learn?" class="form-input flex-1"
-                    style="--tw-ring-color: var(--pink)" required>
-                {{ form.category(class="form-input w-36 shrink-0", style="--tw-ring-color: var(--pink)") }}
-                {{ form.proficiency_level(class="hidden") }}
-                <button type="submit"
-                    class="magnetic px-4 py-2 text-sm rounded-2xl shrink-0 font-700 text-white transition-all hover:brightness-110"
-                    style="background: var(--grad-warm);">+</button>
-            </form>
-
-            <div class="flex flex-wrap gap-2">
-                {% for skill in wants %}
-                <span class="skill-chip skill-chip-want">
-                    📚 {{ skill.name }}
-                </span>
-                {% else %}
-                <p class="text-sm text-slate-500 italic">Add skills you want to learn to find matches!</p>
-                {% endfor %}
+        <!-- Metric 4: Active Exchanges -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
+                <span>Active Swaps</span>
+                <span class="text-emerald-400 text-base">🔄</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-900 text-emerald-400">
+                {{ active_swaps|length }}
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">
+                {{ pending_incoming|length }} Pending requests in inbox
             </div>
         </div>
     </section>
 
-    <!-- ====== SUGGESTED MATCHES TEASER ====== -->
-    <section>
-        <div class="flex items-center gap-4 mb-7">
-            <h2 class="text-2xl font-800">Top <span class="text-gradient">Matches</span></h2>
-            <div class="h-px flex-1 bg-white/5 hidden md:block"></div>
+    <!-- =========================================================================
+         3. TWO-DOMAIN SKILL STUDIO (OFFER ⇄ WANT MATRIX)
+         ========================================================================= -->
+    <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-800 text-slate-900 flex items-center gap-2">
+                    <span>Two-Domain Skill Studio</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-600">Offer ⇄ Want</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400">Manage what you teach to unlock reciprocal learning matches.</p>
+            </div>
+
+            <!-- Skill Balance Ratio Indicator -->
+            <div class="w-full sm:w-64 p-3 rounded-xl bg-slate-50/90 border border-slate-200 shadow-xs space-y-1.5">
+                <div class="flex items-center justify-between text-[11px] font-700">
+                    <span class="text-cyan-300">{{ offers|length }} Offered</span>
+                    <span class="text-slate-500">•</span>
+                    <span class="text-pink-300">{{ wants|length }} Desired</span>
+                </div>
+                <div class="skill-balance-track">
+                    {% set total_s = offers|length + wants|length %}
+                    {% if total_s > 0 %}
+                        <div class="skill-balance-offer" style="width: {{ (offers|length / total_s * 100)|int }}%;"></div>
+                        <div class="skill-balance-want" style="width: {{ (wants|length / total_s * 100)|int }}%;"></div>
+                    {% else %}
+                        <div class="w-full bg-white/10"></div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-5 stagger">
-            {% for user, score in matches %}
-            <div class="glass-card card-shine radial-glow p-7 rounded-3xl animate-fade-up hover-glow">
-                <div class="flex items-start justify-between mb-5">
-                    <a href="{{ url_for('user.profile', username=user.username) }}" class="flex items-center gap-3 group">
-                        <div class="avatar avatar-lg group-hover:ring-2 ring-cyan-500 transition-all">{{ user.username[0]|upper }}</div>
+        <div class="grid lg:grid-cols-2 gap-6">
+
+            <!-- Studio Bay 1: Skills I Offer (Teach) -->
+            <div class="glass-card p-6 sm:p-7 rounded-3xl border border-slate-200/90 bg-white/90 shadow-lg space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-800 text-sm">🎯</span>
                         <div>
-                            <div class="font-700 text-base group-hover:text-cyan-400 transition-colors">{{ user.username }}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">{{ user.get_level() }}</div>
+                            <h3 class="font-800 text-base text-slate-900">Skills I Offer (Teach)</h3>
+                            <p class="text-xs text-slate-400">Your expertise that unlocks peer swaps</p>
                         </div>
-                    </a>
-                    <!-- Match Score Ring -->
-                    <div class="text-right">
-                        <div class="text-lg font-900 text-gradient">{{ score }}%</div>
-                        <div class="text-[10px] text-slate-500 uppercase tracking-wider">Match</div>
+                    </div>
+                    <span class="badge badge-cyan text-xs font-700">{{ offers|length }} Listed</span>
+                </div>
+
+                <!-- Quick Inline Add Form -->
+                <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex flex-col sm:flex-row gap-2">
+                    {{ form.csrf_token }}
+                    <input type="hidden" name="type" value="offer">
+                    <input type="text" name="name" placeholder="Add skill you offer (e.g. Python, Figma, 3D)..." class="form-input flex-1 text-xs" required>
+                    <div class="flex gap-2">
+                        {{ form.category(class="form-input text-xs w-32 shrink-0") }}
+                        {{ form.proficiency_level(class="form-input text-xs w-32 shrink-0") }}
+                        <button type="submit" class="btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" title="Add Offered Skill">
+                            + Add
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Listed Offered Skill Chips with Inline Delete -->
+                <div class="flex flex-wrap gap-2 pt-1">
+                    {% for skill in offers %}
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-600 shadow-[0_0_10px_rgba(0,242,254,0.1)] group">
+                        <span>🎯 {{ skill.name }}</span>
+                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200 font-800">{{ skill.proficiency_level }}</span>
+                        <form method="POST" action="{{ url_for('user.delete_skill', skill_id=skill.id) }}" class="inline" onsubmit="return confirm('Remove skill {{ skill.name }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="skill-pill-delete text-xs" title="Remove this skill">✕</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="w-full py-6 text-center text-xs text-slate-500 border border-dashed border-slate-300 rounded-2xl">
+                        No offered skills yet. Add what you are confident teaching to start matching!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Studio Bay 2: Skills I Want (Learn) -->
+            <div class="glass-card p-6 sm:p-7 rounded-3xl border border-slate-200/90 bg-white/90 shadow-lg space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-800 text-sm">📚</span>
+                        <div>
+                            <h3 class="font-800 text-base text-slate-900">Skills I Want (Learn)</h3>
+                            <p class="text-xs text-slate-400">The crafts you desire to master</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-pink text-xs font-700">{{ wants|length }} Desired</span>
+                </div>
+
+                <!-- Quick Inline Add Form -->
+                <form method="POST" action="{{ url_for('user.add_skill') }}" class="flex flex-col sm:flex-row gap-2">
+                    {{ form.csrf_token }}
+                    <input type="hidden" name="type" value="want">
+                    <input type="text" name="name" placeholder="What do you want to learn? (e.g. Japanese, Rust, SEO)..." class="form-input flex-1 text-xs" required>
+                    <div class="flex gap-2">
+                        {{ form.category(class="form-input text-xs w-36 shrink-0") }}
+                        {{ form.proficiency_level(class="hidden") }}
+                        <button type="submit" class="btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" style="background: var(--grad-warm);" title="Add Wanted Skill">
+                            + Add
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Listed Wanted Skill Chips with Inline Delete -->
+                <div class="flex flex-wrap gap-2 pt-1">
+                    {% for skill in wants %}
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-600 shadow-[0_0_10px_rgba(184,41,234,0.1)] group">
+                        <span>📚 {{ skill.name }}</span>
+                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-200 font-800">{{ skill.category }}</span>
+                        <form method="POST" action="{{ url_for('user.delete_skill', skill_id=skill.id) }}" class="inline" onsubmit="return confirm('Remove skill {{ skill.name }}?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="skill-pill-delete text-xs" title="Remove this skill">✕</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="w-full py-6 text-center text-xs text-slate-500 border border-dashed border-slate-300 rounded-2xl">
+                        Add the skills you want to learn to let our AI find your ideal mentors!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         4. SYNERGY RADAR & TOP MATCHES SPOTLIGHT
+         ========================================================================= -->
+    <section class="space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-800 text-slate-900 flex items-center gap-2">
+                    <span>Synergy Radar</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 font-700 border border-cyan-500/30">AI Ranked</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400">Peers with maximum mutual skill compatibility.</p>
+            </div>
+            <a href="{{ url_for('user.discover') }}" class="text-xs font-700 text-cyan-300 hover:text-cyan-200 flex items-center gap-1">
+                <span>View Full Discovery Zone</span>
+                <span>→</span>
+            </a>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {% for user, score in matches %}
+            <div class="glass-card card-shine p-5 rounded-3xl border border-slate-200/90 bg-white/90 shadow-lg flex flex-col justify-between hover:border-cyan-400/40 transition-all duration-300 hover:-translate-y-1">
+                <div>
+                    <!-- Card Top: Avatar & Compatibility Circle Gauge -->
+                    <div class="flex items-start justify-between mb-4">
+                        <a href="{{ url_for('user.profile', username=user.username) }}" class="flex items-center gap-2.5 group">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-premium flex items-center justify-center text-white font-800 text-sm shadow-md group-hover:scale-105 transition-transform">
+                                {{ user.username[0]|upper }}
+                            </div>
+                            <div>
+                                <div class="font-700 text-sm text-slate-900 group-hover:text-cyan-700 transition-colors">{{ user.username }}</div>
+                                <div class="text-[10px] text-slate-400">{{ user.get_level() }}</div>
+                            </div>
+                        </a>
+
+                        <!-- Circular Gauge -->
+                        <div class="relative w-11 h-11 flex items-center justify-center shrink-0">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="22" cy="22" r="18" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="transparent"/>
+                                <circle cx="22" cy="22" r="18" stroke="#00f2fe" stroke-width="3" stroke-dasharray="113" stroke-dashoffset="{{ 113 - (113 * (score / 100)) }}" stroke-linecap="round" fill="transparent"/>
+                            </svg>
+                            <span class="absolute text-[10px] font-900 text-cyan-300">{{ score }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- Skills Offered & Wanted -->
+                    <div class="space-y-2 mb-4">
+                        <div class="text-[10px] font-700 text-slate-500 uppercase tracking-wider">Teaches</div>
+                        <div class="flex flex-wrap gap-1">
+                            {% for s in user.skills if s.type == 'offer' %}
+                                {% if loop.index <= 2 %}
+                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-500">{{ s.name }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="text-[10px] font-700 text-slate-500 uppercase tracking-wider pt-1">Seeks</div>
+                        <div class="flex flex-wrap gap-1">
+                            {% for s in user.skills if s.type == 'want' %}
+                                {% if loop.index <= 2 %}
+                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-pink-500/10 text-pink-300 border border-pink-500/20 font-500">{{ s.name }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-wrap gap-2 mb-5">
-                    {% for s in user.skills[:2] %}
-                       {% if s.type == "offer" %}
-                           <span class="skill-chip skill-chip-offer text-[10px] px-2 py-1">{{ s.name }}</span>
-                       {% else %}
-                           <span class="skill-chip skill-chip-want text-[10px] px-2 py-1">{{ s.name }}</span>
-                       {% endif %}
-                    {% endfor %}
-                    {% if user.skills|length > 2 %}
-                        <span class="text-xs text-slate-500">+{{ user.skills|length - 2 }} more</span>
-                    {% endif %}
+                <!-- Connect Button -->
+                <div class="pt-3 border-t border-slate-200/80">
+                    <a href="{{ url_for('swap.send_swap', user_id=user.id) }}" class="btn-premium magnetic w-full py-2 text-xs font-700 text-center block shadow-md shadow-cyan-500/20">
+                        Initiate Swap 🤝
+                    </a>
                 </div>
-
-                <!-- Match bar -->
-                <div class="progress-track mb-5" style="height:4px">
-                    <div class="progress-fill" style="width:{{ score }}%"></div>
-                </div>
-
-                <a href="{{ url_for('swap.send_swap', user_id=user.id) }}"
-                    class="btn-premium magnetic w-full text-center py-2.5 text-sm">
-                    Connect 🤝
-                </a>
             </div>
             {% else %}
-            <div class="col-span-full glass-card p-12 rounded-3xl text-center space-y-4">
-                <div class="text-5xl">🔍</div>
-                <p class="text-slate-400">No matching users found for your current skills.</p>
-                <p class="text-sm text-slate-500">Add more skills above to unlock personalized matches!</p>
+            <div class="col-span-full glass-card p-10 rounded-3xl text-center space-y-3">
+                <div class="text-4xl">🛰️</div>
+                <div class="font-700 text-base text-slate-900">No active matches found for your current skills</div>
+                <p class="text-xs text-slate-400 max-w-md mx-auto">
+                    Add skills you can offer and skills you want to learn above. Our synergy engine updates automatically!
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         5. UNIFIED LIVE EXCHANGE CONSOLE (TABS: INCOMING, ACTIVE, OUTBOX)
+         ========================================================================= -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/90 bg-white/90 shadow-xl space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-800 text-slate-900 flex items-center gap-2">
+                    <span>Live Exchange Console</span>
+                </h2>
+                <p class="text-xs text-slate-400">Track pending requests, active workspaces, and session progress.</p>
+            </div>
+
+            <!-- Tab Navigation Buttons -->
+            <div class="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200 text-xs">
+                <button type="button" class="exchange-tab-btn active px-3 py-1.5 rounded-lg font-700 flex items-center gap-1.5" onclick="switchExchangeTab('active')">
+                    <span>Active Sessions</span>
+                    <span class="px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px]">{{ active_swaps|length }}</span>
+                </button>
+                <button type="button" class="exchange-tab-btn px-3 py-1.5 rounded-lg font-700 flex items-center gap-1.5 text-slate-400" onclick="switchExchangeTab('incoming')">
+                    <span>Inbox Requests</span>
+                    {% if pending_incoming %}
+                    <span class="px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] animate-pulse">{{ pending_incoming|length }}</span>
+                    {% else %}
+                    <span class="px-1.5 py-0.2 rounded-full bg-white/10 text-slate-400 text-[10px]">0</span>
+                    {% endif %}
+                </button>
+                <button type="button" class="exchange-tab-btn px-3 py-1.5 rounded-lg font-700 flex items-center gap-1.5 text-slate-400" onclick="switchExchangeTab('outbox')">
+                    <span>Sent Outbox</span>
+                    <span class="px-1.5 py-0.2 rounded-full bg-white/10 text-slate-400 text-[10px]">{{ sent_requests|length }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT 1: ACTIVE SESSIONS -->
+        <div id="tab-active" class="space-y-3">
+            {% for swap in active_swaps %}
+            {% set peer = swap.sender if swap.sender_id != current_user.id else swap.receiver %}
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-500/30 transition-all">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-400 to-teal-600 flex items-center justify-center text-white font-800 text-sm shadow-md">
+                        {{ peer.username[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-700 text-sm text-slate-900">{{ peer.username }}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-700 bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Active Workspace</span>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-0.5">
+                            Connected for reciprocal skill swap • Started {{ swap.accepted_at.strftime('%b %d') if swap.accepted_at else 'recently' }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 w-full sm:w-auto">
+                    <a href="{{ url_for('chat.chat_view', swap_id=swap.id) }}" class="btn-premium magnetic px-4 py-2 text-xs font-700 flex-1 sm:flex-none text-center flex items-center justify-center gap-1.5 shadow-md shadow-indigo-500/20">
+                        <span>💬 Open Workspace</span>
+                    </a>
+                    <a href="{{ url_for('swap.complete_swap', swap_id=swap.id) }}" class="btn-outline magnetic px-4 py-2 text-xs font-700 flex-1 sm:flex-none text-center border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/15" onclick="return confirm('Complete this session and claim your XP?');">
+                        <span>✅ Mark Done (+XP)</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="py-10 text-center text-slate-500 text-xs italic border border-dashed border-slate-300 rounded-2xl">
+                No active swap workspaces right now. Connect with a peer above to launch your first session!
             </div>
             {% endfor %}
         </div>
 
-        {% if matches|length > 0 %}
-        <div class="mt-8 text-center">
-            <a href="{{ url_for('user.discover') }}" class="inline-flex items-center gap-2 group px-6 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all font-800 text-slate-300">
-                <span>View All Matches in Discover Zone</span>
-                <span class="group-hover:translate-x-1 transition-transform">→</span>
-            </a>
-        </div>
-        {% endif %}
-    </section>
-
-    <!-- ====== INBOX / OUTBOX ====== -->
-    <section class="grid lg:grid-cols-2 gap-8 pt-8 border-t border-white/5">
-        <!-- Inbox -->
-        <div>
-            <h2 class="text-xl font-800 mb-5 flex items-center gap-3">
-                <span class="w-1.5 h-7 rounded-full bg-gradient-premium"></span>
-                Inbox
-                {% if received_requests %}
-                <span class="badge badge-cyan">{{ received_requests|length }}</span>
-                {% endif %}
-            </h2>
-            <div class="space-y-3">
-                {% for req in received_requests %}
-                <div class="glass-card radial-glow p-5 rounded-2xl flex items-center justify-between group transition-all
-                                hover:border-cyan-500/25">
-                    <div class="flex items-center gap-3">
-                        <div class="avatar">{{ req.sender.username[0]|upper }}</div>
-                        <div>
-                            <div class="font-600 text-sm">{{ req.sender.username }}</div>
-                            <div class="text-xs text-slate-500 mt-0.5">Sent a swap request</div>
+        <!-- TAB CONTENT 2: INBOX REQUESTS -->
+        <div id="tab-incoming" class="space-y-3 hidden">
+            {% for req in received_requests %}
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-premium flex items-center justify-center text-white font-800 text-sm">
+                        {{ req.sender.username[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-700 text-sm text-slate-900">{{ req.sender.username }}</span>
+                            <span class="text-[10px] text-slate-500 font-500">{{ req.created_at.strftime('%b %d, %H:%M') }}</span>
+                        </div>
+                        <div class="text-xs text-slate-400 mt-0.5">
+                            Status: <span class="capitalize font-600 text-cyan-300">{{ req.status }}</span>
                         </div>
                     </div>
-                    <div class="flex gap-2 opacity-70 group-hover:opacity-100 transition-opacity">
-                        {% if req.status == "pending" %}
-                        <a href="{{ url_for('swap.accept_swap', swap_id=req.id) }}"
-                            class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-700
-                                          bg-green-500/10 text-green-400 hover:bg-green-500/25 transition-colors border border-green-500/20">
-                            ✓ Accept
-                        </a>
-                        <a href="{{ url_for('swap.reject_swap', swap_id=req.id) }}"
-                            class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-700
-                                          bg-red-500/10 text-red-400 hover:bg-red-500/25 transition-colors border border-red-500/20">
-                            ✕
-                        </a>
-                        {% elif req.status == "accepted" %}
-                        <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}" class="px-3 py-1.5 rounded-xl text-xs font-700 bg-indigo-500/15 text-indigo-400
-                                          hover:bg-indigo-500/25 transition-colors border border-indigo-500/20">
-                            💬 Chat
-                        </a>
-                        <a href="{{ url_for('swap.complete_swap', swap_id=req.id) }}" class="px-3 py-1.5 rounded-xl text-xs font-700 bg-green-500/15 text-green-400
-                                          hover:bg-green-500/25 transition-colors border border-green-500/20">
-                            ✅ Done
-                        </a>
-                        {% endif %}
-                    </div>
                 </div>
-                {% else %}
-                <div class="glass-card p-6 rounded-2xl text-center text-slate-600 italic text-sm">
-                    No incoming swap requests.
-                </div>
-                {% endfor %}
-            </div>
-        </div>
 
-        <!-- Outbox -->
-        <div>
-            <h2 class="text-xl font-800 mb-5 flex items-center gap-3">
-                <span class="w-1.5 h-7 rounded-full" style="background: var(--grad-warm)"></span>
-                Outbox
-                {% if sent_requests %}
-                <span class="badge badge-pink">{{ sent_requests|length }}</span>
-                {% endif %}
-            </h2>
-            <div class="space-y-3">
-                {% for req in sent_requests %}
-                <div class="glass-card p-5 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="avatar">{{ req.receiver.username[0]|upper }}</div>
-                        <div>
-                            <div class="font-600 text-sm">{{ req.receiver.username }}</div>
-                            <div class="text-xs text-slate-500 mt-0.5 capitalize">{{ req.status }}</div>
-                        </div>
-                    </div>
-                    <div class="status-dot
-                            {% if req.status == 'pending' %}status-pending
-                            {% elif req.status == 'accepted' %}status-accepted
-                            {% elif req.status == 'completed' %}status-completed
-                            {% else %}status-rejected{% endif %}">
-                    </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    {% if req.status == 'pending' %}
+                    <a href="{{ url_for('swap.accept_swap', swap_id=req.id) }}" class="px-4 py-2 rounded-xl text-xs font-700 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 transition-all flex-1 sm:flex-none text-center">
+                        ✓ Accept Swap
+                    </a>
+                    <a href="{{ url_for('swap.reject_swap', swap_id=req.id) }}" class="px-3 py-2 rounded-xl text-xs font-700 bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-all" title="Decline Request">
+                        ✕
+                    </a>
+                    {% elif req.status == 'accepted' %}
+                    <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}" class="btn-premium px-4 py-2 text-xs font-700">
+                        💬 Chat
+                    </a>
+                    {% else %}
+                    <span class="text-xs text-slate-500 uppercase font-700">{{ req.status }}</span>
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="glass-card p-6 rounded-2xl text-center text-slate-600 italic text-sm">
-                    No outgoing swap requests.
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-
-    <!-- ====== BADGES SECTION ====== -->
-    <section id="badges" class="pt-8 border-t border-white/5">
-        <div class="flex items-center gap-4 mb-7">
-            <h2 class="text-2xl font-800">Achievements & <span class="text-gradient">Badges</span></h2>
-            <div class="h-px flex-1 bg-white/5 hidden md:block"></div>
-        </div>
-
-        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4 stagger">
-            {% for ub in current_user.badges %}
-            <div class="glass-card radial-glow p-5 rounded-2xl text-center group hover:border-cyan-500/25
-                            hover-lift animate-fade-up">
-                <div class="text-3xl mb-3 group-hover:scale-125 transition-transform drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">{{ ub.badge.icon }}</div>
-                <div class="text-[10px] uppercase font-700 tracking-widest text-slate-500
-                                group-hover:text-slate-300 transition-colors">{{ ub.badge.name }}</div>
             </div>
             {% else %}
-            <div class="col-span-full glass-panel p-8 text-center text-slate-500 text-sm italic border-dashed">
-                Complete your first swap to unlock exclusive badges! 🚀
+            <div class="py-10 text-center text-slate-500 text-xs italic border border-dashed border-slate-300 rounded-2xl">
+                No incoming swap requests.
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- TAB CONTENT 3: OUTBOX REQUESTS -->
+        <div id="tab-outbox" class="space-y-3 hidden">
+            {% for req in sent_requests %}
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200 shadow-xs flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white font-800 text-sm">
+                        {{ req.receiver.username[0]|upper }}
+                    </div>
+                    <div>
+                        <div class="font-700 text-sm text-slate-900">{{ req.receiver.username }}</div>
+                        <div class="text-xs text-slate-500 mt-0.5">Sent on {{ req.created_at.strftime('%b %d, %H:%M') }}</div>
+                    </div>
+                </div>
+
+                <div>
+                    {% if req.status == 'pending' %}
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-700 bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        ⏳ Pending Peer Review
+                    </span>
+                    {% elif req.status == 'accepted' %}
+                    <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}" class="px-3 py-1.5 rounded-lg text-xs font-700 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        💬 Open Chat
+                    </a>
+                    {% elif req.status == 'completed' %}
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-700 bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                        ✅ Completed (+{{ 50 }} XP)
+                    </span>
+                    {% else %}
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-700 bg-red-500/10 text-red-400 border border-red-500/20">
+                        Declined
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="py-10 text-center text-slate-500 text-xs italic border border-dashed border-slate-300 rounded-2xl">
+                You haven't sent any swap requests yet. Browse the Discover Zone to connect!
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- =========================================================================
+         6. HOLOGRAPHIC TROPHY HALL & BADGE CODEX
+         ========================================================================= -->
+    <section class="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/90 bg-white/90 shadow-xl space-y-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-800 text-slate-900 flex items-center gap-2">
+                    <span>Holographic Trophy Hall</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-700">
+                        {{ current_user.badges|length }} Unlocked
+                    </span>
+                </h2>
+                <p class="text-xs text-slate-400">Verifiable milestone credentials stamped on your profile.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+            {% for ub in current_user.badges %}
+            <div class="badge-pedestal p-4 rounded-2xl text-center space-y-2 group cursor-pointer"
+                 title="{{ ub.badge.description }} (Earned {{ ub.earned_at.strftime('%b %d, %Y') if ub.earned_at else 'recently' }})">
+                <div class="text-3xl sm:text-4xl filter drop-shadow-[0_0_12px_rgba(251,191,36,0.3)] group-hover:scale-125 transition-transform duration-300">
+                    {{ ub.badge.icon }}
+                </div>
+                <div>
+                    <div class="font-700 text-xs text-slate-800 group-hover:text-amber-600 transition-colors">{{ ub.badge.name }}</div>
+                    <div class="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{{ ub.badge.description }}</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full py-8 text-center text-slate-500 text-xs italic border border-dashed border-slate-300 rounded-2xl">
+                Complete your first verified swap to unlock your inaugural badge in the Trophy Hall! 🏆
             </div>
             {% endfor %}
         </div>
     </section>
 
 </div>
+
+<!-- =========================================================================
+     INTERACTIVE DASHBOARD CONTROLLERS
+     ========================================================================= -->
+<script>
+// Tab Switcher for Live Exchange Console
+function switchExchangeTab(tabName) {
+    document.querySelectorAll('.exchange-tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('tab-active').classList.add('hidden');
+    document.getElementById('tab-incoming').classList.add('hidden');
+    document.getElementById('tab-outbox').classList.add('hidden');
+
+    if (tabName === 'active') {
+        document.getElementById('tab-active').classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    } else if (tabName === 'incoming') {
+        document.getElementById('tab-incoming').classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    } else if (tabName === 'outbox') {
+        document.getElementById('tab-outbox').classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    }
+}
+
+// Magnetic Buttons on Dashboard
+document.querySelectorAll('.magnetic').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.22}px, ${y * 0.22}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transform = 'translate(0px, 0px)';
+    });
+});
+</script>
+
 {% endblock %}

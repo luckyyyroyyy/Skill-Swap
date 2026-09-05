@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Hello Animation Lab & Style Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Outfit", "Inter", sans-serif;
+            color: #ffffff;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, rgba(56, 189, 248, 0.08) 28%, rgba(99, 102, 241, 0.04) 55%, rgba(0, 0, 0, 0.98) 78%);
+            pointer-events: none;
+        }
+
+        .stage-container {
+            position: relative;
+            width: 100%;
+            max-width: 1080px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            padding: 20px;
+            transform: scale(0.98);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .svg-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        svg {
+            width: 100%;
+            max-width: 980px;
+            height: 380px;
+            overflow: visible;
+        }
+
+        /* 3D Luminous Apple Tube */
+        .apple-tube {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 9px;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 4px #ffffff)
+                    drop-shadow(0 0 14px rgba(255, 255, 255, 0.95))
+                    drop-shadow(0 0 36px rgba(56, 189, 248, 0.65))
+                    drop-shadow(0 0 70px rgba(99, 102, 241, 0.4));
+            transition: stroke-width 0.3s ease;
+        }
+
+        .style-neon .apple-tube {
+            stroke-width: 11px;
+            filter: drop-shadow(0 0 6px #ffffff)
+                    drop-shadow(0 0 20px rgba(255, 255, 255, 1))
+                    drop-shadow(0 0 48px rgba(56, 189, 248, 0.8))
+                    drop-shadow(0 0 85px rgba(99, 102, 241, 0.6));
+        }
+
+        .style-monoline .apple-tube {
+            stroke-width: 7.5px;
+            filter: drop-shadow(0 0 3px #ffffff)
+                    drop-shadow(0 0 10px rgba(255, 255, 255, 0.9))
+                    drop-shadow(0 0 25px rgba(56, 189, 248, 0.5));
+        }
+
+        /* Traveling Pen Cursor Nib */
+        .pen-cursor {
+            fill: #ffffff;
+            filter: drop-shadow(0 0 8px #ffffff) 
+                    drop-shadow(0 0 20px #38bdf8) 
+                    drop-shadow(0 0 36px #ffffff);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .pen-cursor.active {
+            opacity: 1;
+        }
+
+        /* Specular light shimmer sweep across word */
+        .shimmer-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.85) 50%, transparent 80%);
+            background-size: 200% 100%;
+            mix-blend-mode: overlay;
+            opacity: 0;
+        }
+
+        .shimmer-sweep {
+            opacity: 1;
+            animation: lightSweep 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes lightSweep {
+            0% {
+                background-position: 200% 0;
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                background-position: -200% 0;
+                opacity: 0;
+            }
+        }
+
+        .subline-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .subline-box.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .subline-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .progress-track {
+            width: 150px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #38bdf8, #ffffff);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .progress-bar.fill {
+            width: 100%;
+        }
+
+        /* Controls Panel */
+        .controls {
+            position: fixed;
+            bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            z-index: 100;
+            background: rgba(18, 22, 30, 0.85);
+            backdrop-filter: blur(24px);
+            padding: 12px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .controls label {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        select, input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 9px 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus {
+            border-color: #38bdf8;
+        }
+        select option {
+            background: #111827;
+            color: white;
+        }
+
+        button {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        button:hover {
+            transform: scale(1.04);
+            background: #e0f2fe;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div id="stage-box" class="stage-container">
+        <div class="svg-wrapper">
+            <svg id="apple-canvas" viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="appleTubeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="45%" stop-color="#f0f9ff" />
+                        <stop offset="80%" stop-color="#e0f2fe" />
+                        <stop offset="100%" stop-color="#ffffff" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Single Continuous Cursive Tube -->
+                <path id="apple-stroke" class="apple-tube" stroke="url(#appleTubeGrad)" d="" />
+
+                <!-- Traveling Pen Nib Cursor -->
+                <circle id="apple-cursor" class="pen-cursor" cx="0" cy="0" r="6" />
+            </svg>
+            <div id="shimmer" class="shimmer-layer"></div>
+        </div>
+
+        <div id="subline-box" class="subline-box">
+            <span id="subline-text" class="subline-text">WELCOME BACK, LUCKY</span>
+            <div class="progress-track">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Style Chooser Panel -->
+    <div class="controls">
+        <label>Calligraphy Style:</label>
+        <select id="style-select" onchange="runDemo()">
+            <option value="cupertino">1. Cupertino Spencerian (Luxurious, Wide Flowing Loops)</option>
+            <option value="mac1984">2. 1984 Macintosh Monoline (Clean, Friendly Retro Mac)</option>
+            <option value="neon">3. M1 Liquid Neon Ribbon (Bold, Voluptuous 3D Tube)</option>
+            <option value="minimal">4. Modern Cupertino Sans-Script (Sleek, Contemporary Flow)</option>
+        </select>
+
+        <input type="text" id="name-input" value="Lucky" placeholder="Enter name..." style="width: 120px;" />
+        <button onclick="runDemo()">Play Animation 🍎</button>
+    </div>
+
+    <script>
+    // =========================================================================
+    // 🍎 MASTER MULTI-STYLE APPLE CALLIGRAPHY ENGINE
+    // =========================================================================
+    function generateApplePath(name, style) {
+        let raw = (name || "Lucky").trim().replace(/[_.-]+/g, ' ');
+        let firstWord = raw.split(/\s+/)[0] || "Lucky";
+        let firstChar = firstWord.charAt(0).toUpperCase();
+        let rest = firstWord.slice(1).toLowerCase();
+
+        let commands = [];
+        let x = 0;
+
+        // Configuration per style
+        const cfg = {
+            cupertino: {
+                ascender: -110,
+                xHeight: -48,
+                descender: 55,
+                slant: 20,
+                flourishSweep: 1.15
+            },
+            mac1984: {
+                ascender: -92,
+                xHeight: -44,
+                descender: 45,
+                slant: 12,
+                flourishSweep: 1.0
+            },
+            neon: {
+                ascender: -105,
+                xHeight: -50,
+                descender: 50,
+                slant: 15,
+                flourishSweep: 1.2
+            },
+            minimal: {
+                ascender: -96,
+                xHeight: -42,
+                descender: 46,
+                slant: 16,
+                flourishSweep: 1.05
+            }
+        }[style] || { ascender: -110, xHeight: -48, descender: 55, slant: 20, flourishSweep: 1.15 };
+
+        // --- UPPERCASE BUILDER ---
+        function buildUpper(ch, x) {
+            if (style === 'cupertino') {
+                switch(ch) {
+                    case 'L':
+                        // Grand Spencerian Capital L: sweeping entrance, tall oval apex loop, sensual S-spine, flat baseline loop, expansive forward sweep
+                        return {
+                            d: `M ${x+16} -38 C ${x+24} -78, ${x+44} -115, ${x+54} -115 C {x+60} -115, ${x+48} -95, ${x+38} -65 C ${x+26} -30, ${x+18} -8, ${x+18} 0 C ${x+18} 6, ${x+6} 6, ${x+4} -4 C ${x+2} -16, ${x+18} -16, ${x+36} -12 C ${x+58} -8, ${x+72} -4, ${x+84} 0`.replace(/\{x\+60\}/g, `${x+60}`),
+                            w: 84
+                        };
+                    case 'A':
+                        return {
+                            d: `M ${x+14} -18 C ${x+24} -60, ${x+40} -115, ${x+52} -115 C ${x+60} -115, ${x+56} -85, ${x+50} -45 C ${x+46} -10, ${x+56} 0, ${x+64} 0 C ${x+52} -28, ${x+28} -52, ${x+24} -52 C ${x+22} -52, ${x+42} -52, ${x+62} -52 C ${x+70} -32, ${x+76} 0, ${x+84} 0`,
+                            w: 84
+                        };
+                    case 'H':
+                        return {
+                            d: `M ${x+14} -75 C ${x+22} -115, ${x+36} -115, ${x+36} -85 L ${x+36} 0 C ${x+36} -52, ${x+64} -52, ${x+64} -52 L ${x+64} -115 L ${x+64} 0 C ${x+68} 0, ${x+76} 0, ${x+84} 0`,
+                            w: 84
+                        };
+                    case 'S':
+                        return {
+                            d: `M ${x+14} 0 C ${x+28} -45, ${x+42} -115, ${x+54} -115 C ${x+64} -115, ${x+60} -85, ${x+46} -50 C ${x+32} -16, ${x+44} 0, ${x+60} 0 C ${x+70} 0, ${x+80} 0, ${x+88} 0`,
+                            w: 88
+                        };
+                    default:
+                        return {
+                            d: `M ${x+22} -75 C ${x+30} -115, ${x+52} -115, ${x+58} -90 C ${x+60} -48, ${x+46} -14, ${x+36} 0 C ${x+48} 0, ${x+66} 0, ${x+78} 0`,
+                            w: 78
+                        };
+                }
+            } else if (style === 'mac1984') {
+                // Susan Kare 1984 Mac Script: clean rounded curves, friendly, uniform
+                switch(ch) {
+                    case 'L':
+                        return {
+                            d: `M ${x+20} -60 C ${x+14} -88, ${x+30} -96, ${x+38} -88 C ${x+42} -80, ${x+34} -60, ${x+26} -34 C ${x+16} -6, ${x+12} 0, ${x+12} 0 C ${x+12} 4, ${x+4} 4, ${x+2} -2 C ${x} -10, ${x+8} -10, ${x+18} -8 L ${x+42} -8 C ${x+50} -8, ${x+58} -2, ${x+66} 0`,
+                            w: 66
+                        };
+                    default:
+                        return {
+                            d: `M ${x+18} -65 C ${x+24} -96, ${x+40} -96, ${x+46} -75 C ${x+48} -40, ${x+36} -10, ${x+28} 0 C ${x+38} 0, ${x+54} 0, ${x+66} 0`,
+                            w: 66
+                        };
+                }
+            } else {
+                // Neon Ribbon & Minimal: bold, voluptuous continuous loop
+                switch(ch) {
+                    case 'L':
+                        return {
+                            d: `M ${x+22} -65 C ${x+15} -95, ${x+35} -106, ${x+46} -98 C ${x+52} -90, ${x+42} -68, ${x+32} -38 C ${x+22} -10, ${x+15} 0, ${x+15} 0 C ${x+15} 5, ${x+4} 5, ${x+2} -3 C ${x} -12, ${x+12} -12, ${x+24} -9 C ${x+45} -9, ${x+60} -2, ${x+74} 0`,
+                            w: 74
+                        };
+                    default:
+                        return {
+                            d: `M ${x+20} -70 C ${x+26} -104, ${x+46} -104, ${x+52} -80 C ${x+54} -42, ${x+40} -12, ${x+32} 0 C ${x+44} 0, ${x+60} 0, ${x+72} 0`,
+                            w: 72
+                        };
+                }
+            }
+        }
+
+        // --- LOWERCASE BUILDER (Seamless connection at y = 0) ---
+        function buildLower(ch, x) {
+            const h = cfg.xHeight;
+            const asc = cfg.ascender;
+            const dsc = cfg.descender;
+
+            switch(ch) {
+                case 'u':
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+16} ${h}, ${x+20} ${h} C ${x+20} ${h}, ${x+16} -18, ${x+16} -6 C ${x+16} 2, ${x+32} 2, ${x+36} -6 L ${x+38} ${h} C ${x+38} ${h}, ${x+36} -14, ${x+36} -4 C ${x+36} 1, ${x+42} 1, ${x+48} 0`,
+                        w: 48
+                    };
+                case 'c':
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+18} ${h}, ${x+28} ${h} C ${x+32} ${h}, ${x+32} ${h+8}, ${x+26} ${h+10} C ${x+16} ${h+12}, ${x+8} -22, ${x+8} -10 C ${x+8} 2, ${x+20} 2, ${x+36} 0`,
+                        w: 36
+                    };
+                case 'k':
+                    return {
+                        d: `C ${x+12} -30, ${x+24} ${asc}, ${x+32} ${asc} C ${x+36} ${asc}, ${x+28} -70, ${x+20} -35 L ${x+20} 0 C ${x+20} -24, ${x+36} -34, ${x+36} -22 C ${x+36} -10, ${x+22} -10, ${x+22} -10 C ${x+28} -6, ${x+36} 0, ${x+48} 0`,
+                        w: 48
+                    };
+                case 'y':
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+16} ${h}, ${x+20} ${h} C ${x+20} ${h}, ${x+16} -18, ${x+16} -6 C ${x+16} 2, ${x+32} 2, ${x+36} -6 L ${x+38} ${h} L ${x+36} 30 C ${x+34} ${dsc+10}, ${x+12} ${dsc+10}, ${x+3} ${dsc-6} C ${x-4} 24, ${x+16} 8, ${x+40} 0`,
+                        w: 40
+                    };
+                case 'l':
+                    return {
+                        d: `C ${x+10} -30, ${x+22} ${asc}, ${x+28} ${asc} C ${x+24} ${asc}, ${x+18} -40, ${x+18} 0 C ${x+20} 0, ${x+28} 0, ${x+34} 0`,
+                        w: 34
+                    };
+                case 'e':
+                    return {
+                        d: `C ${x+10} -18, ${x+24} -24, ${x+24} -24 C ${x+18} ${h}, ${x+6} -24, ${x+6} -12 C ${x+6} 0, ${x+18} 0, ${x+28} 0`,
+                        w: 28
+                    };
+                case 'o':
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+18} ${h}, ${x+26} ${h} C ${x+14} ${h}, ${x+5} -28, ${x+5} -14 C ${x+5} 0, ${x+18} 0, ${x+28} 0 C ${x+28} -22, ${x+28} -34, ${x+28} -34 C ${x+32} -32, ${x+36} -28, ${x+40} 0`,
+                        w: 40
+                    };
+                case 'a':
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+18} ${h}, ${x+26} ${h} C ${x+14} ${h}, ${x+5} -28, ${x+5} -14 C ${x+5} 0, ${x+18} 0, ${x+28} 0 L ${x+28} ${h} L ${x+28} -5 C ${x+28} 0, ${x+34} 0, ${x+40} 0`,
+                        w: 40
+                    };
+                case 'n':
+                    return {
+                        d: `C ${x+7} ${h*0.5}, ${x+12} ${h}, ${x+12} ${h} L ${x+12} 0 C ${x+18} -34, ${x+32} -34, ${x+32} 0 C ${x+36} 0, ${x+40} 0, ${x+44} 0`,
+                        w: 44
+                    };
+                case 'r':
+                    return {
+                        d: `C ${x+7} ${h*0.5}, ${x+15} ${h}, ${x+15} ${h} C ${x+19} ${h-4}, ${x+28} ${h}, ${x+28} -32 C ${x+26} -18, ${x+24} 0, ${x+32} 0`,
+                        w: 32
+                    };
+                default:
+                    return {
+                        d: `C ${x+8} ${h*0.5}, ${x+16} ${h}, ${x+16} ${h} L ${x+16} 0 C ${x+20} 0, ${x+26} 0, ${x+32} 0`,
+                        w: 32
+                    };
+            }
+        }
+
+        // 1. Build initial uppercase letter
+        const first = buildUpper(firstChar, x);
+        commands.push(first.d);
+        x += first.w;
+
+        // 2. Build remaining lowercase letters
+        for (let i = 0; i < rest.length; i++) {
+            const l = buildLower(rest[i], x);
+            commands.push(l.d);
+            x += l.w;
+        }
+
+        // 3. Apple's Signature Backward Flourish Underline
+        const endX = x;
+        const startX = 0;
+        const flourish = `C ${endX + 30} -10, ${endX + 48} 14, ${endX + 44} 38 C ${endX + 40} 64, ${endX + 16} 84, ${endX - 18} 90 C ${endX * 0.6 + startX * 0.4} 108, ${endX * 0.28 + startX * 0.72} 108, ${startX - 30} 94 C ${startX - 65} 84, ${startX - 65} 46, ${startX - 26} 38 C ${startX - 2} 32, ${startX + 28} 44, ${startX + 40} 52`;
+        commands.push(flourish);
+
+        const fullPath = commands.join(" ");
+        const totalW = (endX + 48) - (startX - 65);
+        const offsetX = (startX - 65);
+
+        return { pathD: fullPath, width: totalW, minX: offsetX, cleanName: firstChar + rest };
+    }
+
+    // =========================================================================
+    // 🎬 ANIMATION CONTROLLER
+    // =========================================================================
+    let currentAnimFrame = null;
+
+    function runDemo() {
+        if (currentAnimFrame) cancelAnimationFrame(currentAnimFrame);
+
+        const nameInput = document.getElementById('name-input').value.trim() || 'Lucky';
+        const styleSelect = document.getElementById('style-select');
+        const selectedStyle = styleSelect.value;
+
+        const pathEl = document.getElementById('apple-stroke');
+        const cursorEl = document.getElementById('apple-cursor');
+        const shimmerEl = document.getElementById('shimmer');
+        const sublineBox = document.getElementById('subline-box');
+        const sublineText = document.getElementById('subline-text');
+        const progressBar = document.getElementById('progress-bar');
+        const stageBox = document.getElementById('stage-box');
+
+        // Apply style class to stage
+        stageBox.className = 'stage-container ' + (
+            selectedStyle === 'neon' ? 'style-neon' :
+            selectedStyle === 'mac1984' ? 'style-monoline' : ''
+        );
+
+        // Reset UI
+        shimmerEl.classList.remove('shimmer-sweep');
+        sublineBox.classList.remove('visible');
+        progressBar.classList.remove('fill');
+        cursorEl.classList.remove('active');
+
+        // Generate dynamic path
+        const { pathD, width, minX, cleanName } = generateApplePath(nameInput, selectedStyle);
+        pathEl.setAttribute('d', pathD);
+        sublineText.textContent = `WELCOME BACK, ${cleanName.toUpperCase()}`;
+
+        // Dynamic Centering
+        const targetCenterX = 500;
+        const targetBaselineY = 190;
+        const currentCenterX = minX + (width / 2);
+        const shiftX = targetCenterX - currentCenterX;
+
+        pathEl.setAttribute('transform', `translate(${shiftX}, ${targetBaselineY})`);
+
+        // Compute stroke length
+        const totalLength = pathEl.getTotalLength();
+        pathEl.style.strokeDasharray = totalLength;
+        pathEl.style.strokeDashoffset = totalLength;
+
+        const duration = Math.min(2400, Math.max(1600, cleanName.length * 280));
+        let startTime = null;
+
+        cursorEl.classList.add('active');
+
+        function easeInOutCubic(t) {
+            return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const eased = easeInOutCubic(progress);
+
+            const currentOffset = totalLength * (1 - eased);
+            pathEl.style.strokeDashoffset = currentOffset;
+
+            // Move pen cursor to stroke head
+            const pointDist = totalLength * eased;
+            if (pointDist > 0 && pointDist <= totalLength) {
+                const pt = pathEl.getPointAtLength(pointDist);
+                cursorEl.setAttribute('cx', pt.x + shiftX);
+                cursorEl.setAttribute('cy', pt.y + targetBaselineY);
+            }
+
+            if (progress < 1) {
+                currentAnimFrame = requestAnimationFrame(step);
+            } else {
+                // Done!
+                pathEl.style.strokeDashoffset = 0;
+                cursorEl.classList.remove('active');
+
+                // Specular sweep
+                setTimeout(() => {
+                    shimmerEl.classList.add('shimmer-sweep');
+                }, 80);
+
+                // Reveal subline & progress
+                setTimeout(() => {
+                    sublineBox.classList.add('visible');
+                    progressBar.classList.add('fill');
+                }, 280);
+            }
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    // Auto-play on load
+    window.addEventListener('load', () => {
+        setTimeout(runDemo, 300);
+    });
+    </script>
+</body>
+</html>

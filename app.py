@@ -34,7 +34,8 @@ db.init_app(app)
 migrate.init_app(app, db, render_as_batch=True)
 mail.init_app(app)
 login_manager.init_app(app)
-login_manager.login_view = "auth.register"
+login_manager.login_view = "auth.login"
+
 
 # 🔥 Initialize CSRF Protection
 csrf = CSRFProtect(app)
@@ -63,8 +64,15 @@ app.register_blueprint(chat_bp)
 from models import ChatMessage, SwapRequest, Badge  # noqa: E402
 
 # ----------------------------
-# DATABASE MIGRATIONS HANDELED VIA FLASK-MIGRATE
+# DATABASE INITIALIZATION
 # ----------------------------
+with app.app_context():
+    db.create_all()
+    try:
+        from seed import seed_badges
+        seed_badges()
+    except Exception as e:
+        logger.warning(f"Badge seeding skipped or already completed: {e}")
 
 
 # ----------------------------
@@ -77,7 +85,7 @@ def inject_unread_count():
             ChatMessage.query.join(SwapRequest)
             .filter(
                 ChatMessage.sender_id != current_user.id,
-                ChatMessage.is_read is False,
+                ChatMessage.is_read == False,
                 (SwapRequest.sender_id == current_user.id)
                 | (SwapRequest.receiver_id == current_user.id),
             )

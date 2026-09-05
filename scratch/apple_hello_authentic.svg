@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300" width="700" height="300" style="background:#000000;">
+  <defs>
+    <filter id="appleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#ffffff" flood-opacity="0.9" />
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ffffff" flood-opacity="0.5" />
+      <feDropShadow dx="0" dy="0" stdDeviation="16" flood-color="#38bdf8" flood-opacity="0.25" />
+    </filter>
+  </defs>
+  <g transform="translate(254.0, 160)">
+    <path d="M 18 -45 C 22 -72, 32 -88, 40 -88 C 45 -88, 40 -76, 32 -50 C 24 -24, 18 -4, 18 0 C 18 4, 10 4, 8 -1 C 6 -6, 14 -6, 24 -4 C 36 -2, 48 0, 56 0 C 62 -20, 70 -40, 74 -40 C 74 -40, 71 -14, 71 -4 C 71 2, 81 2, 84 -4 L 86 -40 C 86 -40, 85 -12, 85 -3 C 85 1, 90 1, 96 0 C 102 -22, 110 -40, 118 -40 C 122 -40, 121 -32, 116 -30 C 108 -28, 103 -18, 103 -8 C 103 2, 112 2, 124 0 C 132 -28, 142 -86, 148 -86 C 152 -86, 146 -58, 140 -28 L 140 0 C 140 -20, 152 -26, 152 -16 C 152 -8, 142 -8, 142 -8 C 147 -4, 152 0, 160 0 C 166 -20, 174 -40, 178 -40 C 178 -40, 175 -14, 175 -4 C 175 2, 185 2, 188 -4 L 190 -40 L 188 24 C 186 44, 172 44, 165 32 C 161 22, 174 10, 192 -4" fill="none" stroke="#ffffff" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#appleGlow)" />
+  </g>
+</svg>
