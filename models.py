@@ -14,6 +14,7 @@ class User(db.Model, UserMixin):
 
     bio = db.Column(db.Text)
     xp = db.Column(db.Integer, default=0)
+    credits = db.Column(db.Integer, default=3)
     badge = db.Column(db.String(50), default="Beginner")
     profile_pic = db.Column(db.String(200), default="default.png")
     rating = db.Column(db.Float, default=0.0)
@@ -95,6 +96,7 @@ class Skill(db.Model):
     category = db.Column(db.String(50), nullable=False, default="Other")
     type = db.Column(db.String(20), nullable=False)  # offer / want
     proficiency_level = db.Column(db.String(20), default="Intermediate")  # Beginner / Intermediate / Expert
+    endorsements_count = db.Column(db.Integer, default=0)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
@@ -139,8 +141,33 @@ class SwapRequest(db.Model):
     accepted_at = db.Column(db.DateTime)
     completed_at = db.Column(db.DateTime)
     proposed_time = db.Column(db.DateTime)
+    credits_settled = db.Column(db.Boolean, default=False)
+    session_notes = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# =========================
+# SKILL ENDORSEMENT MODEL
+# =========================
+class SkillEndorsement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    skill_id = db.Column(
+        db.Integer, db.ForeignKey("skill.id"), nullable=False, index=True
+    )
+    endorser_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
+    swap_id = db.Column(
+        db.Integer, db.ForeignKey("swap_request.id"), nullable=True, index=True
+    )
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    skill = db.relationship("Skill", backref=db.backref("endorsements", cascade="all, delete-orphan"))
+    endorser = db.relationship("User", foreign_keys=[endorser_id])
+    swap = db.relationship("SwapRequest")
 
 
 # =========================

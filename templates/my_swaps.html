@@ -54,17 +54,35 @@
                             </a>
                         </div>
                     {% elif req.status == "accepted" %}
-                        <div class="flex gap-2">
-                            <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}"
-                               class="flex-1 py-2 text-center rounded-xl text-sm font-700 bg-cyan-50 text-cyan-800
-                                      border border-cyan-200 hover:bg-cyan-100 transition-colors shadow-xs">
-                                💬 Open Chat
+                        <div class="flex flex-col gap-2 pt-1">
+                            <a href="{{ url_for('swap.workspace', swap_id=req.id) }}"
+                               class="w-full py-2.5 text-center rounded-xl text-xs font-bold btn-premium shadow-md flex items-center justify-center gap-2">
+                                🚀 Launch Live Workspace & Video
                             </a>
-                            <a href="{{ url_for('swap.complete_swap', swap_id=req.id) }}"
-                               class="flex-1 py-2 text-center rounded-xl text-sm font-700 bg-emerald-50 text-emerald-800
-                                      border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-xs">
-                                ✅ Complete
-                            </a>
+                            <div class="grid grid-cols-2 sm:flex gap-2">
+                                <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}"
+                                   class="flex-1 py-2 text-center rounded-xl text-xs font-bold bg-cyan-50 text-cyan-800
+                                          border border-cyan-200 hover:bg-cyan-100 transition-colors shadow-xs">
+                                    💬 Chat
+                                </a>
+                                {% if req.proposed_time %}
+                                    <a href="{{ google_calendar_link(req, current_user) }}" target="_blank"
+                                       class="px-3 py-2 text-center rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700
+                                              border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-xs" title="Add to Google Calendar">
+                                        📅 G-Cal
+                                    </a>
+                                    <a href="{{ url_for('swap.export_calendar_ics', swap_id=req.id) }}"
+                                       class="px-3 py-2 text-center rounded-xl text-xs font-bold bg-sky-50 text-sky-700
+                                              border border-sky-200 hover:bg-sky-100 transition-colors shadow-xs" title="Download .ICS Calendar file">
+                                        📥 .ICS
+                                    </a>
+                                {% endif %}
+                                <a href="{{ url_for('swap.complete_swap', swap_id=req.id) }}" onclick="return confirm('Complete this swap? Both will receive XP and +1 Time-Bank Credit!');"
+                                   class="flex-1 py-2 text-center rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800
+                                          border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-xs">
+                                    ✅ Complete
+                                </a>
+                            </div>
                         </div>
                     {% endif %}
                 </div>
@@ -105,12 +123,28 @@
                     </div>
 
                     {% if req.status == "accepted" %}
-                        <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}"
-                           class="block w-full py-2.5 text-center rounded-xl text-sm font-700
-                                  bg-cyan-50 text-cyan-800 border border-cyan-200
-                                  hover:bg-cyan-100 transition-colors shadow-xs">
-                            💬 Open Chat
-                        </a>
+                        <div class="flex flex-col gap-2 pt-1">
+                            <a href="{{ url_for('swap.workspace', swap_id=req.id) }}"
+                               class="w-full py-2 text-center rounded-xl text-xs font-bold btn-premium shadow-md flex items-center justify-center gap-2">
+                                🚀 Launch Live Workspace & Video
+                            </a>
+                            <div class="grid grid-cols-2 sm:flex gap-2">
+                                <a href="{{ url_for('chat.chat_view', swap_id=req.id) }}"
+                                   class="flex-1 py-2 text-center rounded-xl text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100 transition-colors shadow-xs">
+                                    💬 Open Chat
+                                </a>
+                                {% if req.proposed_time %}
+                                    <a href="{{ google_calendar_link(req, current_user) }}" target="_blank"
+                                       class="px-3 py-2 text-center rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-xs" title="Add to Google Calendar">
+                                        📅 G-Cal
+                                    </a>
+                                    <a href="{{ url_for('swap.export_calendar_ics', swap_id=req.id) }}"
+                                       class="px-3 py-2 text-center rounded-xl text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition-colors shadow-xs" title="Download .ICS Calendar file">
+                                        📥 .ICS
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
                 </div>
             {% else %}

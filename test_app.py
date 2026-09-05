@@ -10,8 +10,10 @@ from models import (  # noqa: F401
     UserBadge,
     Notification,
     ChatMessage,
+    SkillEndorsement,
 )
 from werkzeug.security import generate_password_hash
+from datetime import datetime, timedelta
 from config import config
 
 
@@ -370,5 +372,145 @@ class TestDashboardAndSkillManagement:
             assert deleted is None
 
 
+class TestRoadmapInnovations:
+    """Test the 5 high-impact roadmap improvements."""
+
+    def test_pwa_assets(self, test_client):
+        """Test PWA manifest and service worker are accessible both at root and /static/."""
+        for path in ["/manifest.json", "/static/manifest.json"]:
+            res = test_client.get(path)
+            assert res.status_code == 200
+            assert b"SkillSwap Pro" in res.data
+
+        for path in ["/sw.js", "/static/sw.js"]:
+            res = test_client.get(path)
+            assert res.status_code == 200
+            assert b"skillswap" in res.data
+
+    def test_calendar_ics_export(self, test_client, test_user, test_user2):
+        """Test RFC 5545 .ics calendar export."""
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        with app.app_context():
+            swap = SwapRequest(
+                sender_id=test_user.id,
+                receiver_id=test_user2.id,
+                status="accepted",
+                proposed_time=datetime.utcnow() + timedelta(days=1),
+            )
+            db.session.add(swap)
+            db.session.commit()
+            swap_id = swap.id
+
+        response = test_client.get(f"/calendar/{swap_id}.ics")
+        assert response.status_code == 200
+        assert response.mimetype == "text/calendar"
+        assert b"BEGIN:VCALENDAR" in response.data
+        assert b"SUMMARY:SkillSwap Session" in response.data
+        assert b"END:VCALENDAR" in response.data
+
+    def test_workspace_access_and_notes(self, test_client, test_user, test_user2):
+        """Test workspace authorization and session notes autosave."""
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        with app.app_context():
+            swap = SwapRequest(
+                sender_id=test_user.id,
+                receiver_id=test_user2.id,
+                status="accepted",
+            )
+            db.session.add(swap)
+            db.session.commit()
+            swap_id = swap.id
+
+        # Access workspace as participant
+        response = test_client.get(f"/workspace/{swap_id}")
+        assert response.status_code == 200
+        assert b"Code Sandbox" in response.data
+        assert b"Markdown Scratchpad" in response.data
+
+        # Save collaborative notes
+        notes_payload = {"notes": "# Architecture Review\n- Modular components\n- Realtime websockets"}
+        save_res = test_client.post(f"/workspace/{swap_id}/save_notes", json=notes_payload)
+        assert save_res.status_code == 200
+        assert save_res.get_json()["status"] == "success"
+
+        with app.app_context():
+            saved_swap = db.session.get(SwapRequest, swap_id)
+            assert "Modular components" in saved_swap.session_notes
+
+    def test_complete_swap_settles_timebank_credits(self, test_client, test_user, test_user2):
+        """Test completing swap settles +1 time-bank skill credit to both users."""
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        with app.app_context():
+            u1 = db.session.get(User, test_user.id)
+            u2 = db.session.get(User, test_user2.id)
+            u1.credits = 3
+            u2.credits = 3
+            swap = SwapRequest(
+                sender_id=u1.id,
+                receiver_id=u2.id,
+                status="accepted",
+                credits_settled=False,
+            )
+            db.session.add(swap)
+            db.session.commit()
+            swap_id = swap.id
+
+        response = test_client.get(f"/complete/{swap_id}", follow_redirects=True)
+        assert response.status_code == 200
+
+        with app.app_context():
+            updated_swap = db.session.get(SwapRequest, swap_id)
+            assert updated_swap.status == "completed"
+            assert updated_swap.credits_settled is True
+            u1 = db.session.get(User, test_user.id)
+            u2 = db.session.get(User, test_user2.id)
+            assert u1.credits == 4
+            assert u2.credits == 4
+
+    def test_peer_verified_skill_endorsement(self, test_client, test_user, test_user2):
+        """Test peer-verified skill endorsement increments endorsements count and awards bonus XP."""
+        with app.app_context():
+            skill = Skill(
+                name="Kubernetes",
+                category="Tech",
+                type="offer",
+                proficiency_level="Advanced",
+                user_id=test_user2.id,
+                endorsements_count=0,
+            )
+            db.session.add(skill)
+            db.session.commit()
+            skill_id = skill.id
+
+        test_client.post(
+            "/login",
+            data={"email": "test@example.com", "password": "testpassword123"},
+        )
+        review_data = {
+            "rating": 5,
+            "comment": "Outstanding mentor in Kubernetes and container orchestration!",
+            "endorsed_skill_id": skill_id,
+        }
+        res = test_client.post(f"/submit_review/{test_user2.id}", data=review_data, follow_redirects=True)
+        assert res.status_code == 200
+
+        with app.app_context():
+            endorsed_skill = db.session.get(Skill, skill_id)
+            assert endorsed_skill.endorsements_count == 1
+            endorsements = SkillEndorsement.query.filter_by(skill_id=skill_id).all()
+            assert len(endorsements) == 1
+            assert endorsements[0].endorser_id == test_user.id
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

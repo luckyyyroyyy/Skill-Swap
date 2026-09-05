@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, send_from_directory, make_response
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 
@@ -59,6 +59,21 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(swap_bp)
 app.register_blueprint(chat_bp)
+
+# ----------------------------
+# 📱 PWA ROOT ENDPOINTS (Service Worker & Manifest)
+# ----------------------------
+@app.route("/sw.js")
+def service_worker():
+    response = make_response(send_from_directory("static", "sw.js"))
+    response.headers["Content-Type"] = "application/javascript"
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
+
+
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory("static", "manifest.json")
 
 # For readability in the current file if needed (optional, but good for context)  # noqa: E501
 from models import ChatMessage, SwapRequest, Badge  # noqa: E402

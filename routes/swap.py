@@ -1,10 +1,11 @@
 import logging
-from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
+import urllib.parse
+from datetime import datetime, timedelta
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, request, Response
 from flask_login import login_required, current_user
 
 from extensions import db
-from models import User, SwapRequest, Review
+from models import User, SwapRequest, Review, Skill, SkillEndorsement
 from forms import ReviewForm
 from utils import (
     award_xp,
@@ -137,6 +138,108 @@ def reject_swap(swap_id):
     return redirect(url_for("swap.my_swaps"))
 
 
+def get_google_calendar_url(swap, user):
+    if not swap.proposed_time:
+        return None
+    peer = swap.receiver if user.id == swap.sender_id else swap.sender
+    start_dt = swap.proposed_time.strftime("%Y%m%dT%H%M%SZ")
+    end_dt = (swap.proposed_time + timedelta(hours=1)).strftime("%Y%m%dT%H%M%SZ")
+    title = urllib.parse.quote(f"SkillSwap Session: {user.username} & {peer.username}")
+    details = urllib.parse.quote(
+        f"Live skill exchange session on SkillSwap Pro with {peer.username}.\n"
+        f"Interactive Workspace & Video: {request.host_url.rstrip('/')}/swap/workspace/{swap.id}"
+    )
+    location = urllib.parse.quote(f"{request.host_url.rstrip('/')}/swap/workspace/{swap.id}")
+    return f"https://calendar.google.com/calendar/render?action=TEMPLATE&text={title}&dates={start_dt}/{end_dt}&details={details}&location={location}"
+
+
+@swap_bp.app_template_global()
+def google_calendar_link(swap, user):
+    return get_google_calendar_url(swap, user)
+
+
+@swap_bp.route("/calendar/<int:swap_id>.ics")
+@login_required
+def export_calendar_ics(swap_id):
+    try:
+        swap = db.session.get(SwapRequest, swap_id)
+        if not swap or current_user.id not in [swap.sender_id, swap.receiver_id]:
+            abort(404 if not swap else 403)
+        peer = swap.receiver if current_user.id == swap.sender_id else swap.sender
+        start_time = swap.proposed_time or (datetime.utcnow() + timedelta(hours=2))
+        end_time = start_time + timedelta(hours=1)
+
+        dt_format = "%Y%m%dT%H%M%SZ"
+        start_str = start_time.strftime(dt_format)
+        end_str = end_time.strftime(dt_format)
+        now_str = datetime.utcnow().strftime(dt_format)
+        workspace_url = f"{request.host_url.rstrip('/')}/swap/workspace/{swap.id}"
+
+        ics_lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//SkillSwap Pro//Session Booking//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "BEGIN:VEVENT",
+            f"UID:skillswap-{swap.id}@{request.host}",
+            f"DTSTAMP:{now_str}",
+            f"DTSTART:{start_str}",
+            f"DTEND:{end_str}",
+            f"SUMMARY:SkillSwap Session with {peer.username}",
+            f"DESCRIPTION:Peer knowledge exchange session between {current_user.username} and {peer.username}. Join workspace: {workspace_url}",
+            f"LOCATION:{workspace_url}",
+            "STATUS:CONFIRMED",
+            "END:VEVENT",
+            "END:VCALENDAR",
+        ]
+        ics_content = "\r\n".join(ics_lines)
+
+        return Response(
+            ics_content,
+            mimetype="text/calendar",
+            headers={"Content-Disposition": f"attachment; filename=skillswap_session_{swap.id}.ics"},
+        )
+    except Exception as e:
+        logger.error(f"Error generating calendar .ics: {e}")
+        flash("Could not export calendar file.", "danger")
+        return redirect(url_for("swap.my_swaps"))
+
+
+@swap_bp.route("/workspace/<int:swap_id>")
+@login_required
+def workspace(swap_id):
+    try:
+        swap = db.session.get(SwapRequest, swap_id)
+        if not swap or current_user.id not in [swap.sender_id, swap.receiver_id]:
+            abort(404 if not swap else 403)
+        peer = swap.receiver if current_user.id == swap.sender_id else swap.sender
+        gcal_url = get_google_calendar_url(swap, current_user)
+        return render_template("workspace.html", swap=swap, peer=peer, gcal_url=gcal_url)
+    except Exception as e:
+        logger.error(f"Error loading workspace for swap {swap_id}: {e}")
+        flash("Could not access workspace.", "danger")
+        return redirect(url_for("swap.my_swaps"))
+
+
+@swap_bp.route("/workspace/<int:swap_id>/save_notes", methods=["POST"])
+@login_required
+def save_workspace_notes(swap_id):
+    try:
+        swap = db.session.get(SwapRequest, swap_id)
+        if not swap or current_user.id not in [swap.sender_id, swap.receiver_id]:
+            return {"status": "error", "message": "Unauthorized"}, 403
+        data = request.get_json(silent=True) or request.form
+        notes = data.get("notes", "")
+        swap.session_notes = notes
+        db.session.commit()
+        return {"status": "success", "message": "Notes saved"}
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error saving workspace notes: {e}")
+        return {"status": "error", "message": str(e)}, 500
+
+
 @swap_bp.route("/complete/<int:swap_id>")
 @login_required
 def complete_swap(swap_id):
@@ -152,13 +255,22 @@ def complete_swap(swap_id):
             return redirect(url_for("swap.my_swaps"))
         swap.status = "completed"
         swap.completed_at = datetime.utcnow()
+
+        # Settling Time-Bank Credits (+1 Credit to both active knowledge traders)
+        if not swap.credits_settled:
+            if swap.sender:
+                swap.sender.credits = (swap.sender.credits or 0) + 1
+            if swap.receiver:
+                swap.receiver.credits = (swap.receiver.credits or 0) + 1
+            swap.credits_settled = True
+
         award_xp(swap.sender, XP_COMPLETE_SWAP)
         award_xp(swap.receiver, XP_COMPLETE_SWAP)
         check_and_award_badges(swap.sender)
         check_and_award_badges(swap.receiver)
         db.session.commit()
         flash(
-            f"Swap completed! Both users earned {XP_COMPLETE_SWAP} XP 🎉",
+            f"Swap completed! Both users earned {XP_COMPLETE_SWAP} XP and +1 Time-Bank Credit 🪙🎉",
             "success",
         )
     except Exception as e:  # noqa: F841
@@ -191,11 +303,32 @@ def submit_review(user_id):
                 comment=form.comment.data,
             )
             db.session.add(review)
+
+            # Peer-Verified Skill Endorsement
+            endorsed_skill_id = request.form.get("endorsed_skill_id", type=int)
+            endorsed_skill_name = None
+            if endorsed_skill_id:
+                skill = db.session.get(Skill, endorsed_skill_id)
+                if skill and skill.user_id == reviewed_user.id:
+                    endorsement = SkillEndorsement(
+                        skill_id=skill.id,
+                        endorser_id=current_user.id,
+                        swap_id=None,
+                    )
+                    db.session.add(endorsement)
+                    skill.endorsements_count = (skill.endorsements_count or 0) + 1
+                    endorsed_skill_name = skill.name
+                    award_xp(reviewed_user, 25)  # +25 XP bonus for verified skill endorsement
+
             db.session.commit()
             update_rating(reviewed_user)
             award_xp(reviewed_user, XP_REVIEW)
             check_and_award_badges(reviewed_user)
-            flash("Review submitted successfully!", "success")
+
+            if endorsed_skill_name:
+                flash(f"Review submitted! You officially endorsed {reviewed_user.username}'s skill '{endorsed_skill_name}' ✨", "success")
+            else:
+                flash("Review submitted successfully!", "success")
         else:
             for error in form.errors.values():
                 flash(str(error), "danger")

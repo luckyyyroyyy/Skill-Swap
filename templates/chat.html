@@ -20,21 +20,29 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="https://meet.jit.si/SkillSwap-Session-{{ swap.id }}-{{ swap.sender_id }}-{{ swap.receiver_id }}"
-               target="_blank"
-               class="btn-premium magnetic px-4 py-2 text-sm shadow-md flex items-center gap-2">
-               Start Video Call 📹
+        <div class="flex items-center gap-2">
+            <a href="{{ url_for('swap.workspace', swap_id=swap.id) }}"
+               class="btn-premium magnetic px-3 py-2 text-xs font-bold shadow-md flex items-center gap-1">
+               <span>🚀</span>
+               <span class="hidden sm:inline">Workspace & Video</span>
+               <span class="sm:hidden">Workspace</span>
             </a>
-            <div class="badge badge-cyan hidden sm:flex">
-                ⭐ {{ "%.1f"|format(other_user.rating) }} Trust
+            {% if swap.proposed_time %}
+            <a href="{{ google_calendar_link(swap, current_user) }}" target="_blank" class="px-2.5 py-2 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold hover:bg-indigo-100 shadow-xs hidden sm:flex items-center gap-1" title="Google Calendar">
+               📅 Cal
+            </a>
+            <a href="{{ url_for('swap.export_calendar_ics', swap_id=swap.id) }}" class="px-2.5 py-2 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 text-xs font-bold hover:bg-sky-100 shadow-xs hidden sm:flex items-center gap-1" title="Download .ICS">
+               📥 .ICS
+            </a>
+            {% endif %}
+            <div class="badge badge-cyan hidden md:flex">
+                ⭐ {{ "%.1f"|format(other_user.rating) }}
             </div>
         </div>
     </div>
 
     <!-- Chat Window -->
-    <div class="glass-card radial-glow rounded-3xl flex flex-col overflow-hidden border border-slate-200/90 bg-white/95 shadow-xl"
-         style="height: 72vh;">
+    <div class="glass-card radial-glow rounded-3xl flex flex-col overflow-hidden border border-slate-200/90 bg-white/95 shadow-xl h-[calc(100dvh-220px)] sm:h-[72vh]">
 
         <!-- Messages -->
         <div id="chat-box" class="flex-1 overflow-y-auto p-6 space-y-4">

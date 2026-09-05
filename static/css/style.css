@@ -1402,4 +1402,123 @@ input[type="range"].custom-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
 }
 
+/* =========================================================================
+   MOBILE RESPONSIVENESS ENGINE (Strictly scoped to <= 768px and <= 640px)
+   Does NOT alter desktop mode (> 768px) in any way.
+   ========================================================================= */
+
+@media (max-width: 768px) {
+    /* 1. Global Viewport & Horizontal Overflow Safeguards */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        position: relative;
+    }
+
+    /* 2. Touch Form Inputs & iOS Safari Auto-Zoom Fix */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="datetime-local"],
+    select,
+    textarea {
+        font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+        max-width: 100% !important;
+    }
+
+    /* 3. Floating Top Dock Navbar on Mobile */
+    header {
+        top: 0.75rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    
+    .nav-glass {
+        padding: 0.45rem 0.75rem !important;
+        border-radius: 1.25rem !important;
+    }
+
+    /* 4. Smooth Touch Scrolling for Chat & Sandbox */
+    #chat-box,
+    #code-editor,
+    #notes-editor,
+    .marquee-container {
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* 5. Mobile Button & Touch Target Ergonomics */
+    .btn-premium,
+    .btn-outline,
+    .btn-ghost {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 6. Flash Notification Container on Mobile */
+    #flash-container {
+        top: 4.5rem !important;
+        width: calc(100% - 1rem) !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    /* 7. Modal & Dialogue Safeguards */
+    .glass-card,
+    .glass-panel {
+        max-width: 100% !important;
+    }
+
+    /* 8. Split-screen Workspace Mobile Tuning */
+    .workspace-split-container {
+        min-height: auto !important;
+    }
+
+    /* 9. Ensure Footer and chat have safe clearance above mobile bottom dock */
+    footer {
+        padding-bottom: 5.5rem !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Tighten container paddings so content has maximum space on phones */
+    .glass-card {
+        padding: 1.2rem !important;
+        border-radius: 1.25rem !important;
+    }
+
+    .glass-panel {
+        padding: 0.9rem !important;
+        border-radius: 0.9rem !important;
+    }
+
+    /* Sizing for headlines on mobile displays */
+    h1 {
+        font-size: clamp(2rem, 8.5vw, 2.75rem) !important;
+        line-height: 1.1 !important;
+    }
+
+    /* Ambient decorations scale down to eliminate overflow */
+    .glow-orb {
+        opacity: 0.45 !important;
+        transform: scale(0.55) !important;
+    }
+
+    /* Compact skill chips for touch ergonomics */
+    .skill-chip {
+        font-size: 11px !important;
+        padding: 0.35rem 0.65rem !important;
+    }
+
+    /* Match Simulator adjustments */
+    .interactive-chip {
+        padding: 0.4rem 0.75rem !important;
+        font-size: 11px !important;
+    }
+}
+
+
 

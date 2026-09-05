@@ -2,12 +2,12 @@
 {% block content %}
 
 <div class="max-w-xl mx-auto animate-fade-up">
-    <div class="glass-card p-10 rounded-3xl card-shine">
+    <div class="glass-card p-5 sm:p-10 rounded-3xl card-shine">
 
         <!-- Header -->
         <div class="space-y-1 mb-8">
             <div class="section-label">Account</div>
-            <h1 class="text-3xl font-800 mt-2">Edit Profile</h1>
+            <h1 class="text-2xl sm:text-3xl font-800 mt-2">Edit Profile</h1>
             <p class="text-slate-400 text-sm">Update your bio and profile picture</p>
         </div>
 
@@ -98,7 +98,7 @@
                         <div class="text-sm font-600">
                             {% set days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
                             <span class="text-indigo-700 font-bold">{{ days[slot.day_of_week] }}</span>
-                            <span class="text-slate-700 ml-2 font-medium">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</span>
+                            <span class="text-slate-600 ml-2 font-normal">{{ slot.start_time.strftime('%H:%M') }} - {{ slot.end_time.strftime('%H:%M') }}</span>
                         </div>
                         <form method="POST" action="{{ url_for('user.remove_availability', slot_id=slot.id) }}" class="inline">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -112,7 +112,7 @@
 
             <form method="POST" action="{{ url_for('user.add_availability') }}" class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-4 shadow-xs">
                 {{ availability_form.csrf_token }}
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="space-y-1">
                         <label class="text-xs font-700 text-slate-600 uppercase tracking-wider">Day</label>
                         {{ availability_form.day_of_week(class="form-input py-2") }}
@@ -137,7 +137,7 @@
                 <p class="text-xs text-slate-500 mt-1">Showcase your best work to build trust with potential swap partners.</p>
             </div>
             
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {% for p in current_user.portfolio_projects %}
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 relative group overflow-hidden shadow-xs">
                         {% if p.image_url %}

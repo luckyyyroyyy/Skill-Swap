@@ -78,3 +78,55 @@ def handle_send_room_message(data):
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error handling send_room_message: {e}")
+
+
+@socketio.on("join_workspace")
+def handle_join_workspace(data):
+    """Called when user enters the live collaborative session room."""
+    if not current_user.is_authenticated:
+        return
+    swap_id = data.get("swap_id")
+    if swap_id:
+        room = f"workspace_{swap_id}"
+        join_room(room)
+        logger.info(f"User {current_user.username} joined workspace room: {room}")
+        emit(
+            "peer_joined_workspace",
+            {"username": current_user.username, "user_id": current_user.id},
+            room=room,
+            include_self=False,
+        )
+
+
+@socketio.on("sync_workspace_code")
+def handle_sync_workspace_code(data):
+    """Live syncs code edits between session participants."""
+    if not current_user.is_authenticated:
+        return
+    swap_id = data.get("swap_id")
+    code = data.get("code", "")
+    language = data.get("language", "python")
+    if swap_id:
+        emit(
+            "remote_code_update",
+            {"code": code, "language": language, "sender_id": current_user.id},
+            room=f"workspace_{swap_id}",
+            include_self=False,
+        )
+
+
+@socketio.on("sync_workspace_notes")
+def handle_sync_workspace_notes(data):
+    """Live syncs markdown notes between session participants."""
+    if not current_user.is_authenticated:
+        return
+    swap_id = data.get("swap_id")
+    notes = data.get("notes", "")
+    if swap_id:
+        emit(
+            "remote_notes_update",
+            {"notes": notes, "sender_id": current_user.id},
+            room=f"workspace_{swap_id}",
+            include_self=False,
+        )
+

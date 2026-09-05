@@ -77,62 +77,77 @@
     <!-- =========================================================================
          2. TELEMETRY KPI COMMAND GRID
          ========================================================================= -->
-    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+    <section class="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-5">
         <!-- Metric 1: Synergy Potential -->
         <div class="dashboard-kpi-card p-5 rounded-2xl">
             <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
                 <span>Synergy Matches</span>
-                <span class="text-cyan-400 text-base">🎯</span>
+                <span class="text-cyan-500 text-base">🎯</span>
             </div>
             <div class="text-2xl sm:text-3xl font-900 text-slate-900 flex items-center gap-1.5">
                 <span>{{ all_matches_count }}</span>
-                <span class="text-xs text-cyan-400 font-700 bg-cyan-500/10 px-1.5 py-0.5 rounded-md">Live</span>
+                <span class="text-xs text-cyan-700 font-700 bg-cyan-50 border border-cyan-200 px-1.5 py-0.5 rounded-md">Live</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                <span>Compatible peers ready</span>
-                <a href="{{ url_for('user.discover') }}" class="text-cyan-300 hover:underline">View →</a>
+            <div class="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
+                <span>Compatible peers</span>
+                <a href="{{ url_for('user.discover') }}" class="text-cyan-700 font-bold hover:underline">View →</a>
             </div>
         </div>
 
-        <!-- Metric 2: Earned XP & Mastery -->
+        <!-- Metric 2: Time-Bank Skill Credits -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
+                <span>Time-Bank Credits</span>
+                <span class="text-amber-500 text-base">🪙</span>
+            </div>
+            <div class="text-2xl sm:text-3xl font-900 text-amber-600 flex items-center gap-1">
+                <span>{{ current_user.credits if current_user.credits is not none else 3 }}</span>
+                <span class="text-xs text-amber-700 font-bold bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">Active</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-1">
+                <span>+1 Credit per swap session</span>
+            </div>
+        </div>
+
+        <!-- Metric 3: Earned XP & Mastery -->
         <div class="dashboard-kpi-card p-5 rounded-2xl">
             <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
                 <span>Mastery XP</span>
-                <span class="text-indigo-400 text-base">⚡</span>
+                <span class="text-indigo-500 text-base">⚡</span>
             </div>
             <div class="text-2xl sm:text-3xl font-900 text-slate-900">
                 {{ current_user.xp }}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">
+            <div class="text-[11px] text-slate-500 mt-1">
                 {{ current_user.xp // 100 }} Milestone ranks cleared
             </div>
         </div>
 
-        <!-- Metric 3: Community Trust Score -->
+        <!-- Metric 4: Community Trust Score -->
         <div class="dashboard-kpi-card p-5 rounded-2xl">
             <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
                 <span>Trust Rating</span>
-                <span class="text-amber-400 text-base">⭐</span>
+                <span class="text-amber-500 text-base">⭐</span>
             </div>
-            <div class="text-2xl sm:text-3xl font-900 text-amber-400">
+            <div class="text-2xl sm:text-3xl font-900 text-amber-600">
                 {{ "%.1f"|format(current_user.rating) }}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">
+            <div class="text-[11px] text-slate-500 mt-1">
                 {{ current_user.total_reviews }} Verified peer evaluations
             </div>
         </div>
 
-        <!-- Metric 4: Active Exchanges -->
-        <div class="dashboard-kpi-card p-5 rounded-2xl">
+        <!-- Metric 5: Active Exchanges -->
+        <div class="dashboard-kpi-card p-5 rounded-2xl col-span-2 lg:col-span-1">
             <div class="flex items-center justify-between text-slate-500 text-xs font-600 mb-2">
                 <span>Active Swaps</span>
-                <span class="text-emerald-400 text-base">🔄</span>
+                <span class="text-emerald-500 text-base">🔄</span>
             </div>
-            <div class="text-2xl sm:text-3xl font-900 text-emerald-400">
+            <div class="text-2xl sm:text-3xl font-900 text-emerald-600">
                 {{ active_swaps|length }}
             </div>
-            <div class="text-[11px] text-slate-400 mt-1">
-                {{ pending_incoming|length }} Pending requests in inbox
+            <div class="text-[11px] text-slate-500 mt-1">
+                <a href="{{ url_for('swap.my_swaps') }}" class="text-emerald-700 font-bold hover:underline">Manage Swaps →</a>
             </div>
         </div>
     </section>
@@ -189,10 +204,10 @@
                     {{ form.csrf_token }}
                     <input type="hidden" name="type" value="offer">
                     <input type="text" name="name" placeholder="Add skill you offer (e.g. Python, Figma, 3D)..." class="form-input flex-1 text-xs" required>
-                    <div class="flex gap-2">
-                        {{ form.category(class="form-input text-xs w-32 shrink-0") }}
-                        {{ form.proficiency_level(class="form-input text-xs w-32 shrink-0") }}
-                        <button type="submit" class="btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" title="Add Offered Skill">
+                    <div class="grid grid-cols-2 sm:flex gap-2">
+                        {{ form.category(class="form-input text-xs w-full sm:w-32 shrink-0") }}
+                        {{ form.proficiency_level(class="form-input text-xs w-full sm:w-32 shrink-0") }}
+                        <button type="submit" class="col-span-2 sm:col-span-1 btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" title="Add Offered Skill">
                             + Add
                         </button>
                     </div>
@@ -201,12 +216,17 @@
                 <!-- Listed Offered Skill Chips with Inline Delete -->
                 <div class="flex flex-wrap gap-2 pt-1">
                     {% for skill in offers %}
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-600 shadow-[0_0_10px_rgba(0,242,254,0.1)] group">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-50 border border-cyan-200 text-cyan-900 text-xs font-600 shadow-xs group hover:border-cyan-300 transition-all">
                         <span>🎯 {{ skill.name }}</span>
-                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200 font-800">{{ skill.proficiency_level }}</span>
+                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 font-800">{{ skill.proficiency_level }}</span>
+                        {% if skill.endorsements_count and skill.endorsements_count > 0 %}
+                        <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center gap-0.5" title="Peer Verified Endorsements">
+                            <span>✨</span><span>Verified ({{ skill.endorsements_count }})</span>
+                        </span>
+                        {% endif %}
                         <form method="POST" action="{{ url_for('user.delete_skill', skill_id=skill.id) }}" class="inline" onsubmit="return confirm('Remove skill {{ skill.name }}?');">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="skill-pill-delete text-xs" title="Remove this skill">✕</button>
+                            <button type="submit" class="skill-pill-delete text-xs text-slate-400 hover:text-red-500" title="Remove this skill">✕</button>
                         </form>
                     </div>
                     {% else %}
@@ -221,10 +241,10 @@
             <div class="glass-card p-6 sm:p-7 rounded-3xl border border-slate-200/90 bg-white/90 shadow-lg space-y-5">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 font-800 text-sm">📚</span>
+                        <span class="w-8 h-8 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-600 font-800 text-sm">📚</span>
                         <div>
                             <h3 class="font-800 text-base text-slate-900">Skills I Want (Learn)</h3>
-                            <p class="text-xs text-slate-400">The crafts you desire to master</p>
+                            <p class="text-xs text-slate-500">The crafts you desire to master</p>
                         </div>
                     </div>
                     <span class="badge badge-pink text-xs font-700">{{ wants|length }} Desired</span>
@@ -235,10 +255,10 @@
                     {{ form.csrf_token }}
                     <input type="hidden" name="type" value="want">
                     <input type="text" name="name" placeholder="What do you want to learn? (e.g. Japanese, Rust, SEO)..." class="form-input flex-1 text-xs" required>
-                    <div class="flex gap-2">
-                        {{ form.category(class="form-input text-xs w-36 shrink-0") }}
+                    <div class="grid grid-cols-2 sm:flex gap-2">
+                        {{ form.category(class="form-input text-xs w-full sm:w-36 shrink-0") }}
                         {{ form.proficiency_level(class="hidden") }}
-                        <button type="submit" class="btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" style="background: var(--grad-warm);" title="Add Wanted Skill">
+                        <button type="submit" class="col-span-2 sm:col-span-1 btn-premium magnetic px-4 py-2 text-xs font-700 rounded-xl shrink-0" style="background: var(--grad-warm);" title="Add Wanted Skill">
                             + Add
                         </button>
                     </div>
@@ -247,12 +267,12 @@
                 <!-- Listed Wanted Skill Chips with Inline Delete -->
                 <div class="flex flex-wrap gap-2 pt-1">
                     {% for skill in wants %}
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-600 shadow-[0_0_10px_rgba(184,41,234,0.1)] group">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-pink-50 border border-pink-200 text-pink-900 text-xs font-600 shadow-xs group hover:border-pink-300 transition-all">
                         <span>📚 {{ skill.name }}</span>
-                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-200 font-800">{{ skill.category }}</span>
+                        <span class="text-[9px] uppercase px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 font-800">{{ skill.category }}</span>
                         <form method="POST" action="{{ url_for('user.delete_skill', skill_id=skill.id) }}" class="inline" onsubmit="return confirm('Remove skill {{ skill.name }}?');">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="skill-pill-delete text-xs" title="Remove this skill">✕</button>
+                            <button type="submit" class="skill-pill-delete text-xs text-slate-400 hover:text-red-500" title="Remove this skill">✕</button>
                         </form>
                     </div>
                     {% else %}
