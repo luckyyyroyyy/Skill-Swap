@@ -25,7 +25,10 @@ app = Flask(__name__)
 
 # Load configuration based on environment
 env = os.getenv("FLASK_ENV", "development")
-app.config.from_object(config.get(env, config["default"]))
+cfg = config.get(env, config["default"])
+app.config.from_object(cfg)
+if hasattr(cfg, "init_app"):
+    cfg.init_app(app)
 
 # Limit file uploads to 2MB
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
